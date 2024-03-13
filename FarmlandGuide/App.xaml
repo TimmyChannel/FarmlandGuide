@@ -1,0 +1,38 @@
+﻿<Application x:Class="FarmlandGuide.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:FarmlandGuide"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <materialDesign:CustomColorTheme BaseTheme="Light"
+                                                 PrimaryColor="#FF757de8"
+                                                 SecondaryColor="#FF039BE5" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+             <!--primary--> 
+            
+            <SolidColorBrush x:Key="PrimaryHueLightBrush"
+                             Color="#FF757de8" />
+            <SolidColorBrush x:Key="PrimaryHueLightForegroundBrush"
+                             Color="#FFFFFF" />
+            <SolidColorBrush x:Key="PrimaryHueMidBrush"
+                             Color="#FF3F51B5" />
+            <SolidColorBrush x:Key="PrimaryHueMidForegroundBrush"
+                             Color="#FFFFFF" />
+            <SolidColorBrush x:Key="PrimaryHueDarkBrush"
+                             Color="#FF002984" />
+            <SolidColorBrush x:Key="PrimaryHueDarkForegroundBrush"
+                             Color="#FFFFFF" />
+            
+             <!--accent--> 
+            
+            <SolidColorBrush x:Key="SecondaryHueMidBrush"
+                             Color="#FF039BE5" />
+            <SolidColorBrush x:Key="SecondaryHueMidForegroundBrush"
+                             Color="#FF0F1035" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

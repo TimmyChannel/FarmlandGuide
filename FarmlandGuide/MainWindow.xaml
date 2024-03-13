@@ -1,0 +1,247 @@
+﻿<Window x:Class="FarmlandGuide.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FarmlandGuide.Helpers"
+        mc:Ignorable="d"
+        Title="MainWindow"
+        Height="450"
+        Width="800"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Helpers/Styles/TabControl.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid>
+        <!--<materialDesign:DrawerHost>
+            <materialDesign:DrawerHost.LeftDrawerContent>
+                <StackPanel Margin="16">
+                    <TextBlock Margin="4"
+                               HorizontalAlignment="Center"
+                               Text="LEFT FIELD" />
+                    <Button Margin="4"
+                            HorizontalAlignment="Center"
+                            Command="{x:Static materialDesign:DrawerHost.CloseDrawerCommand}"
+                            CommandParameter="{x:Static Dock.Left}"
+                            Content="CLOSE THIS"
+                            Style="{StaticResource MaterialDesignFlatButton}" />
+                    <Button Margin="4"
+                            HorizontalAlignment="Center"
+                            Command="{x:Static materialDesign:DrawerHost.CloseDrawerCommand}"
+                            Content="CLOSE ALL"
+                            Style="{StaticResource MaterialDesignFlatButton}" />
+                </StackPanel>
+
+            </materialDesign:DrawerHost.LeftDrawerContent>
+            <Button Grid.Row="1"
+                    Grid.Column="0"
+                    Margin="4"
+                    Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}"
+                    CommandParameter="{x:Static Dock.Left}"
+                    Content="{materialDesign:PackIcon Kind=ArrowLeft}" />
+        </materialDesign:DrawerHost>-->
+        <TabControl x:Name="TabControl"
+                    materialDesign:NavigationRailAssist.ShowSelectionBackground="True"
+                    SnapsToDevicePixels="True"
+                    TabStripPlacement="Left"
+                    Style="{StaticResource MaterialDesignNavigationRailTabControlUniform}"
+                    materialDesign:ElevationAssist.Elevation="Dp4">
+
+            <materialDesign:NavigationRailAssist.FloatingContent>
+                <StackPanel HorizontalAlignment="Left"
+                            Margin="0,0,80,10">
+                    <materialDesign:PackIcon Kind="AccountKey"
+                                             HorizontalAlignment="Left"
+                                             VerticalAlignment="Stretch"
+                                             Width="30"
+                                             Height="30"
+                                             Foreground="{DynamicResource SecondaryHueMidBrush}" />
+                    <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                               Text="UserName" />
+                    <TextBlock  Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                Text="Administrator" />
+                </StackPanel>
+            </materialDesign:NavigationRailAssist.FloatingContent>
+            <TabItem Width="200"
+                     Padding="10,0,0,0"
+                     HorizontalAlignment="Left">
+                <TabItem.Header>
+                    <StackPanel Width="auto"
+                                Height="auto"
+                                Orientation="Horizontal">
+                        <materialDesign:PackIcon Width="24"
+                                                 Height="24"
+                                                 HorizontalAlignment="Left"
+                                                 Kind="Folder" />
+                        <TextBlock HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   Text="Сотрудники"
+                                   Margin="10,0,0,0" />
+                    </StackPanel>
+                </TabItem.Header>
+
+                <StackPanel Margin="16">
+                    <TextBlock Margin="0,0,0,8"
+                               Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                               Text="Сотрудники" />
+
+                    <TextBlock>
+                  <Run Text="tab 1 content. Default look and behaviors." />
+                  <LineBreak />
+                  <LineBreak />
+                  <Run FontStyle="Italic">
+                    Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
+                  </Run>
+                    </TextBlock>
+                </StackPanel>
+            </TabItem>
+            <TabItem Width="200"
+                     Padding="10,0,0,0">
+                <TabItem.Header>
+                    <StackPanel Width="auto"
+                                Height="auto"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Left">
+                        <materialDesign:PackIcon Width="24"
+                                                 Height="24"
+                                                 HorizontalAlignment="Center"
+                                                 Kind="Folder" />
+                        <TextBlock HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Text="Производство"
+                                   Margin="10,0,0,0" />
+                    </StackPanel>
+                </TabItem.Header>
+
+                <StackPanel Margin="16">
+                    <TextBlock Margin="0,0,0,8"
+                               Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                               Text="All Files" />
+
+                    <TextBlock>
+                  <Run Text="tab 1 content. Default look and behaviors." />
+                  <LineBreak />
+                  <LineBreak />
+                  <Run FontStyle="Italic">
+                    Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
+                  </Run>
+                    </TextBlock>
+                </StackPanel>
+            </TabItem>
+            <TabItem Width="200"
+                     Padding="10,0,0,0">
+                <TabItem.Header>
+                    <StackPanel Width="auto"
+                                Height="auto"
+                                Orientation="Horizontal">
+                        <materialDesign:PackIcon Width="24"
+                                                 Height="24"
+                                                 HorizontalAlignment="Center"
+                                                 Kind="Folder" />
+                        <TextBlock HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Margin="10,0,0,0">
+                            Производственные <LineBreak />
+                            процессы
+                        </TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <StackPanel Margin="16">
+                    <TextBlock Margin="0,0,0,8"
+                               Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                               Text="All Files" />
+
+                    <TextBlock>
+                  <Run Text="tab 1 content. Default look and behaviors." />
+                  <LineBreak />
+                  <LineBreak />
+                  <Run FontStyle="Italic">
+                    Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
+                  </Run>
+                    </TextBlock>
+                </StackPanel>
+            </TabItem>
+            <TabItem Width="200"
+                     Padding="10,0,0,0">
+                <TabItem.Header>
+                    <StackPanel Width="auto"
+                                Height="auto"
+                                Orientation="Horizontal">
+                        <materialDesign:PackIcon Width="24"
+                                                 Height="24"
+                                                 HorizontalAlignment="Center"
+                                                 Kind="Folder" />
+                        <TextBlock HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Margin="10,0,0,0">
+                            Задачи на <LineBreak />
+                            предприятии
+                        </TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <StackPanel Margin="16">
+                    <TextBlock Margin="0,0,0,8"
+                               Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                               Text="All Files" />
+
+                    <TextBlock>
+                  <Run Text="tab 1 content. Default look and behaviors." />
+                  <LineBreak />
+                  <LineBreak />
+                  <Run FontStyle="Italic">
+                    Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
+                  </Run>
+                    </TextBlock>
+                </StackPanel>
+            </TabItem>
+            <TabItem Width="200"
+                     Padding="10,0,0,0">
+                <TabItem.Header>
+                    <StackPanel Width="auto"
+                                Height="auto"
+                                Orientation="Horizontal">
+                        <materialDesign:PackIcon Width="24"
+                                                 Height="24"
+                                                 HorizontalAlignment="Center"
+                                                 Kind="Folder" />
+                        <TextBlock HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Margin="10,0,0,0">
+                            Личная статистика
+                            
+                        </TextBlock>
+                    </StackPanel>
+                </TabItem.Header>
+
+                <StackPanel Margin="16">
+                    <TextBlock Margin="0,0,0,8"
+                               Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                               Text="All Files" />
+
+                    <TextBlock>
+                  <Run Text="tab 1 content. Default look and behaviors." />
+                  <LineBreak />
+                  <LineBreak />
+                  <Run FontStyle="Italic">
+                    Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
+                  </Run>
+                    </TextBlock>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
