@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FarmlandGuide.Helpers"
+        xmlns:pages="clr-namespace:FarmlandGuide.Views.Pages"
         mc:Ignorable="d"
         Title="MainWindow"
         Height="450"
@@ -19,7 +20,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Helpers/Styles/TabControl.xaml" />
+                <ResourceDictionary Source="/Views/TabControl.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
@@ -84,28 +85,15 @@
                         <materialDesign:PackIcon Width="24"
                                                  Height="24"
                                                  HorizontalAlignment="Left"
-                                                 Kind="Folder" />
+                                                 Kind="AccountGroup" />
                         <TextBlock HorizontalAlignment="Left"
                                    VerticalAlignment="Center"
                                    Text="Сотрудники"
                                    Margin="10,0,0,0" />
                     </StackPanel>
                 </TabItem.Header>
-
-                <StackPanel Margin="16">
-                    <TextBlock Margin="0,0,0,8"
-                               Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                               Text="Сотрудники" />
-
-                    <TextBlock>
-                  <Run Text="tab 1 content. Default look and behaviors." />
-                  <LineBreak />
-                  <LineBreak />
-                  <Run FontStyle="Italic">
-                    Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
-                  </Run>
-                    </TextBlock>
-                </StackPanel>
+                <Frame Margin="10,0,10,0"
+                       Source="/Views/Pages/EmployeesPage.xaml" />
             </TabItem>
             <TabItem Width="200"
                      Padding="10,0,0,0">
@@ -117,7 +105,7 @@
                         <materialDesign:PackIcon Width="24"
                                                  Height="24"
                                                  HorizontalAlignment="Center"
-                                                 Kind="Folder" />
+                                                 Kind="HomeSilo" />
                         <TextBlock HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
                                    Text="Производство"
@@ -149,7 +137,7 @@
                         <materialDesign:PackIcon Width="24"
                                                  Height="24"
                                                  HorizontalAlignment="Center"
-                                                 Kind="Folder" />
+                                                 Kind="Compost" />
                         <TextBlock HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
                                    Margin="10,0,0,0">
@@ -183,7 +171,7 @@
                         <materialDesign:PackIcon Width="24"
                                                  Height="24"
                                                  HorizontalAlignment="Center"
-                                                 Kind="Folder" />
+                                                 Kind="CalendarCheckOutline" />
                         <TextBlock HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
                                    Margin="10,0,0,0">
@@ -217,12 +205,12 @@
                         <materialDesign:PackIcon Width="24"
                                                  Height="24"
                                                  HorizontalAlignment="Center"
-                                                 Kind="Folder" />
+                                                 Kind="ChartBarStacked" />
                         <TextBlock HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
                                    Margin="10,0,0,0">
                             Личная статистика
-                            
+
                         </TextBlock>
                     </StackPanel>
                 </TabItem.Header>
