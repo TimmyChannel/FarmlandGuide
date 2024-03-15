@@ -24,9 +24,10 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
+    <materialDesign:DialogHost>
 
-    <Grid>
-        <!--<materialDesign:DrawerHost>
+        <Grid>
+            <!--<materialDesign:DrawerHost>
             <materialDesign:DrawerHost.LeftDrawerContent>
                 <StackPanel Margin="16">
                     <TextBlock Margin="4"
@@ -53,183 +54,160 @@
                     CommandParameter="{x:Static Dock.Left}"
                     Content="{materialDesign:PackIcon Kind=ArrowLeft}" />
         </materialDesign:DrawerHost>-->
-        <TabControl x:Name="TabControl"
-                    materialDesign:NavigationRailAssist.ShowSelectionBackground="True"
-                    SnapsToDevicePixels="True"
-                    TabStripPlacement="Left"
-                    Style="{StaticResource MaterialDesignNavigationRailTabControlUniform}"
-                    materialDesign:ElevationAssist.Elevation="Dp4">
+            <TabControl x:Name="TabControl"
+                        materialDesign:NavigationRailAssist.ShowSelectionBackground="True"
+                        SnapsToDevicePixels="True"
+                        TabStripPlacement="Left"
+                        Style="{StaticResource MaterialDesignNavigationRailTabControlUniform}"
+                        materialDesign:ElevationAssist.Elevation="Dp4">
 
-            <materialDesign:NavigationRailAssist.FloatingContent>
-                <StackPanel HorizontalAlignment="Left"
-                            Margin="0,0,80,10">
-                    <materialDesign:PackIcon Kind="AccountKey"
-                                             HorizontalAlignment="Left"
-                                             VerticalAlignment="Stretch"
-                                             Width="30"
-                                             Height="30"
-                                             Foreground="{DynamicResource SecondaryHueMidBrush}" />
-                    <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}"
-                               Text="UserName" />
-                    <TextBlock  Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                Text="Administrator" />
-                </StackPanel>
-            </materialDesign:NavigationRailAssist.FloatingContent>
-            <TabItem Width="200"
-                     Padding="10,0,0,0"
-                     HorizontalAlignment="Left">
-                <TabItem.Header>
-                    <StackPanel Width="auto"
-                                Height="auto"
-                                Orientation="Horizontal">
-                        <materialDesign:PackIcon Width="24"
-                                                 Height="24"
+                <materialDesign:NavigationRailAssist.FloatingContent>
+                    <StackPanel HorizontalAlignment="Left"
+                                Margin="0,0,80,10">
+                        <materialDesign:PackIcon Kind="AccountKey"
                                                  HorizontalAlignment="Left"
-                                                 Kind="AccountGroup" />
-                        <TextBlock HorizontalAlignment="Left"
-                                   VerticalAlignment="Center"
-                                   Text="Сотрудники"
-                                   Margin="10,0,0,0" />
+                                                 VerticalAlignment="Stretch"
+                                                 Width="30"
+                                                 Height="30"
+                                                 Foreground="{DynamicResource SecondaryHueMidBrush}" />
+                        <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                                   Text="UserName" />
+                        <TextBlock  Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                    Text="Administrator" />
                     </StackPanel>
-                </TabItem.Header>
-                <Frame Margin="10,0,10,0"
-                       Source="/Views/Pages/EmployeesPage.xaml" />
-            </TabItem>
-            <TabItem Width="200"
-                     Padding="10,0,0,0">
-                <TabItem.Header>
-                    <StackPanel Width="auto"
-                                Height="auto"
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Left">
-                        <materialDesign:PackIcon Width="24"
-                                                 Height="24"
-                                                 HorizontalAlignment="Center"
-                                                 Kind="HomeSilo" />
-                        <TextBlock HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Text="Производство"
-                                   Margin="10,0,0,0" />
-                    </StackPanel>
-                </TabItem.Header>
+                </materialDesign:NavigationRailAssist.FloatingContent>
+                <TabItem Width="200"
+                         Padding="10,0,0,0"
+                         HorizontalAlignment="Left">
+                    <TabItem.Header>
+                        <StackPanel Width="auto"
+                                    Height="auto"
+                                    Orientation="Horizontal">
+                            <materialDesign:PackIcon Width="24"
+                                                     Height="24"
+                                                     HorizontalAlignment="Left"
+                                                     Kind="AccountGroup" />
+                            <TextBlock HorizontalAlignment="Left"
+                                       VerticalAlignment="Center"
+                                       Text="Сотрудники"
+                                       Margin="10,0,0,0" />
+                        </StackPanel>
+                    </TabItem.Header>
+                    <Frame Margin="10,0,10,0"
+                           Source="/Views/Pages/EmployeesPage.xaml" />
+                </TabItem>
+                <TabItem Width="200"
+                         Padding="10,0,0,0">
+                    <TabItem.Header>
+                        <StackPanel Width="auto"
+                                    Height="auto"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Left">
+                            <materialDesign:PackIcon Width="24"
+                                                     Height="24"
+                                                     HorizontalAlignment="Center"
+                                                     Kind="HomeSilo" />
+                            <TextBlock HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Text="Производство"
+                                       Margin="10,0,0,0" />
+                        </StackPanel>
+                    </TabItem.Header>
+                    <Frame Margin="10,0,10,0"
+                           Source="/Views/Pages/EnterprisesPage.xaml" />
 
-                <StackPanel Margin="16">
-                    <TextBlock Margin="0,0,0,8"
-                               Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                               Text="All Files" />
-
-                    <TextBlock>
-                  <Run Text="tab 1 content. Default look and behaviors." />
-                  <LineBreak />
-                  <LineBreak />
-                  <Run FontStyle="Italic">
-                    Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
-                  </Run>
-                    </TextBlock>
-                </StackPanel>
-            </TabItem>
-            <TabItem Width="200"
-                     Padding="10,0,0,0">
-                <TabItem.Header>
-                    <StackPanel Width="auto"
-                                Height="auto"
-                                Orientation="Horizontal">
-                        <materialDesign:PackIcon Width="24"
-                                                 Height="24"
-                                                 HorizontalAlignment="Center"
-                                                 Kind="Compost" />
-                        <TextBlock HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Margin="10,0,0,0">
+                </TabItem>
+                <TabItem Width="200"
+                         Padding="10,0,0,0">
+                    <TabItem.Header>
+                        <StackPanel Width="auto"
+                                    Height="auto"
+                                    Orientation="Horizontal">
+                            <materialDesign:PackIcon Width="24"
+                                                     Height="24"
+                                                     HorizontalAlignment="Center"
+                                                     Kind="Compost" />
+                            <TextBlock HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0">
                             Производственные <LineBreak />
                             процессы
-                        </TextBlock>
-                    </StackPanel>
-                </TabItem.Header>
+                            </TextBlock>
+                        </StackPanel>
+                    </TabItem.Header>
+                    <Frame Margin="10,0,10,0"
+                           Source="/Views/Pages/ProcessesPage.xaml" />
 
-                <StackPanel Margin="16">
-                    <TextBlock Margin="0,0,0,8"
-                               Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                               Text="All Files" />
-
-                    <TextBlock>
-                  <Run Text="tab 1 content. Default look and behaviors." />
-                  <LineBreak />
-                  <LineBreak />
-                  <Run FontStyle="Italic">
-                    Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
-                  </Run>
-                    </TextBlock>
-                </StackPanel>
-            </TabItem>
-            <TabItem Width="200"
-                     Padding="10,0,0,0">
-                <TabItem.Header>
-                    <StackPanel Width="auto"
-                                Height="auto"
-                                Orientation="Horizontal">
-                        <materialDesign:PackIcon Width="24"
-                                                 Height="24"
-                                                 HorizontalAlignment="Center"
-                                                 Kind="CalendarCheckOutline" />
-                        <TextBlock HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Margin="10,0,0,0">
+                </TabItem>
+                <TabItem Width="200"
+                         Padding="10,0,0,0">
+                    <TabItem.Header>
+                        <StackPanel Width="auto"
+                                    Height="auto"
+                                    Orientation="Horizontal">
+                            <materialDesign:PackIcon Width="24"
+                                                     Height="24"
+                                                     HorizontalAlignment="Center"
+                                                     Kind="CalendarCheckOutline" />
+                            <TextBlock HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0">
                             Задачи на <LineBreak />
                             предприятии
-                        </TextBlock>
-                    </StackPanel>
-                </TabItem.Header>
+                            </TextBlock>
+                        </StackPanel>
+                    </TabItem.Header>
 
-                <StackPanel Margin="16">
-                    <TextBlock Margin="0,0,0,8"
-                               Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                               Text="All Files" />
+                    <StackPanel Margin="16">
+                        <TextBlock Margin="0,0,0,8"
+                                   Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                                   Text="All Files" />
 
-                    <TextBlock>
+                        <TextBlock>
                   <Run Text="tab 1 content. Default look and behaviors." />
                   <LineBreak />
                   <LineBreak />
                   <Run FontStyle="Italic">
                     Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
                   </Run>
-                    </TextBlock>
-                </StackPanel>
-            </TabItem>
-            <TabItem Width="200"
-                     Padding="10,0,0,0">
-                <TabItem.Header>
-                    <StackPanel Width="auto"
-                                Height="auto"
-                                Orientation="Horizontal">
-                        <materialDesign:PackIcon Width="24"
-                                                 Height="24"
-                                                 HorizontalAlignment="Center"
-                                                 Kind="ChartBarStacked" />
-                        <TextBlock HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Margin="10,0,0,0">
+                        </TextBlock>
+                    </StackPanel>
+                </TabItem>
+                <TabItem Width="200"
+                         Padding="10,0,0,0">
+                    <TabItem.Header>
+                        <StackPanel Width="auto"
+                                    Height="auto"
+                                    Orientation="Horizontal">
+                            <materialDesign:PackIcon Width="24"
+                                                     Height="24"
+                                                     HorizontalAlignment="Center"
+                                                     Kind="ChartBarStacked" />
+                            <TextBlock HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0">
                             Личная статистика
 
-                        </TextBlock>
-                    </StackPanel>
-                </TabItem.Header>
+                            </TextBlock>
+                        </StackPanel>
+                    </TabItem.Header>
 
-                <StackPanel Margin="16">
-                    <TextBlock Margin="0,0,0,8"
-                               Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                               Text="All Files" />
+                    <StackPanel Margin="16">
+                        <TextBlock Margin="0,0,0,8"
+                                   Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                                   Text="All Files" />
 
-                    <TextBlock>
+                        <TextBlock>
                   <Run Text="tab 1 content. Default look and behaviors." />
                   <LineBreak />
                   <LineBreak />
                   <Run FontStyle="Italic">
                     Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
                   </Run>
-                    </TextBlock>
-                </StackPanel>
-            </TabItem>
-        </TabControl>
-    </Grid>
+                        </TextBlock>
+                    </StackPanel>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </materialDesign:DialogHost>
 </Window>

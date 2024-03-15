@@ -1,0 +1,68 @@
+﻿<Page x:Class="FarmlandGuide.Views.Dialogs.EnterpriseEditDialog"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:FarmlandGuide.Views.Dialogs"
+      mc:Ignorable="d"
+      d:DesignHeight="250"
+      d:DesignWidth="400"
+      Title="EnterpriseEditDialog"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+      TextElement.FontWeight="Regular"
+      TextElement.FontSize="13"
+      TextOptions.TextFormattingMode="Ideal"
+      TextOptions.TextRenderingMode="Auto"
+      Background="{DynamicResource MaterialDesignPaper}"
+      FontFamily="{DynamicResource MaterialDesignFont}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.ColumnSpan="2"
+                    Orientation="Horizontal"
+                    Margin="5,5,5,5">
+            <materialDesign:PackIcon Kind="Pencil"
+                                     Margin="0,0,5,0"
+                                     VerticalAlignment="Center" />
+            <TextBlock Text="Редактирование записи о предприятии"
+                       Style="{StaticResource MaterialDesignSubtitle1TextBlock}" />
+        </StackPanel>
+        <TextBox Grid.Row="1"
+                 Grid.ColumnSpan="2"
+                 Margin="5,10,5,5"
+                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                 TextWrapping="Wrap"
+                 materialDesign:HintAssist.Hint="Название предприятия" />
+        <TextBox Grid.Row="2"
+                 Grid.ColumnSpan="2"
+                 Margin="5,10,5,5"
+                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                 TextWrapping="Wrap"
+                 materialDesign:HintAssist.Hint="Адрес фермы" />
+        <Button Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                Content="Отмена"
+                IsCancel="True"
+                Style="{StaticResource MaterialDesignFlatButton}"
+                Grid.Row="3"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Margin="5,10,5,5" />
+        <Button Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                Content="Сохранить"
+                Style="{StaticResource MaterialDesignRaisedButton}"
+                Grid.Row="3"
+                Grid.Column="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Margin="5,10,5,5" />
+    </Grid>
+</Page>
