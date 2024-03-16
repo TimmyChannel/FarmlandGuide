@@ -6,8 +6,8 @@
         xmlns:local="clr-namespace:FarmlandGuide.Helpers"
         xmlns:pages="clr-namespace:FarmlandGuide.Views.Pages"
         mc:Ignorable="d"
-        Title="MainWindow"
-        Height="450"
+        Title="Фермерский справочник"
+        Height="600"
         Width="800"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -16,7 +16,8 @@
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}">
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        WindowState="Maximized">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -59,11 +60,11 @@
                         SnapsToDevicePixels="True"
                         TabStripPlacement="Left"
                         Style="{StaticResource MaterialDesignNavigationRailTabControlUniform}"
-                        materialDesign:ElevationAssist.Elevation="Dp4">
+                        materialDesign:ElevationAssist.Elevation="Dp4"
+                        SelectedIndex="4">
 
                 <materialDesign:NavigationRailAssist.FloatingContent>
-                    <StackPanel HorizontalAlignment="Left"
-                                Margin="0,0,80,10">
+                    <StackPanel>
                         <materialDesign:PackIcon Kind="AccountKey"
                                                  HorizontalAlignment="Left"
                                                  VerticalAlignment="Stretch"
@@ -71,9 +72,28 @@
                                                  Height="30"
                                                  Foreground="{DynamicResource SecondaryHueMidBrush}" />
                         <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}"
-                                   Text="UserName" />
-                        <TextBlock  Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                    Text="Administrator" />
+                                   Text="Иванов Иван Иванович"
+                                   MaxWidth="190"
+                                   TextWrapping="Wrap" />
+
+                        <Expander HorizontalAlignment="Left"
+                                  MaxWidth="190">
+                            <Expander.Header>
+                                <TextBlock  Style="{StaticResource MaterialDesignBody2TextBlock}"
+                                            Text="Администратор"
+                                            MaxWidth="190"
+                                            TextWrapping="Wrap"
+                                            HorizontalAlignment="Left"
+                                            Margin="-20,0,0,0" />
+                            </Expander.Header>
+                            <Button Content="Выйти"
+                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                    HorizontalAlignment="Left"
+                                    HorizontalContentAlignment="Left"
+                                    Padding="4,0,4,0"
+                                    Foreground="Black"
+                                    Click="Button_Click" />
+                        </Expander>
                     </StackPanel>
                 </materialDesign:NavigationRailAssist.FloatingContent>
                 <TabItem Width="200"
@@ -158,20 +178,9 @@
                         </StackPanel>
                     </TabItem.Header>
 
-                    <StackPanel Margin="16">
-                        <TextBlock Margin="0,0,0,8"
-                                   Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                                   Text="All Files" />
+                    <Frame Margin="10,0,10,0"
+                           Source="/Views/Pages/EnterprisesTasksPage.xaml" />
 
-                        <TextBlock>
-                  <Run Text="tab 1 content. Default look and behaviors." />
-                  <LineBreak />
-                  <LineBreak />
-                  <Run FontStyle="Italic">
-                    Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
-                  </Run>
-                        </TextBlock>
-                    </StackPanel>
                 </TabItem>
                 <TabItem Width="200"
                          Padding="10,0,0,0">
@@ -192,20 +201,8 @@
                         </StackPanel>
                     </TabItem.Header>
 
-                    <StackPanel Margin="16">
-                        <TextBlock Margin="0,0,0,8"
-                                   Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                                   Text="All Files" />
-
-                        <TextBlock>
-                  <Run Text="tab 1 content. Default look and behaviors." />
-                  <LineBreak />
-                  <LineBreak />
-                  <Run FontStyle="Italic">
-                    Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
-                  </Run>
-                        </TextBlock>
-                    </StackPanel>
+                    <Frame Margin="10,0,10,0"
+                           Source="/Views/Pages/PersonalStatisticsPage.xaml" />
                 </TabItem>
             </TabControl>
         </Grid>

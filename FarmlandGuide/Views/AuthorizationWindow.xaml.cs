@@ -1,5 +1,4 @@
-﻿using FarmlandGuide.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,21 +10,25 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace FarmlandGuide.Views.Pages
+namespace FarmlandGuide.Views
 {
     /// <summary>
-    /// Логика взаимодействия для EmployeesPage.xaml
+    /// Логика взаимодействия для AuthorizationWindow.xaml
     /// </summary>
-    public partial class EmployeesPage : Page
+    public partial class AuthorizationWindow : Window
     {
-        public EmployeesPage()
+        public AuthorizationWindow()
         {
             InitializeComponent();
-            SessionGrid.ItemsSource = TempModels.WorkSessions;
-            EmployeesGrid.ItemsSource = TempModels.Employees;
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var mainWindow = new MainWindow();
+            mainWindow.Show();
+            this.Close();
         }
     }
 }

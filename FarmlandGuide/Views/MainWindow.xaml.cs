@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FarmlandGuide.Views;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,13 @@ namespace FarmlandGuide
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var authWindow = new AuthorizationWindow();
+            authWindow.Show();
+            this.Close();
         }
     }
 }

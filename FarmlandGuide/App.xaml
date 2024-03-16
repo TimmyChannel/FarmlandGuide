@@ -12,8 +12,13 @@
                                                  SecondaryColor="#FF039BE5" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
             </ResourceDictionary.MergedDictionaries>
-             <!--primary--> 
-            
+             <!--primary-->
+            <Style x:Key="DatePickerRussianLangStyle"
+                   BasedOn="{StaticResource MaterialDesignOutlinedDatePicker}"
+                   TargetType="{x:Type DatePicker}">
+                <Setter Property="Language"
+                        Value="ru" />
+            </Style>
             <SolidColorBrush x:Key="PrimaryHueLightBrush"
                              Color="#FF757de8" />
             <SolidColorBrush x:Key="PrimaryHueLightForegroundBrush"
@@ -26,6 +31,10 @@
                              Color="#FF002984" />
             <SolidColorBrush x:Key="PrimaryHueDarkForegroundBrush"
                              Color="#FFFFFF" />
+            <SolidColorBrush x:Key="RedForegroundBrush"
+                             Color="#FFF75252"/>
+            <SolidColorBrush x:Key="RedBorderBrush"
+                             Color="#FFFF0202"/>
             
              <!--accent--> 
             

@@ -1,5 +1,4 @@
-﻿using FarmlandGuide.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,18 +13,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace FarmlandGuide.Views.Pages
+namespace FarmlandGuide.Views.Dialogs
 {
     /// <summary>
-    /// Логика взаимодействия для EmployeesPage.xaml
+    /// Логика взаимодействия для EnterprisesTaskAddDialog.xaml
     /// </summary>
-    public partial class EmployeesPage : Page
+    public partial class EnterprisesTaskAddDialog : Page
     {
-        public EmployeesPage()
+        public EnterprisesTaskAddDialog()
         {
             InitializeComponent();
-            SessionGrid.ItemsSource = TempModels.WorkSessions;
-            EmployeesGrid.ItemsSource = TempModels.Employees;
         }
     }
 }

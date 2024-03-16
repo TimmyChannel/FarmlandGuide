@@ -45,7 +45,8 @@
                                     <ContentPresenter x:Name="FloatingContentPanel"
                                                       Grid.Row="0"
                                                       Grid.Column="0"
-                                                      HorizontalAlignment="Center"
+                                                      HorizontalAlignment="Left"
+                                                      Margin="10"
                                                       VerticalAlignment="Center"
                                                       Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(wpf:NavigationRailAssist.FloatingContent)}"
                                                       Focusable="False" />

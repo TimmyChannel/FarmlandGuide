@@ -1,5 +1,4 @@
-﻿using FarmlandGuide.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,15 +16,13 @@ using System.Windows.Shapes;
 namespace FarmlandGuide.Views.Pages
 {
     /// <summary>
-    /// Логика взаимодействия для EmployeesPage.xaml
+    /// Логика взаимодействия для PersonalStatisticsPage.xaml
     /// </summary>
-    public partial class EmployeesPage : Page
+    public partial class PersonalStatisticsPage : Page
     {
-        public EmployeesPage()
+        public PersonalStatisticsPage()
         {
             InitializeComponent();
-            SessionGrid.ItemsSource = TempModels.WorkSessions;
-            EmployeesGrid.ItemsSource = TempModels.Employees;
         }
     }
 }
