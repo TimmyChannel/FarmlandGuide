@@ -105,11 +105,11 @@
                           ItemsSource="{Binding WorkSessions}">
                     <DataGrid.Columns>
                         <materialDesign:DataGridTextColumn Header="Время начала"
-                                                           Binding="{Binding Path=StartTime}" />
+                                                           Binding="{Binding Path=StartDateTime}" />
                         <materialDesign:DataGridTextColumn Header="Время завершения"
-                                                           Binding="{Binding Path=EndTime}" />
+                                                           Binding="{Binding Path=EndDateTime}" />
                         <materialDesign:DataGridTextColumn Header="Действие"
-                                                           Binding="{Binding Path=ActionType}" />
+                                                           Binding="{Binding Path=Type}" />
                     </DataGrid.Columns>
 
                 </DataGrid>

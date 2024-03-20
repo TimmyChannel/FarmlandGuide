@@ -24,16 +24,16 @@ namespace FarmlandGuide.Models
         };
         public static List<Employee> Employees = new()
         {
-            new Employee("Иванов Петр Сергеевич", "Фермер", "5/2 с 08:00 – 20:00"),
-            new Employee("Смирнова Анна Ивановна", "Агроном", "5/2 с 08:00 – 20:00"),
-            new Employee("Козлов Дмитрий Александрович", "Ветеринар", "5/2 с 08:00 – 20:00"),
-            new Employee("Павлова Елена Владимировна", "Бухгалтер", "5/2 с 08:00 – 20:00"),
-            new Employee("Морозова Ольга Алексеевна", "Лаборант", "5/2 с 08:00 – 20:00"),
-            new Employee("Никитин Алексей Андреевич", "Машинист", "5/2 с 08:00 – 20:00"),
-            new Employee("Федорова Мария Павловна", "Специалист по растениеводству", "5/2 с 08:00 – 20:00"),
-            new Employee("Соколов Владимир Николаевич", "Специалист по животноводству", "5/2 с 08:00 – 20:00"),
-            new Employee("Андреева Екатерина Дмитриевна", "Менеджер по закупкам", "5/2 с 08:00 – 20:00"),
-            new Employee("Белов Артем Степанович", "Агротехник", "5/2 с 08:00 – 20:00"),
+            new Employee("Иванов", "Петр", "Сергеевич", "Фермер", "5/2 с 08:00 – 20:00"),
+            new Employee("Смирнова", "Анна", "Ивановна", "Агроном", "5/2 с 08:00 – 20:00"),
+            new Employee("Козлов", "Дмитрий", "Александрович", "Ветеринар", "5/2 с 08:00 – 20:00"),
+            new Employee("Павлова", "Елена", "Владимировна", "Бухгалтер", "5/2 с 08:00 – 20:00"),
+            new Employee("Морозова", "Ольга", "Алексеевна", "Лаборант", "5/2 с 08:00 – 20:00"),
+            new Employee("Никитин", "Алексей", "Андреевич", "Машинист", "5/2 с 08:00 – 20:00"),
+            new Employee("Федорова", "Мария", "Павловна", "Специалист по растениеводству", "5/2 с 08:00 – 20:00"),
+            new Employee("Соколов", "Владимир", "Николаевич", "Специалист по животноводству", "5/2 с 08:00 – 20:00"),
+            new Employee("Андреева", "Екатерина", "Дмитриевна", "Менеджер по закупкам", "5/2 с 08:00 – 20:00"),
+            new Employee("Белов", "Артем", "Степанович", "Агротехник", "5/2 с 08:00 – 20:00"),
         };
         public static List<WorkSession> WorkSessions = new()
         {
@@ -46,16 +46,16 @@ namespace FarmlandGuide.Models
         };
         public static List<Task> Tasks = new()
         {
-            new Task(1, Employees[0].FIO, DateTime.Now.AddDays(-10), DateTime.Now.AddDays(-5), "Исполнено", "Полив полей"),
-            new Task(2, Employees[1].FIO, DateTime.Now.AddDays(-3), DateTime.Now.AddDays(-1), "Провалено", "Уборка урожая"),
-            new Task(3, Employees[2].FIO, DateTime.Now, DateTime.Now.AddDays(2), "Выполняется", "Посадка культур"),
-            new Task(4, Employees[3].FIO, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(-3), "Исполнено", "Обработка почвы"),
-            new Task(5, Employees[4].FIO, DateTime.Now.AddDays(-2), DateTime.Now.AddDays(3), "Выполняется", "Сбор урожая"),
-            new Task(6, Employees[5].FIO, DateTime.Now.AddDays(1), DateTime.Now.AddDays(5), "Запланировано", "Подготовка теплиц"),
-            new Task(7, Employees[6].FIO, DateTime.Now.AddDays(-20), DateTime.Now.AddDays(-15), "Исполнено", "Ремонт оборудования"),
-            new Task(8, Employees[7].FIO, DateTime.Now.AddDays(-15), DateTime.Now.AddDays(-10), "Провалено", "Покраска забора"),
-            new Task(9, Employees[8].FIO, DateTime.Now.AddDays(-5), DateTime.Now.AddDays(0), "Исполнено", "Установка системы капельного полива"),
-            new Task(10, Employees[9].FIO, DateTime.Now.AddDays(2), DateTime.Now.AddDays(7), "Запланировано", "Инвентаризация семян"),
+            new Task(1, Employees[0].EmployeeID, DateTime.Now.AddDays(-10), DateTime.Now.AddDays(-5), "Исполнено", "Полив полей"),
+            new Task(2, Employees[1].EmployeeID, DateTime.Now.AddDays(-3), DateTime.Now.AddDays(-1), "Провалено", "Уборка урожая"),
+            new Task(3, Employees[2].EmployeeID, DateTime.Now, DateTime.Now.AddDays(2), "Выполняется", "Посадка культур"),
+            new Task(4, Employees[3].EmployeeID, DateTime.Now.AddDays(-7), DateTime.Now.AddDays(-3), "Исполнено", "Обработка почвы"),
+            new Task(5, Employees[4].EmployeeID, DateTime.Now.AddDays(-2), DateTime.Now.AddDays(3), "Выполняется", "Сбор урожая"),
+            new Task(6, Employees[5].EmployeeID, DateTime.Now.AddDays(1), DateTime.Now.AddDays(5), "Запланировано", "Подготовка теплиц"),
+            new Task(7, Employees[6].EmployeeID, DateTime.Now.AddDays(-20), DateTime.Now.AddDays(-15), "Исполнено", "Ремонт оборудования"),
+            new Task(8, Employees[7].EmployeeID, DateTime.Now.AddDays(-15), DateTime.Now.AddDays(-10), "Провалено", "Покраска забора"),
+            new Task(9, Employees[8].EmployeeID, DateTime.Now.AddDays(-5), DateTime.Now.AddDays(0), "Исполнено", "Установка системы капельного полива"),
+            new Task(10, Employees[9].EmployeeID, DateTime.Now.AddDays(2), DateTime.Now.AddDays(7), "Запланировано", "Инвентаризация семян"),
         };
         public static List<ProductionProcess> ProductionProcesses = new()
         {

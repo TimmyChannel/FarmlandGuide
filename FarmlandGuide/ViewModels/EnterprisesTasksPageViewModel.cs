@@ -1,17 +1,23 @@
-﻿using FarmlandGuide.Models;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using FarmlandGuide.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Text;
-using Task = FarmlandGuide.Models.Task;
+using FarmlandTask = FarmlandGuide.Models.Task;
+using Task = System.Threading.Tasks.Task;
+using Microsoft.EntityFrameworkCore;
 
 namespace FarmlandGuide.ViewModels
 {
-    public class EnterprisesTasksPageViewModel
+    public partial class EnterprisesTasksPageViewModel : ObservableObject
     {
-        public List<Task> Tasks { get => TempModels.Tasks; }
-        public List<string> Enterprises => TempModels.Enterprises.Select(x => x.Name).ToList(); 
+        public List<FarmlandTask> Tasks { get => TempModels.Tasks; }
+        public List<string> Enterprises => TempModels.Enterprises.Select(x => x.Name).ToList();
         public EnterprisesTasksPageViewModel()
         {
             // Инициализация коллекции задач
@@ -19,21 +25,24 @@ namespace FarmlandGuide.ViewModels
             // Пример вызова метода для сортировки и фильтрации (если необходимо)
             SortAndFilterTasks();
         }
-
+        [RelayCommand]
+        private void OnPrint()
+        {
+        }
         // Метод для добавления новой задачи
-        public void AddTask(Task task)
+        public void AddTask(FarmlandTask task)
         {
             Tasks.Add(task);
             SortAndFilterTasks(); // Пересортировать и отфильтровать задачи после добавления новой
         }
 
         // Метод для редактирования существующей задачи
-        public void EditTask(int taskId, Task updatedTask)
+        public void EditTask(int taskId, FarmlandTask updatedTask)
         {
-            var task = Tasks.FirstOrDefault(t => t.Id == taskId);
+            var task = Tasks.FirstOrDefault(t => t.TaskID == taskId);
             if (task != null)
             {
-                task.ResponsiblePerson = updatedTask.ResponsiblePerson;
+                task.EmployeeID = updatedTask.EmployeeID;
                 task.AssignmentDate = updatedTask.AssignmentDate;
                 task.DueDate = updatedTask.DueDate;
                 task.Status = updatedTask.Status;
@@ -46,7 +55,7 @@ namespace FarmlandGuide.ViewModels
         // Метод для удаления задачи
         public void RemoveTask(int taskId)
         {
-            var taskToRemove = Tasks.FirstOrDefault(t => t.Id == taskId);
+            var taskToRemove = Tasks.FirstOrDefault(t => t.TaskID == taskId);
             if (taskToRemove != null)
             {
                 Tasks.Remove(taskToRemove);

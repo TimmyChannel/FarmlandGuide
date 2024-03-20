@@ -6,6 +6,7 @@
       xmlns:local="clr-namespace:FarmlandGuide.Views.Pages"
       xmlns:converters="clr-namespace:FarmlandGuide.Helpers.Converters"
       xmlns:helpers="clr-namespace:FarmlandGuide.Helpers"
+      xmlns:dialogs="clr-namespace:FarmlandGuide.Views.Dialogs"
       mc:Ignorable="d"
       d:DesignHeight="450"
       d:DesignWidth="800"
@@ -17,10 +18,12 @@
       TextOptions.TextFormattingMode="Ideal"
       TextOptions.TextRenderingMode="Auto"
       Background="{DynamicResource MaterialDesignPaper}"
-      FontFamily="{DynamicResource MaterialDesignFont}">
+      FontFamily="{DynamicResource MaterialDesignFont}"
+      DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto" MaxHeight="100" />
+            <RowDefinition Height="auto"
+                           MaxHeight="100" />
             <RowDefinition Height="0.8*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -32,12 +35,12 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
                 <TextBox x:Name="SearchBox"
-                    HorizontalContentAlignment="Left"
+                         HorizontalContentAlignment="Left"
                          materialDesign:HintAssist.Hint="Введите ФИО для поиска"
-                         Margin="10,10,20,10" 
+                         Margin="10,10,20,10"
                          materialDesign:TextFieldAssist.HasOutlinedTextField="True"
                          materialDesign:TextFieldAssist.HasTrailingIcon="True"
                          materialDesign:TextFieldAssist.TrailingIcon="Magnify"
@@ -50,10 +53,10 @@
                         HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="Printer"
-                                                 Margin="0,0,5,0"/>
+                                                 Margin="0,0,5,0" />
                         <TextBlock Text="Печать"
                                    Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                   Margin="5,0,0,0"/>
+                                   Margin="5,0,0,0" />
                     </StackPanel>
                 </Button>
             </Grid>
@@ -75,7 +78,8 @@
                           Grid.Row="1"
                           Background="White"
                           IsReadOnly="True"
-                          helpers:DataGridTextSearch.SearchValue="{Binding ElementName=SearchBox, Path=Text, UpdateSourceTrigger=PropertyChanged}">
+                          helpers:DataGridTextSearch.SearchValue="{Binding ElementName=SearchBox, Path=Text, UpdateSourceTrigger=PropertyChanged}"
+                          MouseDoubleClick="EmployeesGrid_MouseDoubleClick">
                     <DataGrid.Columns>
                         <materialDesign:DataGridTextColumn Header="ФИО"
                                                            Binding="{Binding Path=FIO}" />
@@ -84,10 +88,22 @@
                         <materialDesign:DataGridTextColumn Header="Рабочий график"
                                                            Binding="{Binding Path=WorkSchedule}" />
                     </DataGrid.Columns>
+                    <DataGrid.InputBindings>
+                        <MouseBinding MouseAction="LeftDoubleClick"
+                                      Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}">
+                            <MouseBinding.CommandParameter>
+                                <StackPanel>
+                                    <dialogs:EmployeeFullInfoUserControl Margin="10,10,10,10"
+                                                                         Employee="{Binding SelectedEmployee}"/>
+                                </StackPanel>
+                            </MouseBinding.CommandParameter>
+                        </MouseBinding>
+                    </DataGrid.InputBindings>
                     <DataGrid.Resources>
                         <converters:SearchValueConverter x:Key="SearchValueConverter" />
                         <Style TargetType="{x:Type DataGridRow}"
                                BasedOn="{StaticResource MaterialDesignDataGridRow}">
+
                             <Setter Property="helpers:DataGridTextSearch.IsTextMatch">
                                 <Setter.Value>
                                     <MultiBinding Converter="{StaticResource SearchValueConverter}">
@@ -175,7 +191,7 @@
                             Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
                             materialDesign:ElevationAssist.Elevation="Dp1"
                             Background="#FFF75252"
-                            BorderBrush="#FFFF0202"/>
+                            BorderBrush="#FFFF0202" />
                 </StackPanel>
             </Grid>
         </materialDesign:Card>

@@ -49,7 +49,8 @@
                 <Button Grid.Column="1"
                         Margin="10,0,10,0"
                         Style="{StaticResource MaterialDesignPaperDarkButton}"
-                        HorizontalAlignment="Right">
+                        HorizontalAlignment="Right"
+                        Command="{Binding PrintCommand}">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="Printer"
                                                  Margin="0,0,5,0" />
@@ -81,7 +82,7 @@
                           ItemsSource="{Binding Tasks}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="ФИО"
-                                            Binding="{Binding ResponsiblePerson}" />
+                                            Binding="{Binding Employee.FIO}" />
                         <DataGridTextColumn Header="Дата назначения"
                                             Binding="{Binding AssignmentDate}" />
                         <DataGridTextColumn Header="Срок выполнения"
