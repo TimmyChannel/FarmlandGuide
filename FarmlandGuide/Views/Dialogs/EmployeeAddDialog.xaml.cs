@@ -1,8 +1,5 @@
-﻿using FarmlandGuide.Models;
-using FarmlandGuide.ViewModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,18 +13,16 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace FarmlandGuide.Views.Pages
+namespace FarmlandGuide.Views.Dialogs
 {
     /// <summary>
-    /// Логика взаимодействия для EnterprisesPage.xaml
+    /// Логика взаимодействия для EmployeeAddDialog.xaml
     /// </summary>
-    public partial class EnterprisesPage : Page
+    public partial class EmployeeAddDialog : Page
     {
-        public EnterprisesPage()
+        public EmployeeAddDialog()
         {
             InitializeComponent();
         }
-
-
     }
 }

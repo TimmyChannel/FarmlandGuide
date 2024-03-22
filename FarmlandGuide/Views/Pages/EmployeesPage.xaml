@@ -7,6 +7,7 @@
       xmlns:converters="clr-namespace:FarmlandGuide.Helpers.Converters"
       xmlns:helpers="clr-namespace:FarmlandGuide.Helpers"
       xmlns:dialogs="clr-namespace:FarmlandGuide.Views.Dialogs"
+      xmlns:vm="clr-namespace:FarmlandGuide.ViewModels"
       mc:Ignorable="d"
       d:DesignHeight="450"
       d:DesignWidth="800"
@@ -18,8 +19,10 @@
       TextOptions.TextFormattingMode="Ideal"
       TextOptions.TextRenderingMode="Auto"
       Background="{DynamicResource MaterialDesignPaper}"
-      FontFamily="{DynamicResource MaterialDesignFont}"
-      DataContext="{Binding RelativeSource={RelativeSource Self}}">
+      FontFamily="{DynamicResource MaterialDesignFont}">
+    <Page.DataContext>
+        <vm:EmployeesPageViewModel />
+    </Page.DataContext>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"
@@ -132,7 +135,13 @@
                     <Button Margin="8"
                             Content="{materialDesign:PackIcon Kind=Plus}"
                             Style="{StaticResource MaterialDesignFloatingActionDarkButton}"
-                            materialDesign:ElevationAssist.Elevation="Dp2" />
+                            materialDesign:ElevationAssist.Elevation="Dp2"
+                            Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}">
+                        <Button.CommandParameter>
+                            <Frame Source="/Views/Dialogs/EmployeeAddDialog.xaml"
+                                   Margin="10,10,10,10" />
+                        </Button.CommandParameter>
+                    </Button>
                     <Button Margin="8"
                             Content="{materialDesign:PackIcon Kind=Pencil}"
                             Style="{StaticResource MaterialDesignFloatingActionSecondaryLightButton}"
@@ -142,7 +151,8 @@
                             Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
                             materialDesign:ElevationAssist.Elevation="Dp1"
                             Background="#FFF75252"
-                            BorderBrush="#FFFF0202" />
+                            BorderBrush="#FFFF0202"
+                            CommandParameter="{Binding SelectedItem, ElementName=EmployeesGrid}" />
                 </StackPanel>
             </Grid>
         </materialDesign:Card>
@@ -166,7 +176,7 @@
                           IsReadOnly="True">
                     <DataGrid.Columns>
                         <materialDesign:DataGridTextColumn Header="Время начала"
-                                                           Binding="{Binding Path=StartTime}" />
+                                                           Binding="{Binding Path=StartDateTime}" />
                         <materialDesign:DataGridTextColumn Header="Время завершения"
                                                            Binding="{Binding Path=EndTime}" />
                         <materialDesign:DataGridTextColumn Header="Действие"

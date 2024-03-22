@@ -37,7 +37,6 @@ namespace FarmlandGuide.Views.Pages
             if ((Employee)((DataGrid)sender).SelectedItem != null)
             {
                 SelectedEmployee = (Employee)((DataGrid)sender).SelectedItem;
-                Debug.WriteLine($"Selected employee name: {((Employee)((DataGrid)sender).SelectedItem).Name}");
             }
         }
     }

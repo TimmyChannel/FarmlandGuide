@@ -6,6 +6,7 @@
       xmlns:local="clr-namespace:FarmlandGuide.Views.Pages"
       xmlns:converters="clr-namespace:FarmlandGuide.Helpers.Converters"
       xmlns:helpers="clr-namespace:FarmlandGuide.Helpers"
+      xmlns:vm="clr-namespace:FarmlandGuide.ViewModels"
       mc:Ignorable="d"
       d:DesignHeight="450"
       d:DesignWidth="800"
@@ -17,7 +18,8 @@
       TextOptions.TextFormattingMode="Ideal"
       TextOptions.TextRenderingMode="Auto"
       Background="{DynamicResource MaterialDesignPaper}"
-      FontFamily="{DynamicResource MaterialDesignFont}">
+      FontFamily="{DynamicResource MaterialDesignFont}"
+      DataContext="{Binding EnterpisesPageViewModel, Mode=OneWay, Source={StaticResource Locator}}" >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"
@@ -64,6 +66,8 @@
                           Grid.Row="1"
                           Background="White"
                           IsReadOnly="True"
+                          ItemsSource="{Binding Enterprises, UpdateSourceTrigger=PropertyChanged}"
+                          SelectedItem="{Binding SelectedEnterprise}"
                           helpers:DataGridTextSearch.SearchValue="{Binding ElementName=SearchBox, Path=Text, UpdateSourceTrigger=PropertyChanged}">
                     <DataGrid.Columns>
                         <materialDesign:DataGridTextColumn Header="Название фермы"
@@ -141,7 +145,7 @@
                                             IsCancel="True"
                                             Style="{StaticResource MaterialDesignRaisedButton}" />
                                     <Button HorizontalAlignment="Right"
-                                            Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                                            Command="{Binding DeleteEnterpriseCommand}"
                                             CommandParameter="Sample2Cancel"
                                             Content="Удалить"
                                             IsCancel="True"
