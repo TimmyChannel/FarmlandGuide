@@ -134,32 +134,30 @@ namespace FarmlandGuide.ViewModels
         }
         private void OnAddProductionProcess()
         {
-            using (var ctx = new ApplicationDbContext())
+            using var ctx = new ApplicationDbContext();
+            var process = new ProductionProcess(Name, Description, Cost)
             {
-                var process = new ProductionProcess(Name, Description, Cost)
-                {
-                    EnterpriseID = SelectedEnterprise?.EnterpriseID ?? 1,
-                    Enterprise = ctx.Enterprises.First(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID)
-                };
-                ctx.ProductionProcesses.Add(process);
-                ctx.SaveChanges();
-                ProductionProcesses.Add(process);
-            }
+                EnterpriseID = SelectedEnterprise?.EnterpriseID ?? 1,
+                Enterprise = ctx.Enterprises.First(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID)
+            };
+            ctx.ProductionProcesses.Add(process);
+            ctx.SaveChanges();
+            ProductionProcesses.Add(process);
+
             Debug.WriteLine($"Added production process: {Name} {Description} {Cost} EnterpriseID: {SelectedEnterprise}");
         }
         private void OnEditProductionProcess()
         {
-            using (var ctx = new ApplicationDbContext())
-            {
-                SelectedProductionProcess.Name = Name.Copy();
-                SelectedProductionProcess.Description = Description.Copy();
-                SelectedProductionProcess.Cost = Cost;
-                SelectedProductionProcess.Enterprise = ctx.Enterprises.First(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID);
-                SelectedProductionProcess.EnterpriseID = SelectedEnterprise?.EnterpriseID ?? 1;
+            using var ctx = new ApplicationDbContext();
+            SelectedProductionProcess.Name = Name.Copy();
+            SelectedProductionProcess.Description = Description.Copy();
+            SelectedProductionProcess.Cost = Cost;
+            SelectedProductionProcess.Enterprise = ctx.Enterprises.First(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID);
+            SelectedProductionProcess.EnterpriseID = SelectedEnterprise?.EnterpriseID ?? 1;
 
-                ctx.ProductionProcesses.Update(SelectedProductionProcess);
-                ctx.SaveChanges();
-            }
+            ctx.ProductionProcesses.Update(SelectedProductionProcess);
+            ctx.SaveChanges();
+
             Debug.WriteLine($"Edited production process: {Name} {Description} {Cost}");
         }
 

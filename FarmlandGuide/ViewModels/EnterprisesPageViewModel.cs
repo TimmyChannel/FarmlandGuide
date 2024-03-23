@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FarmlandGuide.Helpers.Validators;
 using FarmlandGuide.Models;
+using NPOI.OpenXmlFormats.Dml.Diagram;
 using NPOI.SS.Formula.Functions;
 using NPOI.Util;
 using System;
@@ -17,112 +19,130 @@ using System.Windows.Input;
 
 namespace FarmlandGuide.ViewModels
 {
-    public partial class EnterpisesPageViewModel : ObservableObject, IDataErrorInfo
+    public partial class EnterpisesPageViewModel : ObservableValidator
     {
-        bool _hadValue = false;
-        public string this[string columnName]
-        {
-            get
-            {
-                string error = String.Empty;
-                switch (columnName)
-                {
-                    case nameof(Name):
-                        if (_hadValue && string.IsNullOrWhiteSpace((Name ?? "").ToString()))
-                            error = "Название не может быть пустым.";
-                        break;
-                    case nameof(Address):
-                        if (_hadValue && string.IsNullOrWhiteSpace((Address ?? "").ToString()))
-                            error = "Адрес не может быть пустым.";
-                        break;
-                }
-                _hadValue = true;
-                return error;
-            }
-        }
-        public string Error
-        {
-            get { throw new NotImplementedException(); }
-        }
+        [ObservableProperty]
+        bool _isEdit = false;
+
         public EnterpisesPageViewModel()
         {
             using var ctx = new ApplicationDbContext();
             Enterprises = new(ctx.Enterprises);
-            PropertyChanged += EnterpisesPageViewModel_PropertyChanged;
         }
 
-        private void EnterpisesPageViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(SelectedEnterprise) && SelectedEnterprise is not null)
-            {
-                Name = SelectedEnterprise.Name;
-                Address = SelectedEnterprise.Address;
-            }
-        }
+        [ObservableProperty]
+        string _titleText;
+
+        [ObservableProperty]
+        string _buttonApplyText;
 
         [ObservableProperty]
         Enterprise? _selectedEnterprise;
+
         [ObservableProperty]
         ObservableCollection<Enterprise> _enterprises;
-        [ObservableProperty]
+
         string _name;
-        [ObservableProperty]
         string _address;
 
+        [NotEmpty]
+        public string Name
+        {
+            get { return _name; }
+            set
+            {
+                SetProperty(ref _name, value, true);
+            }
+        }
+
+        [NotEmpty]
+        public string Address
+        {
+            get { return _address; }
+            set
+            {
+                SetProperty(ref _address, value, true);
+            }
+        }
+
         [RelayCommand]
+        private void OnApplayChangesAtEnterprises()
+        {
+            ValidateAllProperties();
+            if (HasErrors)
+                return;
+
+            if (IsEdit)
+                OnEditEnterprise();
+            else
+                OnAddEnterprise();
+            OnCloseDialogAndClearProps();
+        }
+        [RelayCommand]
+        private void OnCloseDialogAndClearProps()
+        {
+            IsEdit = false;
+            Name = string.Empty;
+            Address = string.Empty;
+            ClearErrors();
+            var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
+            closeDialogCommand.Execute(null, null);
+        }
         private void OnAddEnterprise()
         {
-            if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Address)) return;
-
             using var ctx = new ApplicationDbContext();
             var enterpise = new Enterprise(Name.Trim(), Address.Trim());
             ctx.Enterprises.Add(enterpise);
             ctx.SaveChanges();
             Enterprises.Add(enterpise);
             Debug.WriteLine($"Added enterprise name: {Name} and address: {Address}");
-
-            var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
-            closeDialogCommand.Execute(null, null);
-
-            _hadValue = false;
-            Name = string.Empty;
-            Address = string.Empty;
         }
 
-        [RelayCommand]
         private void OnEditEnterprise()
         {
-            if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Address) || SelectedEnterprise is null) return;
-
             using var ctx = new ApplicationDbContext();
-
             SelectedEnterprise.Name = Name.Trim().Copy();
             SelectedEnterprise.Address = Address.Trim().Copy();
             ctx.Enterprises.Update(SelectedEnterprise);
             ctx.SaveChanges();
             Debug.WriteLine($"Edited enterprise name: {Name} and address: {Address}");
-
-            var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
-            closeDialogCommand.Execute(null, null);
-
-            _hadValue = false;
-            Name = string.Empty;
-            Address = string.Empty;
         }
 
         [RelayCommand]
         private void OnDeleteEnterprise()
         {
+            var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
             if (SelectedEnterprise is null)
+            {
+                closeDialogCommand.Execute(null, null);
                 return;
+            }
             using var ctx = new ApplicationDbContext();
             ctx.Enterprises.Remove(SelectedEnterprise);
             ctx.SaveChanges();
             Enterprises.Remove(SelectedEnterprise);
-
-            var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
             closeDialogCommand.Execute(null, null);
-
+        }
+        [RelayCommand]
+        private void OnOpenEditDialog()
+        {
+            if (SelectedEnterprise is null)
+                return;
+            TitleText = "Редактирование производственного процесса";
+            ButtonApplyText = "Сохранить";
+            Name = SelectedEnterprise.Name;
+            Address = SelectedEnterprise.Address;
+            IsEdit = true;
+        }
+        [RelayCommand]
+        private void OnOpenAddDialog()
+        {
+            TitleText = "Добавление нового производственного процесса";
+            ButtonApplyText = "Добавить";
+            IsEdit = false;
+            Name = string.Empty;
+            Address = string.Empty;
+            ClearErrors();
         }
     }
 }

@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace FarmlandGuide.Views.Dialogs
 {
     /// <summary>
-    /// Логика взаимодействия для EnterpriseAddDialog.xaml
+    /// Логика взаимодействия для EnterprisesAddEditDialog.xaml
     /// </summary>
-    public partial class EnterpriseAddDialog : Page
+    public partial class EnterprisesAddEditDialog : Page
     {
-        public EnterpriseAddDialog()
+        public EnterprisesAddEditDialog()
         {
             InitializeComponent();
         }

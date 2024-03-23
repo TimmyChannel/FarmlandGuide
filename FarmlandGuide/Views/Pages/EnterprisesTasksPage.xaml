@@ -138,10 +138,10 @@
                             Style="{StaticResource MaterialDesignFloatingActionSecondaryLightButton}"
                             materialDesign:ElevationAssist.Elevation="Dp2"
                             Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}">
-                        <Button.CommandParameter>
+                        <!--<Button.CommandParameter>
                             <Frame Source="/Views/Dialogs/EnterpriseEditDialog.xaml"
                                    Margin="10,10,10,10" />
-                        </Button.CommandParameter>
+                        </Button.CommandParameter>-->
                     </Button>
                     <Button Margin="8"
                             Content="{materialDesign:PackIcon Kind=Delete}"
