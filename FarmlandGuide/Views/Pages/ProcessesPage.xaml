@@ -3,6 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:local="clr-namespace:FarmlandGuide.Views.Pages"
       xmlns:converters="clr-namespace:FarmlandGuide.Helpers.Converters"
       xmlns:helpers="clr-namespace:FarmlandGuide.Helpers"
@@ -17,7 +18,8 @@
       TextOptions.TextFormattingMode="Ideal"
       TextOptions.TextRenderingMode="Auto"
       Background="{DynamicResource MaterialDesignPaper}"
-      FontFamily="{DynamicResource MaterialDesignFont}">
+      FontFamily="{DynamicResource MaterialDesignFont}"
+      DataContext="{Binding ProcessesPageViewModel, Mode=OneWay, Source={StaticResource Locator}}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"
@@ -64,6 +66,8 @@
                           Grid.Row="1"
                           Background="White"
                           IsReadOnly="True"
+                          SelectedItem="{Binding SelectedProductionProcess}"
+                          ItemsSource="{Binding ProductionProcesses}"
                           helpers:DataGridTextSearch.SearchValue="{Binding ElementName=SearchBox, Path=Text, UpdateSourceTrigger=PropertyChanged}">
                     <DataGrid.Columns>
                         <materialDesign:DataGridTextColumn Header="Процесс"
@@ -72,10 +76,13 @@
                                                            Binding="{Binding Path=Description}" />
                         <materialDesign:DataGridTextColumn Header="Стоимость"
                                                            Binding="{Binding Path=Cost}" />
+                        <materialDesign:DataGridTextColumn Header="Предприятие"
+                                                           Binding="{Binding Path=Enterprise.Name}" />
                     </DataGrid.Columns>
                     <DataGrid.Resources>
                         <converters:SearchValueConverter x:Key="SearchValueConverter" />
-                        <Style TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource MaterialDesignDataGridRow}">
+                        <Style TargetType="{x:Type DataGridRow}"
+                               BasedOn="{StaticResource MaterialDesignDataGridRow}">
                             <Setter Property="helpers:DataGridTextSearch.IsTextMatch">
                                 <Setter.Value>
                                     <MultiBinding Converter="{StaticResource SearchValueConverter}">
@@ -103,22 +110,35 @@
                     <Button Margin="8"
                             Content="{materialDesign:PackIcon Kind=Plus}"
                             Style="{StaticResource MaterialDesignFloatingActionDarkButton}"
-                            materialDesign:ElevationAssist.Elevation="Dp2"
-                            Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}">
-                        <Button.CommandParameter>
-                            <Frame Source="/Views/Dialogs/EnterpriseAddDialog.xaml"
-                                   Margin="10,10,10,10" />
-                        </Button.CommandParameter>
+                            materialDesign:ElevationAssist.Elevation="Dp2">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <i:InvokeCommandAction Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}">
+                                    <i:InvokeCommandAction.CommandParameter>
+                                        <Frame Source="/Views/Dialogs/ProcessesAddEditDialog.xaml"
+                                               Margin="10,10,10,10" />
+                                    </i:InvokeCommandAction.CommandParameter>
+                                </i:InvokeCommandAction>
+                                <i:InvokeCommandAction Command="{Binding OpenAddDialogCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                     </Button>
                     <Button Margin="8"
                             Content="{materialDesign:PackIcon Kind=Pencil}"
                             Style="{StaticResource MaterialDesignFloatingActionSecondaryLightButton}"
-                            materialDesign:ElevationAssist.Elevation="Dp2"
-                            Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}">
-                        <Button.CommandParameter>
-                            <Frame Source="/Views/Dialogs/EnterpriseEditDialog.xaml"
-                                   Margin="10,10,10,10" />
-                        </Button.CommandParameter>
+                            materialDesign:ElevationAssist.Elevation="Dp2">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <i:InvokeCommandAction Command="{Binding OpenEditDialogCommand}" />
+                                <i:InvokeCommandAction Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
+                                                       IsEnabled="{Binding IsEdit, Mode=OneWay}">
+                                    <i:InvokeCommandAction.CommandParameter>
+                                        <Frame Source="/Views/Dialogs/ProcessesAddEditDialog.xaml"
+                                               Margin="10,10,10,10" />
+                                    </i:InvokeCommandAction.CommandParameter>
+                                </i:InvokeCommandAction>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                     </Button>
                     <Button Margin="8"
                             Content="{materialDesign:PackIcon Kind=Delete}"
@@ -141,7 +161,7 @@
                                             IsCancel="True"
                                             Style="{StaticResource MaterialDesignRaisedButton}" />
                                     <Button HorizontalAlignment="Right"
-                                            Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                                            Command="{Binding DeleteProductionProcessCommand}"
                                             CommandParameter="Sample2Cancel"
                                             Content="Удалить"
                                             IsCancel="True"

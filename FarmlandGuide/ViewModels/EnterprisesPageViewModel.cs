@@ -75,7 +75,7 @@ namespace FarmlandGuide.ViewModels
             if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Address)) return;
 
             using var ctx = new ApplicationDbContext();
-            var enterpise = new Enterprise(Name, Address);
+            var enterpise = new Enterprise(Name.Trim(), Address.Trim());
             ctx.Enterprises.Add(enterpise);
             ctx.SaveChanges();
             Enterprises.Add(enterpise);
@@ -96,8 +96,8 @@ namespace FarmlandGuide.ViewModels
 
             using var ctx = new ApplicationDbContext();
 
-            SelectedEnterprise.Name = Name.Copy();
-            SelectedEnterprise.Address = Address.Copy();
+            SelectedEnterprise.Name = Name.Trim().Copy();
+            SelectedEnterprise.Address = Address.Trim().Copy();
             ctx.Enterprises.Update(SelectedEnterprise);
             ctx.SaveChanges();
             Debug.WriteLine($"Edited enterprise name: {Name} and address: {Address}");
