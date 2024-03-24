@@ -14,6 +14,8 @@ using System.ComponentModel.DataAnnotations;
 using NPOI.Util;
 using System.Diagnostics;
 using FarmlandGuide.Helpers;
+using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.EntityFrameworkCore;
 
 namespace FarmlandGuide.ViewModels
 {
@@ -22,10 +24,19 @@ namespace FarmlandGuide.ViewModels
         public EmployeesPageViewModel()
         {
             using var db = new ApplicationDbContext();
-            Employees = new(db.Employees.ToList());
+            Employees = new(db.Employees.Include(e=>e.WorkSessions).ToList());
             Enterprises = new(db.Enterprises.ToList());
             Roles = new(db.Roles.ToList());
+            this.PropertyChanged += EmployeesPageViewModel_PropertyChanged;
+            
         }
+
+        private void EmployeesPageViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SelectedEmployee) && SelectedEmployee is not null)
+                WeakReferenceMessenger.Default.Send(new SelectedEmployeeMessage(SelectedEmployee));
+        }
+
         [ObservableProperty]
         bool _isEdit = false;
 
@@ -35,6 +46,8 @@ namespace FarmlandGuide.ViewModels
         [ObservableProperty]
         string _buttonApplyText;
 
+
+        #region Employee
         [ObservableProperty]
         ObservableCollection<Employee> _employees;
         [ObservableProperty]
@@ -203,7 +216,6 @@ namespace FarmlandGuide.ViewModels
         private void OnAddEmployee()
         {
             using var ctx = new ApplicationDbContext();
-            //TO-DO
             var salt = PasswordManager.GenerateSalt();
             var passwordHash = PasswordManager.HashPassword(Password, salt);
             var employee = new Employee(Name, Surname, Patronymic, Position, WorkSchedule, Salary,
@@ -227,7 +239,6 @@ namespace FarmlandGuide.ViewModels
             SelectedEmployee.WorkSchedule = WorkSchedule;
             SelectedEmployee.Salary = Salary;
             SelectedEmployee.EmployeeName = EmployeeName;
-            //TO-DO
             var salt = PasswordManager.GenerateSalt();
             var passwordHash = PasswordManager.HashPassword(Password, salt);
 
@@ -297,5 +308,7 @@ namespace FarmlandGuide.ViewModels
             SelectedRole = null;
             ClearErrors();
         }
+        #endregion
+
     }
 }

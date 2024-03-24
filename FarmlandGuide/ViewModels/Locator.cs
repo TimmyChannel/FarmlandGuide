@@ -13,6 +13,7 @@ namespace FarmlandGuide.ViewModels
         public EnterprisesTasksPageViewModel EnterprisesTasksPageViewModel { get; }
         public PersonalStatisticsPageViewModel PersonalStatisticsPageViewModel { get; }
         public ProcessesPageViewModel ProcessesPageViewModel { get; }
+        public WorkSessionsViewModel WorkSessionsViewModel { get; }
         public Locator()
         {
             EmployeesPageViewModel = new EmployeesPageViewModel();
@@ -20,6 +21,7 @@ namespace FarmlandGuide.ViewModels
             EnterpisesPageViewModel = new EnterpisesPageViewModel();
             PersonalStatisticsPageViewModel = new PersonalStatisticsPageViewModel();
             ProcessesPageViewModel = new ProcessesPageViewModel();
+            WorkSessionsViewModel = new WorkSessionsViewModel();
         }
     }
 }

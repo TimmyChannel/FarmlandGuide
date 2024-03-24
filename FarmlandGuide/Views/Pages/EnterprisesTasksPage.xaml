@@ -81,12 +81,16 @@
                           IsReadOnly="True"
                           ItemsSource="{Binding Tasks}">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="ФИО"
-                                            Binding="{Binding Employee.FIO}" />
+                        <DataGridTextColumn Header="Фамилия"
+                                            Binding="{Binding Employee.Surname}" />
+                        <DataGridTextColumn Header="Имя"
+                                            Binding="{Binding Employee.Name}" />
+                        <DataGridTextColumn Header="Отчество"
+                                            Binding="{Binding Employee.Patronymic}" />
                         <DataGridTextColumn Header="Дата назначения"
-                                            Binding="{Binding AssignmentDate}" />
+                                            Binding="{Binding AssignmentDate, StringFormat={}{0:dd/MM/yyyy}}" />
                         <DataGridTextColumn Header="Срок выполнения"
-                                            Binding="{Binding DueDate}" />
+                                            Binding="{Binding DueDate, StringFormat={}{0:dd/MM/yyyy}}" />
                         <DataGridTextColumn Header="Статус"
                                             Binding="{Binding Status}" />
                         <DataGridTextColumn Header="Описание"
@@ -128,10 +132,10 @@
                             Style="{StaticResource MaterialDesignFloatingActionDarkButton}"
                             materialDesign:ElevationAssist.Elevation="Dp2"
                             Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}">
-                        <Button.CommandParameter>
+                        <!--<Button.CommandParameter>
                             <Frame Source="/Views/Dialogs/EnterprisesTaskAddDialog.xaml"
                                    Margin="10,10,10,10" />
-                        </Button.CommandParameter>
+                        </Button.CommandParameter>-->
                     </Button>
                     <Button Margin="8"
                             Content="{materialDesign:PackIcon Kind=Pencil}"

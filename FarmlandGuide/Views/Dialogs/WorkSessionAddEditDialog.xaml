@@ -1,0 +1,111 @@
+﻿<Page x:Class="FarmlandGuide.Views.Dialogs.WorkSessionAddEditDialog"
+      Title="WorkSessionAddEditDialog"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:FarmlandGuide.Views.Dialogs"
+      xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+      mc:Ignorable="d"
+      d:DesignHeight="350"
+      d:DesignWidth="470"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+      TextElement.FontWeight="Regular"
+      TextElement.FontSize="13"
+      TextOptions.TextFormattingMode="Ideal"
+      TextOptions.TextRenderingMode="Auto"
+      Background="{DynamicResource MaterialDesignPaper}"
+      FontFamily="{DynamicResource MaterialDesignFont}"
+      DataContext="{Binding WorkSessionsViewModel, Mode=OneWay, Source={StaticResource Locator}}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.ColumnSpan="2"
+                    Orientation="Horizontal"
+                    Margin="5,5,5,5">
+            <materialDesign:PackIcon Kind="PlusCircleOutline"
+                                     Margin="0,0,5,0"
+                                     VerticalAlignment="Center" />
+            <TextBlock Text="{Binding TitleText}"
+                       Style="{StaticResource MaterialDesignSubtitle1TextBlock}" />
+        </StackPanel>
+        <DatePicker x:Name="DateStart"
+                    Grid.Row="1"
+                    Margin="5,20,5,20"
+                    materialDesign:HintAssist.Hint="Выберите дату начала"
+                    Style="{StaticResource DatePickerRussianLangStyle}"
+                    SelectedDateFormat="Short"
+                    FirstDayOfWeek="Monday"
+                    SelectedDate="{Binding StartDate, ValidatesOnNotifyDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+        <materialDesign:TimePicker Grid.Row="1"
+                                   Grid.Column="1"
+                                   Margin="5,20,5,20"
+                                   materialDesign:HintAssist.Hint="Выберите время начала"
+                                   Is24Hours="True"
+                                   Style="{StaticResource MaterialDesignOutlinedTimePicker}"
+                                   SelectedTime="{Binding StartTime, ValidatesOnNotifyDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+        <DatePicker x:Name="DateEnd"
+                    Grid.Row="2"
+                    Margin="5,20,5,20"
+                    materialDesign:HintAssist.Hint="Выберите дату окончания"
+                    Style="{StaticResource DatePickerRussianLangStyle}"
+                    FirstDayOfWeek="Monday"
+                    SelectedDate="{Binding EndDate, ValidatesOnNotifyDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
+        <materialDesign:TimePicker Grid.Row="2"
+                                   Grid.Column="1"
+                                   Margin="5,20,5,20"
+                                   materialDesign:HintAssist.Hint="Выберите время окончания"
+                                   Is24Hours="True"
+                                   Style="{StaticResource MaterialDesignOutlinedTimePicker}"
+                                   SelectedTime="{Binding EndTime, ValidatesOnNotifyDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
+        <TextBox Grid.Row="3"
+                 Margin="5,20,5,20"
+                 Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                 TextWrapping="Wrap"
+                 materialDesign:HintAssist.Hint="Вид действия"
+                 Text="{Binding ActionType, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}" />
+        <ComboBox Grid.Row="3"
+                  Grid.Column="1"
+                  HorizontalContentAlignment="Left"
+                  materialDesign:HintAssist.Hint="Назначить на"
+                  Margin="5,20,5,20"
+                  materialDesign:TextFieldAssist.HasOutlinedTextField="True"
+                  FontSize="14"
+                  materialDesign:ComboBoxAssist.MaxLength="4"
+                  Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                  ItemsSource="{Binding Employees}"
+                  DisplayMemberPath="Name"
+                  SelectedItem="{Binding SelectedEmployee,  UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+
+
+        <Button Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                Content="Отмена"
+                IsCancel="True"
+                Style="{StaticResource MaterialDesignFlatButton}"
+                Grid.Row="4"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Margin="5,10,5,10" />
+        <Button Content="{Binding ButtonApplyText}"
+                Style="{StaticResource MaterialDesignRaisedButton}"
+                Grid.Row="4"
+                Grid.Column="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Margin="5,10,5,10"
+                Command="{Binding ApplayChangesAtWorkSessionsCommand}"
+                IsEnabled="{Binding HasErrors, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InvertBooleanConverter}}"
+                Cursor="Hand" />
+
+    </Grid>
+</Page>

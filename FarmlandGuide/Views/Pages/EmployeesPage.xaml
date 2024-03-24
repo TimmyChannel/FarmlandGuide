@@ -211,7 +211,8 @@
         <materialDesign:Card Name="SessionCard"
                              Grid.Row="1"
                              Grid.Column="1"
-                             Margin="10,10,10,10">
+                             Margin="10,10,10,10"
+                             DataContext="{Binding WorkSessionsViewModel, Mode=OneWay, Source={StaticResource Locator}}">
             <Grid Margin="5,5,5,5">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
@@ -225,14 +226,16 @@
                           AutoGenerateColumns="False"
                           Grid.Row="1"
                           Background="White"
-                          IsReadOnly="True">
+                          IsReadOnly="True"
+                          ItemsSource="{Binding WorkSessions}"
+                          SelectedItem="{Binding SelectedWorkSession}">
                     <DataGrid.Columns>
                         <materialDesign:DataGridTextColumn Header="Время начала"
-                                                           Binding="{Binding Path=StartDateTime}" />
+                                                           Binding="{Binding Path=StartDateTime, StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}"  />
                         <materialDesign:DataGridTextColumn Header="Время завершения"
-                                                           Binding="{Binding Path=EndTime}" />
+                                                           Binding="{Binding Path=EndDateTime, StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}" />
                         <materialDesign:DataGridTextColumn Header="Действие"
-                                                           Binding="{Binding Path=ActionType}" />
+                                                           Binding="{Binding Path=Type}" />
                     </DataGrid.Columns>
 
                 </DataGrid>
@@ -243,17 +246,71 @@
                     <Button Margin="8"
                             Content="{materialDesign:PackIcon Kind=Plus}"
                             Style="{StaticResource MaterialDesignFloatingActionDarkButton}"
-                            materialDesign:ElevationAssist.Elevation="Dp2" />
+                            materialDesign:ElevationAssist.Elevation="Dp2"
+                            IsEnabled="{Binding IsEmployeeSelected}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <i:InvokeCommandAction Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}">
+                                    <i:InvokeCommandAction.CommandParameter>
+                                        <Frame Source="/Views/Dialogs/WorkSessionAddEditDialog.xaml"
+                                               Margin="10,10,10,10" />
+                                    </i:InvokeCommandAction.CommandParameter>
+                                </i:InvokeCommandAction>
+                                <i:InvokeCommandAction Command="{Binding OpenAddDialogCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
                     <Button Margin="8"
                             Content="{materialDesign:PackIcon Kind=Pencil}"
                             Style="{StaticResource MaterialDesignFloatingActionSecondaryLightButton}"
-                            materialDesign:ElevationAssist.Elevation="Dp2" />
+                            materialDesign:ElevationAssist.Elevation="Dp2"
+                            IsEnabled="{Binding IsEmployeeSelected}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <i:InvokeCommandAction Command="{Binding OpenEditDialogCommand}" />
+                                <i:InvokeCommandAction Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
+                                                       IsEnabled="{Binding IsEdit, Mode=OneWay}">
+                                    <i:InvokeCommandAction.CommandParameter>
+                                        <Frame Source="/Views/Dialogs/WorkSessionAddEditDialog.xaml"
+                                               Margin="10,10,10,10" />
+                                    </i:InvokeCommandAction.CommandParameter>
+                                </i:InvokeCommandAction>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
                     <Button Margin="8"
                             Content="{materialDesign:PackIcon Kind=Delete}"
                             Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
                             materialDesign:ElevationAssist.Elevation="Dp1"
                             Background="#FFF75252"
-                            BorderBrush="#FFFF0202" />
+                            BorderBrush="#FFFF0202"
+                            Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
+                            IsEnabled="{Binding IsEmployeeSelected}">
+                        <Button.CommandParameter>
+                            <StackPanel Margin="16">
+                                <TextBlock Text="Вы уверены, что хотите удалить эту рабочую сессию?"
+                                           Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Top" />
+                                <Grid Margin="0,15,0,0">
+                                    <Button HorizontalAlignment="Left"
+                                            Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                                            CommandParameter="Sample2Cancel"
+                                            Content="Отмена"
+                                            IsCancel="True"
+                                            Style="{StaticResource MaterialDesignRaisedButton}" />
+                                    <Button HorizontalAlignment="Right"
+                                            Command="{Binding DeleteWorkSessionCommand}"
+                                            CommandParameter="Sample2Cancel"
+                                            Content="Удалить"
+                                            IsCancel="True"
+                                            Style="{StaticResource MaterialDesignFlatButton}"
+                                            Foreground="#FFFF5555" />
+                                </Grid>
+                            </StackPanel>
+                        </Button.CommandParameter>
+
+                    </Button>
                 </StackPanel>
             </Grid>
         </materialDesign:Card>

@@ -14,15 +14,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FarmlandGuide.ViewModels
 {
-    public partial class EnterprisesTasksPageViewModel : ObservableObject
+    public partial class EnterprisesTasksPageViewModel : ObservableValidator
     {
         public List<FarmlandTask> Tasks { get => TempModels.Tasks; }
         public List<string> Enterprises => TempModels.Enterprises.Select(x => x.Name).ToList();
         public EnterprisesTasksPageViewModel()
         {
-            // Инициализация коллекции задач
-
-            // Пример вызова метода для сортировки и фильтрации (если необходимо)
             SortAndFilterTasks();
         }
         [RelayCommand]
