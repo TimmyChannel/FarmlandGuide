@@ -1,5 +1,5 @@
-﻿<Page x:Class="FarmlandGuide.Views.Dialogs.EmployeeAddDialog"
-      Title="EmployeeAddDialog"
+﻿<Page x:Class="FarmlandGuide.Views.Dialogs.EmployeeAddEditDialog"
+      Title="EmployeeAddEditDialog"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -39,7 +39,7 @@
                                      VerticalAlignment="Center"
                                      Height="24"
                                      Width="24" />
-            <TextBlock Text="Добавление нового сотрудника"
+            <TextBlock Text="{Binding TitleText}"
                        Style="{StaticResource MaterialDesignHeadline5TextBlock}" />
         </StackPanel>
         <GroupBox Grid.Row="1"
@@ -74,28 +74,32 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <TextBox Grid.Row="0"
-                         Margin="5,10,5,5"
+                         Margin="10,10,20,20"
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          TextWrapping="Wrap"
-                         materialDesign:HintAssist.Hint="Имя" />
+                         materialDesign:HintAssist.Hint="Имя"
+                         Text="{Binding Name, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}"/>
                 <TextBox Grid.Row="0"
                          Grid.Column="1"
-                         Margin="5,10,5,5"
+                         Margin="10,10,20,20"
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          TextWrapping="Wrap"
-                         materialDesign:HintAssist.Hint="Фамилия" />
+                         materialDesign:HintAssist.Hint="Фамилия"
+                         Text="{Binding Surname, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}"/>
                 <TextBox Grid.Row="0"
                          Grid.Column="3"
-                         Margin="5,10,5,5"
+                         Margin="10,10,20,20"
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          TextWrapping="Wrap"
-                         materialDesign:HintAssist.Hint="Отчество" />
+                         materialDesign:HintAssist.Hint="Отчество"
+                         Text="{Binding Patronymic, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}"/>
                 <TextBox Grid.Row="1"
                          Grid.ColumnSpan="3"
-                         Margin="5,10,5,5"
+                         Margin="10,10,20,20"
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          TextWrapping="Wrap"
-                         materialDesign:HintAssist.Hint="Адрес проживания" />
+                         materialDesign:HintAssist.Hint="Адрес проживания"
+                         Text="{Binding ResidentialAddress, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}" />
             </Grid>
         </GroupBox>
         <GroupBox Grid.Row="2"
@@ -132,31 +136,37 @@
                 <ComboBox Grid.Row="0"
                           HorizontalContentAlignment="Left"
                           materialDesign:HintAssist.Hint="Выберите предприятие"
-                          Margin="5,10,5,5"
+                          Margin="10,10,20,20"
                           materialDesign:TextFieldAssist.HasOutlinedTextField="True"
                           FontSize="14"
                           materialDesign:ComboBoxAssist.MaxLength="4"
                           IsEditable="True"
-                          Style="{StaticResource MaterialDesignOutlinedComboBox}" />
+                          Style="{StaticResource MaterialDesignOutlinedComboBox}"
+                          ItemsSource="{Binding Enterprises}"
+                          DisplayMemberPath="Name"
+                          SelectedItem="{Binding SelectedEnterprise,  UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
 
                 <TextBox Grid.Row="0"
                          Grid.Column="1"
-                         Margin="5,10,5,5"
+                         Margin="10,10,20,20"
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          TextWrapping="Wrap"
-                         materialDesign:HintAssist.Hint="Должность" />
+                         materialDesign:HintAssist.Hint="Должность"
+                         Text="{Binding Position, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}"/>
                 <TextBox Grid.Row="0"
                          Grid.Column="3"
-                         Margin="5,10,5,5"
+                         Margin="10,10,20,20"
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          TextWrapping="Wrap"
-                         materialDesign:HintAssist.Hint="График работы" />
+                         materialDesign:HintAssist.Hint="График работы"
+                         Text="{Binding WorkSchedule, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}"/>
                 <TextBox Grid.Row="1"
-                         Margin="5,10,5,5"
+                         Margin="10,10,20,20"
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          TextWrapping="Wrap"
                          materialDesign:HintAssist.Hint="Заработная плата"
-                         materialDesign:TextFieldAssist.SuffixText="₽" />
+                         materialDesign:TextFieldAssist.SuffixText="₽"
+                         Text="{Binding Salary, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}"/>
             </Grid>
         </GroupBox>
         <GroupBox Grid.Row="3"
@@ -195,16 +205,16 @@
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          TextWrapping="Wrap"
                          materialDesign:HintAssist.Hint="Логин"
-                         materialDesign:HintAssist.HelperText="Минимум 4 символа" 
                          materialDesign:TextFieldAssist.CharacterCounterVisibility="Visible"
-                         ToolTip="В логине должно быть минимум 4 символа"/>
+                         ToolTip="В логине должно быть минимум 4 символа"
+                         Text="{Binding EmployeeName, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}"/>
 
                 <PasswordBox Grid.Row="0"
                              Grid.Column="1"
                              Margin="5,10,5,20"
+                             materialDesign:PasswordBoxAssist.Password="{Binding Password, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}"
                              materialDesign:HintAssist.Hint="Пароль"
-                             materialDesign:HintAssist.HelperText="Пароль должен содержать минимум 6 символов, строчные и заглавные буквы, а также цифры"
-                             Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
+                             Style="{StaticResource MaterialDesignOutlinedRevealPasswordBox}"
                              ToolTip="Пароль должен содержать минимум 6 символов, строчные и заглавные буквы, а также цифры">
                     <materialDesign:HintAssist.HelperTextStyle>
                         <Style TargetType="{x:Type TextBlock}"
@@ -220,15 +230,14 @@
                           Grid.Column="0"
                           HorizontalContentAlignment="Left"
                           materialDesign:HintAssist.Hint="Роль в системе"
-                          Margin="5,20,5,5"
+                          Margin="5,20,5,20"
                           materialDesign:TextFieldAssist.HasOutlinedTextField="True"
                           FontSize="14"
                           materialDesign:ComboBoxAssist.MaxLength="4"
                           Style="{StaticResource MaterialDesignOutlinedComboBox}"
                           ItemsSource="{Binding Roles}"
                           DisplayMemberPath="Name"
-                          SelectedItem="{Binding SelectedRole}"
-                          />
+                          SelectedItem="{Binding SelectedRole,  UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
             </Grid>
         </GroupBox>
 
@@ -239,14 +248,16 @@
                 Grid.Row="7"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
-                Margin="5,10,5,5" />
-        <Button Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
-                Content="Добавить"
+                Margin="10,10,20,20" />
+        <Button Content="{Binding ButtonApplyText}"
                 Style="{StaticResource MaterialDesignRaisedButton}"
                 Grid.Row="7"
                 Grid.Column="1"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
-                Margin="5,10,5,5" />
+                Margin="10,10,20,20"
+                Command="{Binding ApplayChangesAtEmployeesCommand}"
+                IsEnabled="{Binding HasErrors, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InvertBooleanConverter}}"
+                Cursor="Hand" />
     </Grid>
 </Page>

@@ -21,14 +21,15 @@ namespace FarmlandGuide.ViewModels
 {
     public partial class EnterpisesPageViewModel : ObservableValidator
     {
-        [ObservableProperty]
-        bool _isEdit = false;
 
         public EnterpisesPageViewModel()
         {
             using var ctx = new ApplicationDbContext();
             Enterprises = new(ctx.Enterprises);
         }
+
+        [ObservableProperty]
+        bool _isEdit = false;
 
         [ObservableProperty]
         string _titleText;

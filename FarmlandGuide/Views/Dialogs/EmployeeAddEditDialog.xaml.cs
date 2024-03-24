@@ -1,8 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using FarmlandGuide.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,15 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace FarmlandGuide.Views.Pages
+namespace FarmlandGuide.Views.Dialogs
 {
     /// <summary>
-    /// Логика взаимодействия для EmployeesPage.xaml
+    /// Логика взаимодействия для EmployeeAddEditDialog.xaml
     /// </summary>
-    [ObservableObject]
-    public partial class EmployeesPage : Page
+    public partial class EmployeeAddEditDialog : Page
     {
-        public EmployeesPage()
+        public EmployeeAddEditDialog()
         {
             InitializeComponent();
         }

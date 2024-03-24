@@ -11,15 +11,16 @@ namespace FarmlandGuide.Helpers.Converters
     {
         public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            string cellText = values[0] == null ? string.Empty : values[0].ToString();
-            string searchText = values[1] as string;
-            
-            if (!string.IsNullOrEmpty(searchText) && !string.IsNullOrEmpty(cellText))
-            {
-                return cellText.ToLower().Contains(searchText.ToLower());
-            }
+            string searchText = values.Last() as string;
             if (string.IsNullOrEmpty(searchText)) return true;
-            return false;
+            bool res=false;
+            for (int i = 0; i < values.Length - 1; i++)
+            {
+                var cellText = values[i] == null ? string.Empty : values[i].ToString();
+                if (!string.IsNullOrEmpty(searchText) && !string.IsNullOrEmpty(cellText))
+                    res |= cellText.ToLower().Contains(searchText.ToLower());
+            }
+            return res;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)

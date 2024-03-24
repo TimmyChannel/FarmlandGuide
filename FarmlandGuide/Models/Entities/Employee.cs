@@ -19,8 +19,6 @@ namespace FarmlandGuide.Models
         [ObservableProperty]
         string _name;
         [ObservableProperty]
-        string _fIO;
-        [ObservableProperty]
         string _surname;
         [ObservableProperty]
         string _patronymic;
@@ -43,9 +41,23 @@ namespace FarmlandGuide.Models
             Name = name;
             Surname = surname;
             Patronymic = patronymic;
-            FIO = name + ' ' + surname + ' ' + patronymic;
             Position = position;
             WorkSchedule = workSchedule;
+        }
+        public Employee(string name, string surname, string patronymic, string workSchedule, string position, decimal salary,
+             string residentialAddress, string employeeName, string passwordHash, int enterpriseID, int roleID)
+        {
+            Name = name;
+            Surname = surname;
+            Patronymic = patronymic;
+            Position = position;
+            WorkSchedule = workSchedule;
+            Salary = salary;
+            ResidentialAddress = residentialAddress;
+            EmployeeName = employeeName;
+            PasswordHash = passwordHash;
+            EnterpriseID = enterpriseID;
+            RoleID = roleID;
         }
     }
 }
