@@ -31,7 +31,24 @@ namespace FarmlandGuide.Models
             EndDateTime = endDateTime;
             Type = type;
             EmployeeID = employeeID;
-            Employee.PropertyChanged += Employee_PropertyChanged;
+            this.PropertyChanged += WorkSession_PropertyChanged;
+            this.PropertyChanging += WorkSession_PropertyChanging;
+        }
+
+        private void WorkSession_PropertyChanging(object? sender, System.ComponentModel.PropertyChangingEventArgs e)
+        {
+            if (e.PropertyName == nameof(Employee) && Employee is not null)
+            {
+                Employee.PropertyChanged -= Employee_PropertyChanged;
+            }
+        }
+
+        private void WorkSession_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Employee) && Employee is not null)
+            {
+                Employee.PropertyChanged += Employee_PropertyChanged;
+            }
         }
 
         private void Employee_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

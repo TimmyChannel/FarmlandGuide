@@ -24,6 +24,7 @@ namespace FarmlandGuide.Models
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             // Укажите строку подключения к вашей базе данных
+            optionsBuilder.EnableSensitiveDataLogging();
             optionsBuilder.UseSqlite("Data Source=FarmlandGuide.db");
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)

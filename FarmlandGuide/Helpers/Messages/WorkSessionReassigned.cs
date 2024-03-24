@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace FarmlandGuide.Helpers.Messages
 {
-    public sealed class SelectedEmployeeMessage : ValueChangedMessage<Employee>
+    public sealed class WorkSessionReassigned : ValueChangedMessage<WorkSession>
     {
-        public SelectedEmployeeMessage(Employee employee) : base(employee)
+        public WorkSessionReassigned(WorkSession workSession) : base(workSession)
         {
         }
     }

@@ -20,11 +20,35 @@ namespace FarmlandGuide.Models
         [ObservableProperty]
         Enterprise _enterprise;
         public ICollection<Task> Tasks { get; set; }
-        public ProductionProcess(string name, string description, decimal cost)
+        public ProductionProcess(string name, string description, decimal cost, int enterpriseID)
         {
             Name = name;
             Description = description;
             Cost = cost;
+            EnterpriseID = enterpriseID;
+            this.PropertyChanging += ProductionProcess_PropertyChanging;
+            this.PropertyChanged += ProductionProcess_PropertyChanged;
+        }
+
+        private void ProductionProcess_PropertyChanging(object? sender, System.ComponentModel.PropertyChangingEventArgs e)
+        {
+            if (e.PropertyName == nameof(Enterprise) && Enterprise is not null)
+            {
+                Enterprise.PropertyChanged -= Enterprise_PropertyChanged;
+            }
+        }
+
+        private void ProductionProcess_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Enterprise) && Enterprise is not null)
+            {
+                Enterprise.PropertyChanged += Enterprise_PropertyChanged;
+            }
+        }
+
+        private void Enterprise_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(Enterprise));
         }
     }
 }

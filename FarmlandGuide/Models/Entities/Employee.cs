@@ -61,6 +61,52 @@ namespace FarmlandGuide.Models
             PasswordSalt = passwordSalt;
             EnterpriseID = enterpriseID;
             RoleID = roleID;
+            this.PropertyChanging += Employee_PropertyChanging;
+            this.PropertyChanged += Employee_PropertyChanged;
+        }
+
+        private void Employee_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(Enterprise):
+                    if (Enterprise is null) break;
+                    Enterprise.PropertyChanged += Enterprise_PropertyChanged;
+                    break;
+                case nameof(Role):
+                    if (Role is null) break;
+                    Role.PropertyChanged += Role_PropertyChanged;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void Employee_PropertyChanging(object? sender, System.ComponentModel.PropertyChangingEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(Enterprise):
+                    if (Enterprise is null) break;
+                    Enterprise.PropertyChanged -= Enterprise_PropertyChanged;
+                    break;
+                case nameof(Role):
+                    if (Role is null) break;
+                    Role.PropertyChanged -= Role_PropertyChanged;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void Role_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(Role));
+        }
+
+        private void Enterprise_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(Enterprise));
         }
     }
 }

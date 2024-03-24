@@ -2,26 +2,32 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using FarmlandGuide.Helpers;
+using FarmlandGuide.Helpers.Messages;
 using FarmlandGuide.Helpers.Validators;
 using FarmlandGuide.Models;
+using Microsoft.EntityFrameworkCore;
+using NPOI.Util;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace FarmlandGuide.ViewModels
 {
-    public partial class WorkSessionsViewModel : ObservableValidator, IRecipient<SelectedEmployeeMessage>
+    public partial class WorkSessionsViewModel : ObservableValidator, IRecipient<SelectedEmployeeMessage>, IRecipient<EmployeeTableUpdateMessage>
     {
         public WorkSessionsViewModel()
         {
             using var db = new ApplicationDbContext();
-            Employees = new(db.Employees.ToList());
-            WeakReferenceMessenger.Default.Register(this);
+            Employees = new(db.Employees.AsNoTracking().ToList());
+            WeakReferenceMessenger.Default.RegisterAll(this);
         }
+
+
         [ObservableProperty]
         bool _isEdit = false;
 
@@ -60,6 +66,14 @@ namespace FarmlandGuide.ViewModels
             SelectedEmployee = message.Value;
             IsEmployeeSelected = true;
         }
+
+        public void Receive(EmployeeTableUpdateMessage message)
+        {
+            using var db = new ApplicationDbContext();
+            Employees = new(db.Employees.AsNoTracking().ToList());
+
+        }
+
 
         [CustomValidation(typeof(WorkSessionsViewModel), nameof(ValidatStartDateTime))]
         public DateTime StartDate
@@ -190,21 +204,47 @@ namespace FarmlandGuide.ViewModels
         {
             using var ctx = new ApplicationDbContext();
             var session = new WorkSession(StartDate.Add(StartTime.TimeOfDay), EndDate.Add(EndTime.TimeOfDay), ActionType,
-                SelectedEmployee?.EmployeeID ?? 1);
+                SelectedEmployee?.EmployeeID ?? 1)
+            {
+                Employee = SelectedEmployee
+            };
             ctx.WorkSessions.Add(session);
             ctx.SaveChanges();
+            WeakReferenceMessenger.Default.Send(new WorkSessionReassigned(session));
             WorkSessions.Add(session);
         }
         private void OnEditWorkSession()
         {
-            using var ctx = new ApplicationDbContext();
-            SelectedWorkSession.StartDateTime = StartDate.Add(StartTime.TimeOfDay);
-            SelectedWorkSession.EndDateTime = EndDate.Add(EndTime.TimeOfDay);
-            SelectedWorkSession.Type = ActionType;
-            SelectedWorkSession.EmployeeID = SelectedEmployee.EmployeeID;
+            try
+            {
+                using var ctx = new ApplicationDbContext();
+                Debug.WriteLine($"Start edititng Work Session ID: {SelectedWorkSession.SessionID} StartTime: {SelectedWorkSession.StartDateTime}" +
+                    $"EndTime: {SelectedWorkSession.EndDateTime}\n Action Type: {SelectedWorkSession.Type} EmployeeID: {SelectedWorkSession.EmployeeID}\n" +
+                    $"New Data: ID: {SelectedWorkSession.SessionID} StartTime: {StartDate.Add(StartTime.TimeOfDay)}" +
+                    $"EndTime: {EndDate.Add(EndTime.TimeOfDay)}\n Action Type: {ActionType} EmployeeID: {SelectedEmployee.EmployeeID}\n");
 
-            ctx.Employees.Update(SelectedEmployee);
-            ctx.SaveChanges();
+                var editedWorkSession = ctx.WorkSessions.AsNoTracking().First(ws => ws.SessionID == SelectedWorkSession.SessionID);
+                editedWorkSession.StartDateTime = StartDate.Add(StartTime.TimeOfDay);
+                editedWorkSession.EndDateTime = EndDate.Add(EndTime.TimeOfDay);
+                editedWorkSession.Type = ActionType;
+                int previousEmployeeID = editedWorkSession.EmployeeID;
+                editedWorkSession.EmployeeID = SelectedEmployee.EmployeeID;
+                editedWorkSession.Employee = SelectedEmployee.Copy();
+                ctx.WorkSessions.Update(editedWorkSession);
+                ctx.SaveChanges();
+
+                Debug.WriteLine($"Edit completed Work Session ID: {editedWorkSession.SessionID} StartTime: {editedWorkSession.StartDateTime}" +
+    $"EndTime: {editedWorkSession.StartDateTime}\n Action Type: {editedWorkSession.Type} EmployeeID: {editedWorkSession.EmployeeID}");
+
+                WorkSessions = new(ctx.WorkSessions.Where(ws => ws.EmployeeID == previousEmployeeID));
+                WeakReferenceMessenger.Default.Send(new WorkSessionReassigned(SelectedWorkSession.Copy()));
+
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+            }
+
         }
 
         [RelayCommand]
@@ -220,6 +260,7 @@ namespace FarmlandGuide.ViewModels
             ctx.WorkSessions.Remove(SelectedWorkSession);
             ctx.SaveChanges();
             WorkSessions.Remove(SelectedWorkSession);
+            WeakReferenceMessenger.Default.Send(new WorkSessionReassigned(SelectedWorkSession));
             closeDialogCommand.Execute(null, null);
         }
 
@@ -232,8 +273,8 @@ namespace FarmlandGuide.ViewModels
             ButtonApplyText = "Сохранить";
             EndDate = SelectedWorkSession.EndDateTime.Date;
             StartDate = SelectedWorkSession.StartDateTime.Date;
-            EndTime = new DateTime(1, 1,1 , SelectedWorkSession.EndDateTime.Hour, SelectedWorkSession.EndDateTime.Minute, 0);
-            StartTime = new DateTime(1, 1,1 , SelectedWorkSession.StartDateTime.Hour, SelectedWorkSession.StartDateTime.Minute, 0);
+            EndTime = new DateTime(1, 1, 1, SelectedWorkSession.EndDateTime.Hour, SelectedWorkSession.EndDateTime.Minute, 0);
+            StartTime = new DateTime(1, 1, 1, SelectedWorkSession.StartDateTime.Hour, SelectedWorkSession.StartDateTime.Minute, 0);
             ActionType = SelectedWorkSession.Type;
             SelectedEmployee = SelectedWorkSession.Employee;
             IsEdit = true;
@@ -244,7 +285,7 @@ namespace FarmlandGuide.ViewModels
         {
             TitleText = "Добавление новой рабочей сессии";
             ButtonApplyText = "Добавить";
-            IsEdit = false; 
+            IsEdit = false;
             StartDate = DateTime.Now;
             EndDate = DateTime.Now.AddDays(1);
             StartTime = DateTime.MinValue;
@@ -253,7 +294,6 @@ namespace FarmlandGuide.ViewModels
             SelectedEmployee = null;
             ClearErrors();
         }
-
 
     }
 }

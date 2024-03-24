@@ -16,25 +16,32 @@ using System.Diagnostics;
 using FarmlandGuide.Helpers;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
+using FarmlandGuide.Helpers.Messages;
 
 namespace FarmlandGuide.ViewModels
 {
-    public partial class EmployeesPageViewModel : ObservableValidator
+    public partial class EmployeesPageViewModel : ObservableValidator, IRecipient<WorkSessionReassigned>
     {
         public EmployeesPageViewModel()
         {
             using var db = new ApplicationDbContext();
-            Employees = new(db.Employees.Include(e=>e.WorkSessions).ToList());
+            Employees = new(db.Employees.Include(e => e.WorkSessions).ToList());
             Enterprises = new(db.Enterprises.ToList());
             Roles = new(db.Roles.ToList());
             this.PropertyChanged += EmployeesPageViewModel_PropertyChanged;
-            
+            WeakReferenceMessenger.Default.RegisterAll(this);
+        }
+        public void Receive(WorkSessionReassigned message)
+        {
+            using var db = new ApplicationDbContext();
+            Employees = new(db.Employees.AsNoTracking().Include(e => e.WorkSessions).ToList());
+
         }
 
         private void EmployeesPageViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(SelectedEmployee) && SelectedEmployee is not null)
-                WeakReferenceMessenger.Default.Send(new SelectedEmployeeMessage(SelectedEmployee));
+                WeakReferenceMessenger.Default.Send(new SelectedEmployeeMessage(SelectedEmployee.Copy()));
         }
 
         [ObservableProperty]
@@ -218,7 +225,7 @@ namespace FarmlandGuide.ViewModels
             using var ctx = new ApplicationDbContext();
             var salt = PasswordManager.GenerateSalt();
             var passwordHash = PasswordManager.HashPassword(Password, salt);
-            var employee = new Employee(Name, Surname, Patronymic, Position, WorkSchedule, Salary,
+            var employee = new Employee(Name, Surname, Patronymic, WorkSchedule, Position, Salary,
                 ResidentialAddress, EmployeeName, passwordHash, salt, SelectedEnterprise?.EnterpriseID ?? 1, SelectedRole?.RoleID ?? 1)
             {
                 Enterprise = ctx.Enterprises.First(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID),
@@ -227,6 +234,7 @@ namespace FarmlandGuide.ViewModels
             ctx.Employees.Add(employee);
             ctx.SaveChanges();
             Employees.Add(employee);
+            WeakReferenceMessenger.Default.Send(new EmployeeTableUpdateMessage(employee));
         }
         private void OnEditEmployee()
         {
@@ -251,6 +259,7 @@ namespace FarmlandGuide.ViewModels
 
             ctx.Employees.Update(SelectedEmployee);
             ctx.SaveChanges();
+            WeakReferenceMessenger.Default.Send(new EmployeeTableUpdateMessage(SelectedEmployee));
         }
 
         [RelayCommand]
@@ -265,6 +274,7 @@ namespace FarmlandGuide.ViewModels
             using var ctx = new ApplicationDbContext();
             ctx.Employees.Remove(SelectedEmployee);
             ctx.SaveChanges();
+            WeakReferenceMessenger.Default.Send(new EmployeeTableUpdateMessage(SelectedEmployee));
             Employees.Remove(SelectedEmployee);
             closeDialogCommand.Execute(null, null);
         }
@@ -308,6 +318,7 @@ namespace FarmlandGuide.ViewModels
             SelectedRole = null;
             ClearErrors();
         }
+
         #endregion
 
     }

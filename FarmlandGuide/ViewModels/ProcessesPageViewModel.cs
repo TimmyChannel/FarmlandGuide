@@ -135,9 +135,8 @@ namespace FarmlandGuide.ViewModels
         private void OnAddProductionProcess()
         {
             using var ctx = new ApplicationDbContext();
-            var process = new ProductionProcess(Name, Description, Cost)
+            var process = new ProductionProcess(Name, Description, Cost, SelectedEnterprise?.EnterpriseID ?? 1)
             {
-                EnterpriseID = SelectedEnterprise?.EnterpriseID ?? 1,
                 Enterprise = ctx.Enterprises.First(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID)
             };
             ctx.ProductionProcesses.Add(process);
