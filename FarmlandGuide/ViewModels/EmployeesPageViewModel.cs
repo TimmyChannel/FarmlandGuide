@@ -13,6 +13,7 @@ using MathNet.Numerics.Interpolation;
 using System.ComponentModel.DataAnnotations;
 using NPOI.Util;
 using System.Diagnostics;
+using FarmlandGuide.Helpers;
 
 namespace FarmlandGuide.ViewModels
 {
@@ -203,8 +204,10 @@ namespace FarmlandGuide.ViewModels
         {
             using var ctx = new ApplicationDbContext();
             //TO-DO
+            var salt = PasswordManager.GenerateSalt();
+            var passwordHash = PasswordManager.HashPassword(Password, salt);
             var employee = new Employee(Name, Surname, Patronymic, Position, WorkSchedule, Salary,
-                ResidentialAddress, EmployeeName, Password, SelectedEnterprise?.EnterpriseID ?? 1, SelectedRole?.RoleID ?? 1)
+                ResidentialAddress, EmployeeName, passwordHash, salt, SelectedEnterprise?.EnterpriseID ?? 1, SelectedRole?.RoleID ?? 1)
             {
                 Enterprise = ctx.Enterprises.First(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID),
                 Role = ctx.Roles.First(r => r.RoleID == SelectedRole.RoleID)
@@ -225,7 +228,11 @@ namespace FarmlandGuide.ViewModels
             SelectedEmployee.Salary = Salary;
             SelectedEmployee.EmployeeName = EmployeeName;
             //TO-DO
-            SelectedEmployee.PasswordHash = Password;
+            var salt = PasswordManager.GenerateSalt();
+            var passwordHash = PasswordManager.HashPassword(Password, salt);
+
+            SelectedEmployee.PasswordHash = passwordHash;
+            SelectedEmployee.PasswordSalt = salt;
             SelectedEmployee.Enterprise = SelectedEnterprise;
             SelectedEmployee.EnterpriseID = SelectedEnterprise.EnterpriseID;
             SelectedEmployee.Role = SelectedRole;
@@ -266,8 +273,6 @@ namespace FarmlandGuide.ViewModels
             WorkSchedule = SelectedEmployee.WorkSchedule;
             Salary = SelectedEmployee.Salary;
             EmployeeName = SelectedEmployee.EmployeeName;
-            //TO-DO
-            Password = SelectedEmployee.PasswordHash;
             SelectedEnterprise = SelectedEmployee.Enterprise;
             SelectedRole = SelectedEmployee.Role;
             IsEdit = true;

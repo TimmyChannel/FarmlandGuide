@@ -17,6 +17,8 @@ namespace FarmlandGuide.Models
         [ObservableProperty]
         string _passwordHash;
         [ObservableProperty]
+        string _passwordSalt;
+        [ObservableProperty]
         string _name;
         [ObservableProperty]
         string _surname;
@@ -45,7 +47,7 @@ namespace FarmlandGuide.Models
             WorkSchedule = workSchedule;
         }
         public Employee(string name, string surname, string patronymic, string workSchedule, string position, decimal salary,
-             string residentialAddress, string employeeName, string passwordHash, int enterpriseID, int roleID)
+             string residentialAddress, string employeeName, string passwordHash, string passwordSalt, int enterpriseID, int roleID)
         {
             Name = name;
             Surname = surname;
@@ -56,6 +58,7 @@ namespace FarmlandGuide.Models
             ResidentialAddress = residentialAddress;
             EmployeeName = employeeName;
             PasswordHash = passwordHash;
+            PasswordSalt = passwordSalt;
             EnterpriseID = enterpriseID;
             RoleID = roleID;
         }
