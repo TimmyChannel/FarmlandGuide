@@ -102,8 +102,8 @@ namespace FarmlandGuide.ViewModels
         private void OnEditEnterprise()
         {
             using var ctx = new ApplicationDbContext();
-            SelectedEnterprise.Name = Name.Trim().Copy();
-            SelectedEnterprise.Address = Address.Trim().Copy();
+            SelectedEnterprise.Name = Name.Trim();
+            SelectedEnterprise.Address = Address.Trim();
             ctx.Enterprises.Update(SelectedEnterprise);
             ctx.SaveChanges();
             Debug.WriteLine($"Edited enterprise name: {Name} and address: {Address}");

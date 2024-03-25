@@ -225,8 +225,8 @@ namespace FarmlandGuide.ViewModels
             using var ctx = new ApplicationDbContext();
             var salt = PasswordManager.GenerateSalt();
             var passwordHash = PasswordManager.HashPassword(Password, salt);
-            var employee = new Employee(Name, Surname, Patronymic, WorkSchedule, Position, Salary,
-                ResidentialAddress, EmployeeName, passwordHash, salt, SelectedEnterprise?.EnterpriseID ?? 1, SelectedRole?.RoleID ?? 1)
+            var employee = new Employee(Name.Trim(), Surname.Trim(), Patronymic.Trim(), WorkSchedule.Trim(), Position.Trim(), Salary,
+                ResidentialAddress.Trim(), EmployeeName.Trim(), passwordHash, salt, SelectedEnterprise?.EnterpriseID ?? 1, SelectedRole?.RoleID ?? 1)
             {
                 Enterprise = ctx.Enterprises.First(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID),
                 Role = ctx.Roles.First(r => r.RoleID == SelectedRole.RoleID)
@@ -239,14 +239,14 @@ namespace FarmlandGuide.ViewModels
         private void OnEditEmployee()
         {
             using var ctx = new ApplicationDbContext();
-            SelectedEmployee.Name = Name;
-            SelectedEmployee.Surname = Surname;
-            SelectedEmployee.Patronymic = Patronymic;
-            SelectedEmployee.ResidentialAddress = ResidentialAddress;
-            SelectedEmployee.Position = Position;
-            SelectedEmployee.WorkSchedule = WorkSchedule;
+            SelectedEmployee.Name = Name.Trim();
+            SelectedEmployee.Surname = Surname.Trim();
+            SelectedEmployee.Patronymic = Patronymic.Trim();
+            SelectedEmployee.ResidentialAddress = ResidentialAddress.Trim();
+            SelectedEmployee.Position = Position.Trim();
+            SelectedEmployee.WorkSchedule = WorkSchedule.Trim();
             SelectedEmployee.Salary = Salary;
-            SelectedEmployee.EmployeeName = EmployeeName;
+            SelectedEmployee.EmployeeName = EmployeeName.Trim();
             var salt = PasswordManager.GenerateSalt();
             var passwordHash = PasswordManager.HashPassword(Password, salt);
 

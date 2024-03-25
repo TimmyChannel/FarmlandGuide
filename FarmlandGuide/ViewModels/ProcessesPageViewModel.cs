@@ -135,7 +135,7 @@ namespace FarmlandGuide.ViewModels
         private void OnAddProductionProcess()
         {
             using var ctx = new ApplicationDbContext();
-            var process = new ProductionProcess(Name, Description, Cost, SelectedEnterprise?.EnterpriseID ?? 1)
+            var process = new ProductionProcess(Name.Trim(), Description.Trim(), Cost, SelectedEnterprise?.EnterpriseID ?? 1)
             {
                 Enterprise = ctx.Enterprises.First(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID)
             };
@@ -148,8 +148,8 @@ namespace FarmlandGuide.ViewModels
         private void OnEditProductionProcess()
         {
             using var ctx = new ApplicationDbContext();
-            SelectedProductionProcess.Name = Name.Copy();
-            SelectedProductionProcess.Description = Description.Copy();
+            SelectedProductionProcess.Name = Name.Trim();
+            SelectedProductionProcess.Description = Description.Trim();
             SelectedProductionProcess.Cost = Cost;
             SelectedProductionProcess.Enterprise = ctx.Enterprises.First(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID);
             SelectedProductionProcess.EnterpriseID = SelectedEnterprise?.EnterpriseID ?? 1;

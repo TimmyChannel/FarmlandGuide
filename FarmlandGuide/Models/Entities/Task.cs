@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using FarmlandGuide.Models.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,27 +13,31 @@ namespace FarmlandGuide.Models
         public int TaskID { get; set; }
         public int EmployeeID { get; set; }
         public int ProcessID { get; set; }
-
+        public int StatusID { get; set; }
         [ObservableProperty]
         DateTime _assignmentDate;
         [ObservableProperty]
         DateTime _dueDate;
         [ObservableProperty]
-        string _status;
+        Status _status;
         [ObservableProperty]
         string _description;
         [ObservableProperty]
         Employee _employee;
         [ObservableProperty]
         ProductionProcess _productionProcess;
-        public Task(int taskID, int employeeID, int processID, DateTime assignmentDate, DateTime dueDate, string status, string description)
+        public Task()
         {
-            TaskID = taskID;
+            this.PropertyChanging += Task_PropertyChanging;
+            this.PropertyChanged += Task_PropertyChanged;
+        }
+        public Task(int employeeID, int processID, int statusID, DateTime assignmentDate, DateTime dueDate, string description)
+        {
             EmployeeID = employeeID;
             ProcessID = processID;
+            StatusID = statusID;
             AssignmentDate = assignmentDate;
             DueDate = dueDate;
-            Status = status;
             Description = description;
             this.PropertyChanging += Task_PropertyChanging;
             this.PropertyChanged += Task_PropertyChanged;

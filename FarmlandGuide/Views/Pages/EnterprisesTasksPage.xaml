@@ -5,6 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="clr-namespace:FarmlandGuide.Views.Pages"
       xmlns:vm="clr-namespace:FarmlandGuide.ViewModels"
+      xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
       mc:Ignorable="d"
       d:DesignHeight="450"
       d:DesignWidth="800"
@@ -16,10 +17,8 @@
       TextOptions.TextFormattingMode="Ideal"
       TextOptions.TextRenderingMode="Auto"
       Background="{DynamicResource MaterialDesignPaper}"
-      FontFamily="{DynamicResource MaterialDesignFont}">
-    <Page.DataContext>
-        <vm:EnterprisesTasksPageViewModel />
-    </Page.DataContext>
+      FontFamily="{DynamicResource MaterialDesignFont}"
+      DataContext="{Binding EnterprisesTasksPageViewModel, Mode=OneWay, Source={StaticResource Locator}}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"
@@ -42,9 +41,11 @@
                           materialDesign:TextFieldAssist.HasOutlinedTextField="True"
                           Padding="4,4,4,4"
                           FontSize="14"
-                          materialDesign:ComboBoxAssist.MaxLength="4"
+                          materialDesign:ComboBoxAssist.MaxLength="8"
                           IsEditable="True"
                           ItemsSource="{Binding Enterprises}"
+                          DisplayMemberPath="Name"
+                          SelectedItem="{Binding SelectedEnterprise}"
                           Style="{StaticResource MaterialDesignOutlinedComboBox}" />
                 <Button Grid.Column="1"
                         Margin="10,0,10,0"
@@ -71,15 +72,21 @@
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="auto" />
                 </Grid.RowDefinitions>
-                <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                           Text="Задачи предприятия &quot;Золотая нива&quot;"
-                           Margin="10.2,0,0,10" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                               Text="Задачи предприятия"
+                               Margin="10.2,0,0,10" />
+                    <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                               Text="{Binding SelectedEnterprise.Name}"
+                               Margin="10.2,0,0,10" />
+                </StackPanel>
                 <DataGrid Name="ProcessGrid"
                           AutoGenerateColumns="False"
                           Grid.Row="1"
                           Background="White"
                           IsReadOnly="True"
-                          ItemsSource="{Binding Tasks}">
+                          ItemsSource="{Binding Tasks}"
+                          SelectedItem="{Binding SelectedTask}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Фамилия"
                                             Binding="{Binding Employee.Surname}" />
@@ -91,31 +98,47 @@
                                             Binding="{Binding AssignmentDate, StringFormat={}{0:dd/MM/yyyy}}" />
                         <DataGridTextColumn Header="Срок выполнения"
                                             Binding="{Binding DueDate, StringFormat={}{0:dd/MM/yyyy}}" />
+                        <DataGridTextColumn Header="Действие"
+                                            Binding="{Binding ProductionProcess.Name}" />
                         <DataGridTextColumn Header="Статус"
-                                            Binding="{Binding Status}" />
+                                            Binding="{Binding Status.Name}" />
                         <DataGridTextColumn Header="Описание"
                                             Binding="{Binding Description}" />
                     </DataGrid.Columns>
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell"
+                               BasedOn="{StaticResource MaterialDesignDataGridCell}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Status.Number}"
+                                             Value="0">
+                                    <Setter Property="Background"
+                                            Value="White" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Status.Number}"
+                                             Value="1">
+                                    <Setter Property="Background"
+                                            Value="LightGray" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Status.Number}"
+                                             Value="2">
+                                    <Setter Property="Background"
+                                            Value="{StaticResource RedForegroundBrush}" />
+                                    <Setter Property="Foreground"
+                                            Value="White" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.CellStyle>
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding Status}"
-                                             Value="Выполнено">
+                                <DataTrigger Binding="{Binding Status.Number}"
+                                             Value="1">
                                     <Setter Property="Background"
                                             Value="LightGray" />
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding Status}"
-                                             Value="Исполнено">
-                                    <Setter Property="Background"
-                                            Value="LightGray" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Status}"
-                                             Value="Провалено">
-                                    <Setter Property="Background"
-                                            Value="{StaticResource RedForegroundBrush}"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Status}"
-                                             Value="Просрочено">
+                                <DataTrigger Binding="{Binding Status.Number}"
+                                             Value="2">
                                     <Setter Property="Background"
                                             Value="{StaticResource RedForegroundBrush}" />
                                 </DataTrigger>
@@ -131,29 +154,45 @@
                             Content="{materialDesign:PackIcon Kind=Plus}"
                             Style="{StaticResource MaterialDesignFloatingActionDarkButton}"
                             materialDesign:ElevationAssist.Elevation="Dp2"
-                            Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}">
-                        <!--<Button.CommandParameter>
-                            <Frame Source="/Views/Dialogs/EnterprisesTaskAddDialog.xaml"
-                                   Margin="10,10,10,10" />
-                        </Button.CommandParameter>-->
+                            IsEnabled="{Binding IsEnterpriseSelected}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <i:InvokeCommandAction Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}">
+                                    <i:InvokeCommandAction.CommandParameter>
+                                        <Frame Source="/Views/Dialogs/TaskAddEdit.xaml"
+                                               Margin="10,10,10,10" />
+                                    </i:InvokeCommandAction.CommandParameter>
+                                </i:InvokeCommandAction>
+                                <i:InvokeCommandAction Command="{Binding OpenAddDialogCommand}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                     </Button>
                     <Button Margin="8"
                             Content="{materialDesign:PackIcon Kind=Pencil}"
                             Style="{StaticResource MaterialDesignFloatingActionSecondaryLightButton}"
                             materialDesign:ElevationAssist.Elevation="Dp2"
-                            Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}">
-                        <!--<Button.CommandParameter>
-                            <Frame Source="/Views/Dialogs/EnterpriseEditDialog.xaml"
-                                   Margin="10,10,10,10" />
-                        </Button.CommandParameter>-->
+                            IsEnabled="{Binding IsEnterpriseSelected}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <i:InvokeCommandAction Command="{Binding OpenEditDialogCommand}" />
+                                <i:InvokeCommandAction Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
+                                                       IsEnabled="{Binding IsEdit, Mode=OneWay}">
+                                    <i:InvokeCommandAction.CommandParameter>
+                                        <Frame Source="/Views/Dialogs/TaskAddEdit.xaml"
+                                               Margin="10,10,10,10" />
+                                    </i:InvokeCommandAction.CommandParameter>
+                                </i:InvokeCommandAction>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
                     </Button>
                     <Button Margin="8"
                             Content="{materialDesign:PackIcon Kind=Delete}"
                             Style="{StaticResource MaterialDesignFloatingActionMiniLightButton}"
                             materialDesign:ElevationAssist.Elevation="Dp1"
-                            Background="{StaticResource RedForegroundBrush}"
-                            BorderBrush="{StaticResource RedBorderBrush}"
-                            Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}">
+                            Background="#FFF75252"
+                            BorderBrush="#FFFF0202"
+                            Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
+                            IsEnabled="{Binding IsEnterpriseSelected}">
                         <Button.CommandParameter>
                             <StackPanel Margin="16">
                                 <TextBlock Text="Вы уверены, что хотите удалить эту задачу?"
@@ -168,7 +207,7 @@
                                             IsCancel="True"
                                             Style="{StaticResource MaterialDesignRaisedButton}" />
                                     <Button HorizontalAlignment="Right"
-                                            Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                                            Command="{Binding DeleteTaskCommand}"
                                             CommandParameter="Sample2Cancel"
                                             Content="Удалить"
                                             IsCancel="True"
@@ -177,7 +216,6 @@
                                 </Grid>
                             </StackPanel>
                         </Button.CommandParameter>
-
                     </Button>
                 </StackPanel>
             </Grid>

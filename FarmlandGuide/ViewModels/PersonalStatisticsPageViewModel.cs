@@ -14,7 +14,7 @@ namespace FarmlandGuide.ViewModels
     {
         public List<Task> Tasks
         {
-            get => TempModels.Tasks.Where(x => x.Status != "Исполнено").ToList();
+            get => TempModels.Tasks.Where(x => x.Status.Number != 1).ToList();
         }
         public List<WorkSession> WorkSessions => TempModels.WorkSessions;
 

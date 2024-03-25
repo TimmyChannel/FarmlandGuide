@@ -55,15 +55,18 @@ namespace FarmlandGuide.ViewModels
         Employee? _selectedEmployee;
         public void Receive(SelectedEmployeeMessage message)
         {
+            using var db = new ApplicationDbContext();
+
             if (message.Value.WorkSessions is not null)
             {
-                WorkSessions = new(message.Value.WorkSessions);
+                WorkSessions = new(db.WorkSessions.AsNoTracking().Where(ws =>
+                message.Value.WorkSessions.Select(ws => ws.SessionID).Contains(ws.SessionID)).ToList());
             }
             else
             {
                 WorkSessions = new();
             }
-            SelectedEmployee = message.Value;
+            SelectedEmployee = message.Value.Copy();
             IsEmployeeSelected = true;
         }
 
@@ -203,10 +206,12 @@ namespace FarmlandGuide.ViewModels
         private void OnAddWorkSession()
         {
             using var ctx = new ApplicationDbContext();
-            var session = new WorkSession(StartDate.Add(StartTime.TimeOfDay), EndDate.Add(EndTime.TimeOfDay), ActionType,
-                SelectedEmployee?.EmployeeID ?? 1)
+            var session = new WorkSession()
             {
-                Employee = SelectedEmployee
+                StartDateTime = StartDate.Add(StartTime.TimeOfDay),
+                EndDateTime = EndDate.Add(EndTime.TimeOfDay),
+                Type = ActionType.Trim(),
+                Employee = ctx.Employees.AsNoTracking().First(e => e.EmployeeID == SelectedEmployee.EmployeeID),
             };
             ctx.WorkSessions.Add(session);
             ctx.SaveChanges();
@@ -224,19 +229,18 @@ namespace FarmlandGuide.ViewModels
                     $"EndTime: {EndDate.Add(EndTime.TimeOfDay)}\n Action Type: {ActionType} EmployeeID: {SelectedEmployee.EmployeeID}\n");
 
                 var editedWorkSession = ctx.WorkSessions.AsNoTracking().First(ws => ws.SessionID == SelectedWorkSession.SessionID);
-                editedWorkSession.StartDateTime = StartDate.Add(StartTime.TimeOfDay);
-                editedWorkSession.EndDateTime = EndDate.Add(EndTime.TimeOfDay);
-                editedWorkSession.Type = ActionType;
+                editedWorkSession.StartDateTime = StartDate.Add(StartTime.TimeOfDay).Copy();
+                editedWorkSession.EndDateTime = EndDate.Add(EndTime.TimeOfDay).Copy();
+                editedWorkSession.Type = ActionType.Trim();
                 int previousEmployeeID = editedWorkSession.EmployeeID;
-                editedWorkSession.EmployeeID = SelectedEmployee.EmployeeID;
-                editedWorkSession.Employee = SelectedEmployee.Copy();
+                editedWorkSession.Employee = ctx.Employees.AsNoTracking().First(e => e.EmployeeID == SelectedEmployee.EmployeeID);
                 ctx.WorkSessions.Update(editedWorkSession);
                 ctx.SaveChanges();
 
                 Debug.WriteLine($"Edit completed Work Session ID: {editedWorkSession.SessionID} StartTime: {editedWorkSession.StartDateTime}" +
     $"EndTime: {editedWorkSession.StartDateTime}\n Action Type: {editedWorkSession.Type} EmployeeID: {editedWorkSession.EmployeeID}");
 
-                WorkSessions = new(ctx.WorkSessions.Where(ws => ws.EmployeeID == previousEmployeeID));
+                WorkSessions = new(ctx.WorkSessions.AsNoTracking().Where(ws => ws.EmployeeID == previousEmployeeID).ToList());
                 WeakReferenceMessenger.Default.Send(new WorkSessionReassigned(SelectedWorkSession.Copy()));
 
             }
@@ -268,7 +272,10 @@ namespace FarmlandGuide.ViewModels
         private void OnOpenEditDialog()
         {
             if (SelectedWorkSession is null)
+            {
+                IsEdit = false;
                 return;
+            }
             TitleText = "Редактирование рабочей сессии";
             ButtonApplyText = "Сохранить";
             EndDate = SelectedWorkSession.EndDateTime.Date;

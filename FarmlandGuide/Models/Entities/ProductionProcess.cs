@@ -11,6 +11,7 @@ namespace FarmlandGuide.Models
     {
         public int ProcessID { get; set; }
         public int EnterpriseID { get; set; }
+
         [ObservableProperty]
         string _name;
         [ObservableProperty]

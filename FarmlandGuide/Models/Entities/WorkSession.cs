@@ -19,6 +19,11 @@ namespace FarmlandGuide.Models
         string _type;
         [ObservableProperty]
         Employee _employee;
+        public WorkSession()
+        {
+            this.PropertyChanged += WorkSession_PropertyChanged;
+            this.PropertyChanging += WorkSession_PropertyChanging;
+        }
         public WorkSession(DateTime startDateTime, DateTime endDateTime, string type)
         {
             StartDateTime = startDateTime;

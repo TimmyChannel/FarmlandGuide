@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FarmlandGuide.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace FarmlandGuide.Models
@@ -15,6 +17,7 @@ namespace FarmlandGuide.Models
         public virtual DbSet<Employee> Employees { get; set; } = null!;
         public virtual DbSet<Role> Roles { get; set; } = null!;
         public virtual DbSet<Task> Tasks { get; set; } = null!;
+        public virtual DbSet<Status> Statuses { get; set; } = null!;
         public ApplicationDbContext() => Database.EnsureCreated();
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
 : base(options)
@@ -24,8 +27,7 @@ namespace FarmlandGuide.Models
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             // Укажите строку подключения к вашей базе данных
-            optionsBuilder.EnableSensitiveDataLogging();
-            optionsBuilder.UseSqlite("Data Source=FarmlandGuide.db");
+            optionsBuilder.UseSqlite("Data Source=FarmlandGuide2.db");
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -65,13 +67,19 @@ namespace FarmlandGuide.Models
             {
                 entity.HasKey(t => t.TaskID);
                 entity.HasOne(t => t.Employee).WithMany(e => e.Tasks);
-                entity.HasOne(t => t.ProductionProcess).WithMany(pc => pc.Tasks).OnDelete(DeleteBehavior.NoAction);
+                entity.HasOne(t => t.ProductionProcess).WithMany(pc => pc.Tasks);
+                entity.HasOne(t => t.Status).WithMany(s => s.Tasks);
+            });
+            modelBuilder.Entity<Status>(entity =>
+            {
+                entity.HasKey(s => s.StatusID);
+                entity.HasMany(s => s.Tasks).WithOne(t => t.Status);
             });
 
             modelBuilder.Entity<WorkSession>(entity =>
             {
                 entity.HasKey(ws => ws.SessionID);
-                entity.HasOne(ws => ws.Employee).WithMany(e => e.WorkSessions);
+                entity.HasOne(ws => ws.Employee).WithMany(e => e.WorkSessions).OnDelete(DeleteBehavior.Cascade);
             });
 
 

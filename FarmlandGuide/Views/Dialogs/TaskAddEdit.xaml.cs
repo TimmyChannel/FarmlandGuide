@@ -18,11 +18,11 @@ using System.Windows.Shapes;
 namespace FarmlandGuide.Views.Dialogs
 {
     /// <summary>
-    /// Логика взаимодействия для WorkSessionAddEditDialog.xaml
+    /// Логика взаимодействия для TaskAddEdit.xaml
     /// </summary>
-    public partial class WorkSessionAddEditDialog : Page
+    public partial class TaskAddEdit : Page
     {
-        public WorkSessionAddEditDialog()
+        public TaskAddEdit()
         {
             InitializeComponent();
         }

@@ -108,5 +108,9 @@ namespace FarmlandGuide.Models
         {
             OnPropertyChanged(nameof(Enterprise));
         }
+        public override string ToString()
+        {
+            return Surname + " " + Name + " " + Patronymic; 
+        }
     }
 }
