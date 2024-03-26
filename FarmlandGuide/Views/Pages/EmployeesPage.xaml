@@ -131,6 +131,11 @@
                                     <Setter Property="Visibility"
                                             Value="Collapsed" />
                                 </Trigger>
+                                <DataTrigger Binding="{Binding EmployeeName}"
+                                             Value="admin">
+                                    <Setter Property="Visibility"
+                                            Value="Collapsed" />
+                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </DataGrid.Resources>

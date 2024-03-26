@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using FarmlandGuide.Helpers.Messages;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,18 +19,21 @@ namespace FarmlandGuide.Views
     /// <summary>
     /// Логика взаимодействия для AuthorizationWindow.xaml
     /// </summary>
-    public partial class AuthorizationWindow : Window
+    public partial class AuthorizationWindow : Window, IRecipient<LoggedUserMessage>
     {
         public AuthorizationWindow()
         {
             InitializeComponent();
+            WeakReferenceMessenger.Default.RegisterAll(this);
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        public void Receive(LoggedUserMessage message)
         {
             var mainWindow = new MainWindow();
             mainWindow.Show();
             this.Close();
         }
+
     }
 }
+ 

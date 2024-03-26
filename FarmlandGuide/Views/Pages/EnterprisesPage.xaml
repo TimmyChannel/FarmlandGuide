@@ -96,6 +96,11 @@
                                     <Setter Property="Visibility"
                                             Value="Collapsed" />
                                 </Trigger>
+                                <DataTrigger Binding="{Binding Name}"
+                                             Value="2fc4d315a2821ab76dd1c4931596c6ef">
+                                    <Setter Property="Visibility"
+                                            Value="Collapsed" />
+                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </DataGrid.Resources>

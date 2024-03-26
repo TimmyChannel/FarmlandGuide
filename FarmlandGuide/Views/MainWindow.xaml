@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FarmlandGuide.Helpers"
         xmlns:pages="clr-namespace:FarmlandGuide.Views.Pages"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         Title="Фермерский справочник"
         Height="600"
@@ -17,7 +18,8 @@
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
-        WindowState="Maximized">
+        WindowState="Maximized"
+        DataContext="{Binding MainWindowViewModel, Mode=OneWay, Source={StaticResource Locator}}">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -65,14 +67,32 @@
 
                 <materialDesign:NavigationRailAssist.FloatingContent>
                     <StackPanel>
-                        <materialDesign:PackIcon Kind="AccountKey"
-                                                 HorizontalAlignment="Left"
+                        <materialDesign:PackIcon HorizontalAlignment="Left"
                                                  VerticalAlignment="Stretch"
                                                  Width="30"
                                                  Height="30"
-                                                 Foreground="{DynamicResource SecondaryHueMidBrush}" />
+                                                 Foreground="{DynamicResource SecondaryHueMidBrush}">
+                            <materialDesign:PackIcon.Style>
+                                <Style TargetType="materialDesign:PackIcon">
+                                    <Setter Property="Kind"
+                                            Value="AccountKey" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsAdministrator}"
+                                                     Value="True">
+                                            <Setter Property="Kind"
+                                                    Value="AccountKey" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsAdministrator}"
+                                                     Value="False">
+                                            <Setter Property="Kind"
+                                                    Value="AccountHardHat" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </materialDesign:PackIcon.Style>
+                        </materialDesign:PackIcon>
                         <TextBlock Style="{StaticResource MaterialDesignHeadline6TextBlock}"
-                                   Text="Иванов Иван Иванович"
+                                   Text="{Binding EmployeeFIO}"
                                    MaxWidth="190"
                                    TextWrapping="Wrap" />
 
@@ -80,7 +100,7 @@
                                   MaxWidth="190">
                             <Expander.Header>
                                 <TextBlock  Style="{StaticResource MaterialDesignBody2TextBlock}"
-                                            Text="Администратор"
+                                            Text="{Binding Role}"
                                             MaxWidth="190"
                                             TextWrapping="Wrap"
                                             HorizontalAlignment="Left"
@@ -98,7 +118,8 @@
                 </materialDesign:NavigationRailAssist.FloatingContent>
                 <TabItem Width="200"
                          Padding="10,0,0,0"
-                         HorizontalAlignment="Left">
+                         HorizontalAlignment="Left"
+                         Visibility="{Binding IsAdministrator,Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TabItem.Header>
                         <StackPanel Width="auto"
                                     Height="auto"
@@ -117,7 +138,8 @@
                            Source="/Views/Pages/EmployeesPage.xaml" />
                 </TabItem>
                 <TabItem Width="200"
-                         Padding="10,0,0,0">
+                         Padding="10,0,0,0"
+                         Visibility="{Binding IsAdministrator,Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TabItem.Header>
                         <StackPanel Width="auto"
                                     Height="auto"
@@ -138,7 +160,8 @@
 
                 </TabItem>
                 <TabItem Width="200"
-                         Padding="10,0,0,0">
+                         Padding="10,0,0,0"
+                         Visibility="{Binding IsAdministrator,Converter={StaticResource BooleanToVisibilityConverter}}">
                     <TabItem.Header>
                         <StackPanel Width="auto"
                                     Height="auto"

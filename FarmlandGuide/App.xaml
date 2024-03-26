@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:FarmlandGuide"
              xmlns:vm="clr-namespace:FarmlandGuide.ViewModels"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             StartupUri="/Views/MainWindow.xaml">
+             StartupUri="/Views/AuthorizationWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

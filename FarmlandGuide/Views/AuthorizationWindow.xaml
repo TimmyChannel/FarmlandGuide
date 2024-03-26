@@ -18,7 +18,8 @@
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        DataContext="{Binding AuthorizationWindowViewModel, Mode=OneWay, Source={StaticResource Locator}}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.5*" />
@@ -44,9 +45,10 @@
                      Style="{StaticResource MaterialDesignOutlinedTextBox}"
                      HorizontalAlignment="Center"
                      Margin="20,10,20,10"
-                     TextWrapping="Wrap" />
+                     TextWrapping="Wrap" 
+                     Text="{Binding Login, ValidatesOnNotifyDataErrors=True}"/>
             <PasswordBox materialDesign:HintAssist.Hint="Введите пароль"
-                         materialDesign:PasswordBoxAssist.Password="{Binding Password, Mode=TwoWay}"
+                         materialDesign:PasswordBoxAssist.Password="{Binding Password, ValidatesOnNotifyDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
                          materialDesign:TextFieldAssist.HasClearButton="True"
                          Style="{StaticResource MaterialDesignOutlinedRevealPasswordBox}"
                          HorizontalAlignment="Center"
@@ -56,7 +58,8 @@
                     ToolTip="Войти в систему"
                     HorizontalAlignment="Center"
                     Margin="20,10,20,10"
-                    Click="Button_Click">
+                    Command="{Binding LoginToApplicationCommand}"
+                    IsEnabled="{Binding HasErrors, Converter={StaticResource InvertBooleanConverter}}">
                 <TextBlock Text="Вход" />
             </Button>
 
