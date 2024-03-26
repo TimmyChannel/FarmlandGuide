@@ -28,9 +28,28 @@ namespace FarmlandGuide
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            IsNonCloseButtonClicked = true;
             var authWindow = new AuthorizationWindow();
             authWindow.Show();
             this.Close();
+        }
+        bool IsNonCloseButtonClicked;
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (IsNonCloseButtonClicked)
+            {
+                if (e.Cancel)
+                {
+                    IsNonCloseButtonClicked = false; 
+                    return;
+                }
+            }
+            else
+            {
+                e.Cancel = true;
+                App.Current.Shutdown();
+            }
         }
     }
 }

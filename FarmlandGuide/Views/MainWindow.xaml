@@ -19,7 +19,8 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         WindowState="Maximized"
-        DataContext="{Binding MainWindowViewModel, Mode=OneWay, Source={StaticResource Locator}}">
+        DataContext="{Binding MainWindowViewModel, Mode=OneWay, Source={StaticResource Locator}}"
+        Closing="Window_Closing">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

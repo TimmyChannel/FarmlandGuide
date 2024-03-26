@@ -247,11 +247,14 @@ namespace FarmlandGuide.ViewModels
             SelectedEmployee.WorkSchedule = WorkSchedule.Trim();
             SelectedEmployee.Salary = Salary;
             SelectedEmployee.EmployeeName = EmployeeName.Trim();
-            var salt = PasswordManager.GenerateSalt();
-            var passwordHash = PasswordManager.HashPassword(Password, salt);
+            if (!string.IsNullOrEmpty(Password))
+            {
+                var salt = PasswordManager.GenerateSalt();
+                var passwordHash = PasswordManager.HashPassword(Password, salt);
 
-            SelectedEmployee.PasswordHash = passwordHash;
-            SelectedEmployee.PasswordSalt = salt;
+                SelectedEmployee.PasswordHash = passwordHash;
+                SelectedEmployee.PasswordSalt = salt;
+            }
             SelectedEmployee.Enterprise = SelectedEnterprise;
             SelectedEmployee.EnterpriseID = SelectedEnterprise.EnterpriseID;
             SelectedEmployee.Role = SelectedRole;

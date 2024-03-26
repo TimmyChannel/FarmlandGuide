@@ -44,7 +44,7 @@
                      AcceptsReturn="True"
                      Style="{StaticResource MaterialDesignOutlinedTextBox}"
                      HorizontalAlignment="Center"
-                     Margin="20,10,20,10"
+                     Margin="20,20,20,20"
                      TextWrapping="Wrap" 
                      Text="{Binding Login, ValidatesOnNotifyDataErrors=True}"/>
             <PasswordBox materialDesign:HintAssist.Hint="Введите пароль"
@@ -52,7 +52,7 @@
                          materialDesign:TextFieldAssist.HasClearButton="True"
                          Style="{StaticResource MaterialDesignOutlinedRevealPasswordBox}"
                          HorizontalAlignment="Center"
-                         Margin="20,10,20,10" />
+                         Margin="20,20,20,20" />
             <Button materialDesign:ButtonAssist.CornerRadius="5"
                     Style="{StaticResource MaterialDesignRaisedButton}"
                     ToolTip="Войти в систему"

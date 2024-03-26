@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FarmlandGuide.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -17,6 +18,14 @@ namespace FarmlandGuide.Helpers.Validators
         Regex Expression { get; }
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
+            if (validationContext.ObjectInstance is EmployeesPageViewModel vm)
+            {
+                if (value is not string stringValue)
+                    return new("Не строка");
+
+                if (vm.IsEdit && string.IsNullOrEmpty(stringValue))
+                    return ValidationResult.Success;
+            }
             if (value is null)
                 return new("Пустое поле");
             if (value is not string valueString)

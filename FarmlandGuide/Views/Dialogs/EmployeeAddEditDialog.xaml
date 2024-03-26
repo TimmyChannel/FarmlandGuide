@@ -74,13 +74,14 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <TextBox Grid.Row="0"
+                         Grid.Column="1"
                          Margin="10,10,20,20"
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          TextWrapping="Wrap"
                          materialDesign:HintAssist.Hint="Имя"
                          Text="{Binding Name, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}"/>
                 <TextBox Grid.Row="0"
-                         Grid.Column="1"
+                         Grid.Column="0"
                          Margin="10,10,20,20"
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          TextWrapping="Wrap"
