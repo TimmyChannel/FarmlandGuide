@@ -25,8 +25,14 @@ namespace FarmlandGuide.ViewModels
             using var db = new ApplicationDbContext();
             Employees = new(db.Employees.AsNoTracking().ToList());
             WeakReferenceMessenger.Default.RegisterAll(this);
+            this.PropertyChanged += WorkSessionsViewModel_PropertyChanged;
         }
 
+        private void WorkSessionsViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SelectedEmployee))
+                Debug.WriteLine(SelectedEmployee.ToString());
+        }
 
         [ObservableProperty]
         bool _isEdit = false;
@@ -59,7 +65,7 @@ namespace FarmlandGuide.ViewModels
 
             if (message.Value.WorkSessions is not null)
             {
-                WorkSessions = new(db.WorkSessions.AsNoTracking().Where(ws =>
+                WorkSessions = new(db.WorkSessions.AsNoTracking().Include(ws => ws.Employee).Where(ws =>
                 message.Value.WorkSessions.Select(ws => ws.SessionID).Contains(ws.SessionID)).ToList());
             }
             else
@@ -205,18 +211,25 @@ namespace FarmlandGuide.ViewModels
         }
         private void OnAddWorkSession()
         {
-            using var ctx = new ApplicationDbContext();
-            var session = new WorkSession()
+            try
             {
-                StartDateTime = StartDate.Add(StartTime.TimeOfDay),
-                EndDateTime = EndDate.Add(EndTime.TimeOfDay),
-                Type = ActionType.Trim(),
-                Employee = ctx.Employees.AsNoTracking().First(e => e.EmployeeID == SelectedEmployee.EmployeeID),
-            };
-            ctx.WorkSessions.Add(session);
-            ctx.SaveChanges();
-            WeakReferenceMessenger.Default.Send(new WorkSessionReassigned(session));
-            WorkSessions.Add(session);
+                using var ctx = new ApplicationDbContext();
+                var session = new WorkSession()
+                {
+                    StartDateTime = StartDate.Add(StartTime.TimeOfDay),
+                    EndDateTime = EndDate.Add(EndTime.TimeOfDay),
+                    Type = ActionType.Trim(),
+                    Employee = ctx.Employees.First(e => e.EmployeeID == SelectedEmployee.EmployeeID),
+                };
+                ctx.WorkSessions.Add(session);
+                ctx.SaveChanges();
+                WeakReferenceMessenger.Default.Send(new WorkSessionAddMessage(session));
+                WorkSessions.Add(session);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+            }
         }
         private void OnEditWorkSession()
         {
@@ -240,8 +253,8 @@ namespace FarmlandGuide.ViewModels
                 Debug.WriteLine($"Edit completed Work Session ID: {editedWorkSession.SessionID} StartTime: {editedWorkSession.StartDateTime}" +
     $"EndTime: {editedWorkSession.StartDateTime}\n Action Type: {editedWorkSession.Type} EmployeeID: {editedWorkSession.EmployeeID}");
 
-                WorkSessions = new(ctx.WorkSessions.AsNoTracking().Where(ws => ws.EmployeeID == previousEmployeeID).ToList());
-                WeakReferenceMessenger.Default.Send(new WorkSessionReassigned(SelectedWorkSession.Copy()));
+                WorkSessions = new(ctx.WorkSessions.AsNoTracking().Include(ws => ws.Employee).Where(ws => ws.EmployeeID == previousEmployeeID).ToList());
+                WeakReferenceMessenger.Default.Send(new WorkSessionEditMessage(editedWorkSession.Copy()));
 
             }
             catch (Exception e)
@@ -254,18 +267,27 @@ namespace FarmlandGuide.ViewModels
         [RelayCommand]
         public void OnDeleteWorkSession()
         {
-            var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
-            if (SelectedWorkSession is null)
+            try
             {
+                var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
+                if (SelectedWorkSession is null)
+                {
+                    closeDialogCommand.Execute(null, null);
+                    return;
+                }
+                using var ctx = new ApplicationDbContext();
+                ctx.WorkSessions.Remove(SelectedWorkSession);
+                ctx.SaveChanges();
+                WeakReferenceMessenger.Default.Send(new WorkSessionDeleteMessage(SelectedWorkSession));
+                WorkSessions.Remove(SelectedWorkSession);
                 closeDialogCommand.Execute(null, null);
-                return;
+
             }
-            using var ctx = new ApplicationDbContext();
-            ctx.WorkSessions.Remove(SelectedWorkSession);
-            ctx.SaveChanges();
-            WorkSessions.Remove(SelectedWorkSession);
-            WeakReferenceMessenger.Default.Send(new WorkSessionReassigned(SelectedWorkSession));
-            closeDialogCommand.Execute(null, null);
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+            }
+
         }
 
         [RelayCommand]

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FarmlandGuide.Views"
         mc:Ignorable="d"
-        Title="Окно авторизации"
+        Title="Вход в программу Фермерский справочник"
         Height="600"
         Width="400"
         ResizeMode="NoResize"
@@ -19,7 +19,8 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         WindowStartupLocation="CenterScreen"
-        DataContext="{Binding AuthorizationWindowViewModel, Mode=OneWay, Source={StaticResource Locator}}">
+        DataContext="{Binding AuthorizationWindowViewModel, Mode=OneWay, Source={StaticResource Locator}}"
+        Icon="/Views/FarmlandGuideAuthIcon.ico">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.5*" />

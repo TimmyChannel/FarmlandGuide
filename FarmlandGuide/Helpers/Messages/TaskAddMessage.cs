@@ -5,12 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Task = FarmlandGuide.Models.Task;
 
 namespace FarmlandGuide.Helpers.Messages
 {
-    public sealed class WorkSessionReassigned : ValueChangedMessage<WorkSession>
+    public sealed class TaskAddMessage : ValueChangedMessage<Task>
     {
-        public WorkSessionReassigned(WorkSession workSession) : base(workSession)
+        public TaskAddMessage(Task task) : base(task)
         {
         }
     }

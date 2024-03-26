@@ -67,7 +67,7 @@
                                    materialDesign:HintAssist.Hint="Выберите время окончания"
                                    Is24Hours="True"
                                    Style="{StaticResource MaterialDesignOutlinedTimePicker}"
-                                   SelectedTime="{Binding EndTime, ValidatesOnNotifyDataErrors=True, UpdateSourceTrigger=PropertyChanged}"/>
+                                   SelectedTime="{Binding EndTime, ValidatesOnNotifyDataErrors=True, UpdateSourceTrigger=PropertyChanged}" />
         <TextBox Grid.Row="3"
                  Margin="5,20,5,20"
                  Style="{StaticResource MaterialDesignOutlinedTextBox}"
@@ -84,10 +84,23 @@
                   FontSize="14"
                   Style="{StaticResource MaterialDesignOutlinedComboBox}"
                   IsEditable="True"
-                  ItemsSource="{Binding Employees}"
+                  ItemsSource="{Binding Employees, Mode=OneTime}"
                   TextBoxBase.TextChanged="ComboBox_TextChanged"
                   IsTextSearchEnabled="False"
-                  SelectedItem="{Binding SelectedEmployee,  UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}">
+                  SelectedItem="{Binding SelectedEmployee, Mode=TwoWay, UpdateSourceTrigger=LostFocus, ValidatesOnNotifyDataErrors=True}"
+                  IsSynchronizedWithCurrentItem="True">
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ComboBoxItem"
+                       BasedOn="{StaticResource MaterialDesignComboBoxItemStyle}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding EmployeeName}"
+                                     Value="admin">
+                            <Setter Property="Visibility"
+                                    Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ItemsControl.ItemContainerStyle>
             <ComboBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock>

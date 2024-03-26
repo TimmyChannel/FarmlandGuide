@@ -15,10 +15,8 @@
       TextOptions.TextFormattingMode="Ideal"
       TextOptions.TextRenderingMode="Auto"
       Background="{DynamicResource MaterialDesignPaper}"
-      FontFamily="{DynamicResource MaterialDesignFont}">
-    <Page.DataContext>
-        <vm:PersonalStatisticsPageViewModel />
-    </Page.DataContext>
+      FontFamily="{DynamicResource MaterialDesignFont}"
+      DataContext="{Binding PersonalStatisticsPageViewModel, Mode=OneWay, Source={StaticResource Locator}}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
@@ -40,40 +38,55 @@
                 <DataGrid Name="ProcessGrid"
                           AutoGenerateColumns="False"
                           Grid.Row="1"
-                          Grid.Column="0"
                           Background="White"
                           IsReadOnly="True"
                           ItemsSource="{Binding Tasks}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Дата назначения"
-                                            Binding="{Binding AssignmentDate}" />
+                                            Binding="{Binding AssignmentDate, StringFormat={}{0:dd/MM/yyyy}}" />
                         <DataGridTextColumn Header="Срок выполнения"
-                                            Binding="{Binding DueDate}" />
+                                            Binding="{Binding DueDate, StringFormat={}{0:dd/MM/yyyy}}" />
+                        <DataGridTextColumn Header="Действие"
+                                            Binding="{Binding ProductionProcess.Name}" />
                         <DataGridTextColumn Header="Статус"
-                                            Binding="{Binding Status}" />
+                                            Binding="{Binding Status.Name}" />
                         <DataGridTextColumn Header="Описание"
                                             Binding="{Binding Description}" />
                     </DataGrid.Columns>
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell"
+                               BasedOn="{StaticResource MaterialDesignDataGridCell}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Status.Number}"
+                                             Value="0">
+                                    <Setter Property="Background"
+                                            Value="White" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Status.Number}"
+                                             Value="1">
+                                    <Setter Property="Background"
+                                            Value="LightGray" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Status.Number}"
+                                             Value="2">
+                                    <Setter Property="Background"
+                                            Value="{StaticResource RedForegroundBrush}" />
+                                    <Setter Property="Foreground"
+                                            Value="White" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.CellStyle>
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding Status}"
-                                             Value="Выполнено">
+                                <DataTrigger Binding="{Binding Status.Number}"
+                                             Value="1">
                                     <Setter Property="Background"
                                             Value="LightGray" />
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding Status}"
-                                             Value="Исполнено">
-                                    <Setter Property="Background"
-                                            Value="LightGray" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Status}"
-                                             Value="Провалено">
-                                    <Setter Property="Background"
-                                            Value="{StaticResource RedForegroundBrush}" />
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Status}"
-                                             Value="Просрочено">
+                                <DataTrigger Binding="{Binding Status.Number}"
+                                             Value="2">
                                     <Setter Property="Background"
                                             Value="{StaticResource RedForegroundBrush}" />
                                 </DataTrigger>

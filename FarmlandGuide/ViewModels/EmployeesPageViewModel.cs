@@ -20,23 +20,41 @@ using FarmlandGuide.Helpers.Messages;
 
 namespace FarmlandGuide.ViewModels
 {
-    public partial class EmployeesPageViewModel : ObservableValidator, IRecipient<WorkSessionReassigned>
+    public partial class EmployeesPageViewModel : ObservableValidator, IRecipient<EnterpriseTableUpdateMessage>, IRecipient<WorkSessionEditMessage>, IRecipient<WorkSessionDeleteMessage>, IRecipient<WorkSessionAddMessage>
     {
         public EmployeesPageViewModel()
         {
             using var db = new ApplicationDbContext();
-            Employees = new(db.Employees.Include(e => e.WorkSessions).ToList());
-            Enterprises = new(db.Enterprises.ToList());
-            Roles = new(db.Roles.ToList());
+            Employees = new(db.Employees.AsNoTracking().Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
+            Enterprises = new(db.Enterprises.AsNoTracking().ToList());
+            Roles = new(db.Roles.AsNoTracking().ToList());
             this.PropertyChanged += EmployeesPageViewModel_PropertyChanged;
             WeakReferenceMessenger.Default.RegisterAll(this);
         }
-        public void Receive(WorkSessionReassigned message)
+        public void Receive(WorkSessionEditMessage message)
         {
             using var db = new ApplicationDbContext();
-            Employees = new(db.Employees.AsNoTracking().Include(e => e.WorkSessions).ToList());
+            Employees = new(db.Employees.AsNoTracking().Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
 
         }
+        public void Receive(WorkSessionAddMessage message)
+        {
+            using var db = new ApplicationDbContext();
+            Employees = new(db.Employees.AsNoTracking().Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
+        }
+
+        public void Receive(WorkSessionDeleteMessage message)
+        {
+            using var db = new ApplicationDbContext();
+            Employees = new(db.Employees.AsNoTracking().Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
+        }
+
+        public void Receive(EnterpriseTableUpdateMessage message)
+        {
+            using var db = new ApplicationDbContext();
+            Enterprises = new(db.Enterprises.ToList());
+        }
+
 
         private void EmployeesPageViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -238,31 +256,39 @@ namespace FarmlandGuide.ViewModels
         }
         private void OnEditEmployee()
         {
-            using var ctx = new ApplicationDbContext();
-            SelectedEmployee.Name = Name.Trim();
-            SelectedEmployee.Surname = Surname.Trim();
-            SelectedEmployee.Patronymic = Patronymic.Trim();
-            SelectedEmployee.ResidentialAddress = ResidentialAddress.Trim();
-            SelectedEmployee.Position = Position.Trim();
-            SelectedEmployee.WorkSchedule = WorkSchedule.Trim();
-            SelectedEmployee.Salary = Salary;
-            SelectedEmployee.EmployeeName = EmployeeName.Trim();
-            if (!string.IsNullOrEmpty(Password))
+            try
             {
-                var salt = PasswordManager.GenerateSalt();
-                var passwordHash = PasswordManager.HashPassword(Password, salt);
+                using var ctx = new ApplicationDbContext();
+                var editedEmployee = ctx.Employees.AsNoTracking().First(e => e.EmployeeID == SelectedEmployee.EmployeeID);
+                editedEmployee.Name = Name.Trim();
+                editedEmployee.Surname = Surname.Trim();
+                editedEmployee.Patronymic = Patronymic.Trim();
+                editedEmployee.ResidentialAddress = ResidentialAddress.Trim();
+                editedEmployee.Position = Position.Trim();
+                editedEmployee.WorkSchedule = WorkSchedule.Trim();
+                editedEmployee.Salary = Salary;
+                editedEmployee.EmployeeName = EmployeeName.Trim();
+                if (!string.IsNullOrEmpty(Password))
+                {
+                    var salt = PasswordManager.GenerateSalt();
+                    var passwordHash = PasswordManager.HashPassword(Password, salt);
 
-                SelectedEmployee.PasswordHash = passwordHash;
-                SelectedEmployee.PasswordSalt = salt;
+                    editedEmployee.PasswordHash = passwordHash;
+                    editedEmployee.PasswordSalt = salt;
+                }
+                editedEmployee.Enterprise = SelectedEnterprise.Copy();
+                editedEmployee.Role = SelectedRole.Copy();
+
+                ctx.Employees.Update(editedEmployee);
+                ctx.SaveChanges();
+                WeakReferenceMessenger.Default.Send(new EmployeeTableUpdateMessage(editedEmployee.Copy()));
+                Employees = new(ctx.Employees.AsNoTracking().Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
+
             }
-            SelectedEmployee.Enterprise = SelectedEnterprise;
-            SelectedEmployee.EnterpriseID = SelectedEnterprise.EnterpriseID;
-            SelectedEmployee.Role = SelectedRole;
-            SelectedEmployee.RoleID = SelectedRole.RoleID;
-
-            ctx.Employees.Update(SelectedEmployee);
-            ctx.SaveChanges();
-            WeakReferenceMessenger.Default.Send(new EmployeeTableUpdateMessage(SelectedEmployee));
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+            }
         }
 
         [RelayCommand]
@@ -286,7 +312,10 @@ namespace FarmlandGuide.ViewModels
         private void OnOpenEditDialog()
         {
             if (SelectedEmployee is null)
+            {
+                IsEdit = false;
                 return;
+            }    
             TitleText = "Редактирование информации о сотруднике";
             ButtonApplyText = "Сохранить";
             Name = SelectedEmployee.Name;

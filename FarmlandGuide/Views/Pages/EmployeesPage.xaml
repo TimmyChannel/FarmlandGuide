@@ -280,6 +280,7 @@
                                                Margin="10,10,10,10" />
                                     </i:InvokeCommandAction.CommandParameter>
                                 </i:InvokeCommandAction>
+                                <i:InvokeCommandAction Command="{Binding OpenEditDialogCommand}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>

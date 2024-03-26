@@ -5,7 +5,17 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>FarmlandGuideIcon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Views\FarmlandGuideAuthIcon.ico" />
+    <None Remove="Views\FarmlandGuideIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="FarmlandGuideIcon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
@@ -17,6 +27,11 @@
     <PackageReference Include="NLog" Version="5.2.8" />
     <PackageReference Include="NPOI" Version="2.6.2" />
     <PackageReference Include="ShowMeTheXAML.MSBuild" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Views\FarmlandGuideAuthIcon.ico" />
+    <Resource Include="Views\FarmlandGuideIcon.ico" />
   </ItemGroup>
 
   <ItemGroup>

@@ -20,7 +20,8 @@
         FontFamily="{DynamicResource MaterialDesignFont}"
         WindowState="Maximized"
         DataContext="{Binding MainWindowViewModel, Mode=OneWay, Source={StaticResource Locator}}"
-        Closing="Window_Closing">
+        Closing="Window_Closing"
+        Icon="/Views/FarmlandGuideIcon.ico">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

@@ -79,21 +79,21 @@
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          TextWrapping="Wrap"
                          materialDesign:HintAssist.Hint="Имя"
-                         Text="{Binding Name, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}"/>
+                         Text="{Binding Name, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}" />
                 <TextBox Grid.Row="0"
                          Grid.Column="0"
                          Margin="10,10,20,20"
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          TextWrapping="Wrap"
                          materialDesign:HintAssist.Hint="Фамилия"
-                         Text="{Binding Surname, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}"/>
+                         Text="{Binding Surname, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}" />
                 <TextBox Grid.Row="0"
                          Grid.Column="3"
                          Margin="10,10,20,20"
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          TextWrapping="Wrap"
                          materialDesign:HintAssist.Hint="Отчество"
-                         Text="{Binding Patronymic, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}"/>
+                         Text="{Binding Patronymic, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}" />
                 <TextBox Grid.Row="1"
                          Grid.ColumnSpan="3"
                          Margin="10,10,20,20"
@@ -145,7 +145,8 @@
                           Style="{StaticResource MaterialDesignOutlinedComboBox}"
                           ItemsSource="{Binding Enterprises}"
                           DisplayMemberPath="Name"
-                          SelectedItem="{Binding SelectedEnterprise,  UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                          SelectedItem="{Binding SelectedEnterprise, UpdateSourceTrigger=PropertyChanged,  ValidatesOnNotifyDataErrors=True}"
+                          IsSynchronizedWithCurrentItem="True" />
 
                 <TextBox Grid.Row="0"
                          Grid.Column="1"
@@ -153,21 +154,21 @@
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          TextWrapping="Wrap"
                          materialDesign:HintAssist.Hint="Должность"
-                         Text="{Binding Position, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}"/>
+                         Text="{Binding Position, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}" />
                 <TextBox Grid.Row="0"
                          Grid.Column="3"
                          Margin="10,10,20,20"
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          TextWrapping="Wrap"
                          materialDesign:HintAssist.Hint="График работы"
-                         Text="{Binding WorkSchedule, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}"/>
+                         Text="{Binding WorkSchedule, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}" />
                 <TextBox Grid.Row="1"
                          Margin="10,10,20,20"
                          Style="{StaticResource MaterialDesignOutlinedTextBox}"
                          TextWrapping="Wrap"
                          materialDesign:HintAssist.Hint="Заработная плата"
                          materialDesign:TextFieldAssist.SuffixText="₽"
-                         Text="{Binding Salary, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}"/>
+                         Text="{Binding Salary, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}" />
             </Grid>
         </GroupBox>
         <GroupBox Grid.Row="3"
@@ -208,7 +209,7 @@
                          materialDesign:HintAssist.Hint="Логин"
                          materialDesign:TextFieldAssist.CharacterCounterVisibility="Visible"
                          ToolTip="В логине должно быть минимум 4 символа"
-                         Text="{Binding EmployeeName, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}"/>
+                         Text="{Binding EmployeeName, UpdateSourceTrigger=PropertyChanged,ValidatesOnNotifyDataErrors=True}" />
 
                 <PasswordBox Grid.Row="0"
                              Grid.Column="1"
@@ -238,7 +239,8 @@
                           Style="{StaticResource MaterialDesignOutlinedComboBox}"
                           ItemsSource="{Binding Roles}"
                           DisplayMemberPath="Name"
-                          SelectedItem="{Binding SelectedRole,  UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                          SelectedItem="{Binding SelectedRole,  UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+                          IsSynchronizedWithCurrentItem="True" />
             </Grid>
         </GroupBox>
 

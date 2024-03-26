@@ -22,7 +22,7 @@ using FarmlandGuide.Models.Entities;
 
 namespace FarmlandGuide.ViewModels
 {
-    public partial class EnterprisesTasksPageViewModel : ObservableValidator, IRecipient<EnterpriseTableUpdateMessage>, IRecipient<SelectedEnterpriseMessage>
+    public partial class EnterprisesTasksPageViewModel : ObservableValidator, IRecipient<EnterpriseTableUpdateMessage>
     {
         public EnterprisesTasksPageViewModel()
         {
@@ -174,23 +174,13 @@ namespace FarmlandGuide.ViewModels
 
         private void SortAndFilterTasks()
         {
-            //Сортировка задач: сначала все кроме выполненных, затем выполненные
             var notCompletedTasks = Tasks.Where(t => t.Status.Number != 1).OrderBy(t => t.AssignmentDate).ToList();
             var completedTasks = Tasks.Where(t => t.Status.Number == 1).OrderBy(t => t.AssignmentDate).ToList();
-
-            // Очистка текущей коллекции задач
             Tasks.Clear();
-
-            // Добавление задач обратно в коллекцию с учетом нового порядка
             foreach (var task in notCompletedTasks.Concat(completedTasks))
             {
                 Tasks.Add(task);
             }
-        }
-        public void Receive(SelectedEnterpriseMessage message)
-        {
-            using var ctx = new ApplicationDbContext();
-            Enterprises = new(ctx.Enterprises.AsNoTracking().Include(e => e.ProductionProcesses).ToList());
         }
 
         public void Receive(EnterpriseTableUpdateMessage message)
@@ -245,6 +235,7 @@ namespace FarmlandGuide.ViewModels
                 ctx.Tasks.Add(task);
                 ctx.SaveChanges();
                 Tasks.Add(task);
+                WeakReferenceMessenger.Default.Send(new TaskAddMessage(task));
             }
             catch (Exception e)
             {
@@ -267,6 +258,8 @@ namespace FarmlandGuide.ViewModels
                 ctx.SaveChanges();
                 Tasks = new(ctx.Tasks.AsNoTracking().Where(t => t.ProductionProcess.EnterpriseID == SelectedEnterprise.EnterpriseID)
                     .Include(t => t.Employee).Include(t => t.ProductionProcess).Include(t => t.Status).ToList());
+                WeakReferenceMessenger.Default.Send(new TaskEditMessage(task));
+
             }
             catch (Exception e)
             {
@@ -288,6 +281,8 @@ namespace FarmlandGuide.ViewModels
             ctx.SaveChanges();
             Tasks.Remove(SelectedTask);
             closeDialogCommand.Execute(null, null);
+            WeakReferenceMessenger.Default.Send(new TaskDeleteMessage(SelectedTask));
+
         }
 
         [RelayCommand]

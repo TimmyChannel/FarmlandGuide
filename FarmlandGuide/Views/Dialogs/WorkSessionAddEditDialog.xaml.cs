@@ -57,5 +57,8 @@ namespace FarmlandGuide.Views.Dialogs
                 Debug.WriteLine(ex.Message);
             }
         }
+
+        
+
     }
 }
