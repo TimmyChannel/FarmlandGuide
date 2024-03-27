@@ -11,6 +11,8 @@ namespace FarmlandGuide.ViewModels
 {
     public partial class MainWindowViewModel : ObservableObject, IRecipient<LoggedUserMessage>
     {
+        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         [ObservableProperty]
         string _employeeFIO;
         [ObservableProperty]
@@ -24,10 +26,19 @@ namespace FarmlandGuide.ViewModels
 
         public void Receive(LoggedUserMessage message)
         {
-            var employee = message.Value;
-            EmployeeFIO = employee.ToString();
-            Role = employee.Role.Name;
-            IsAdministrator = employee.Role.RoleID == 1;
+            try
+            {
+                _logger.Trace("Receiving LoggedUserMessage {0}", message.Value);
+                var employee = message.Value;
+                EmployeeFIO = employee.ToString();
+                Role = employee.Role.Name;
+                IsAdministrator = employee.Role.RoleID == 1;
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
     }
 }

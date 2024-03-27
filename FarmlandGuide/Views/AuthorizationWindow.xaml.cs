@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using FarmlandGuide.Helpers.Messages;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,7 @@ namespace FarmlandGuide.Views
     /// </summary>
     public partial class AuthorizationWindow : Window, IRecipient<LoggedUserMessage>
     {
+        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         public AuthorizationWindow()
         {
             InitializeComponent();
@@ -29,6 +31,7 @@ namespace FarmlandGuide.Views
 
         public void Receive(LoggedUserMessage message)
         {
+            _logger.Debug("Closing...");
             var mainWindow = new MainWindow();
             mainWindow.Show();
             this.Close();

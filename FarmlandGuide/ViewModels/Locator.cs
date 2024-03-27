@@ -8,6 +8,8 @@ namespace FarmlandGuide.ViewModels
 {
     public class Locator
     {
+        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         public EmployeesPageViewModel EmployeesPageViewModel { get; }
         public EnterpisesPageViewModel EnterpisesPageViewModel { get; }
         public EnterprisesTasksPageViewModel EnterprisesTasksPageViewModel { get; }

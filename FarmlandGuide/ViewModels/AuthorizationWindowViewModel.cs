@@ -17,6 +17,8 @@ namespace FarmlandGuide.ViewModels
 {
     public partial class AuthorizationWindowViewModel : ObservableValidator
     {
+        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         string _login;
         string _password;
         [CustomValidation(typeof(AuthorizationWindowViewModel), nameof(ValidateLogin))]
@@ -70,11 +72,17 @@ namespace FarmlandGuide.ViewModels
         [RelayCommand]
         private void OnLoginToApplication()
         {
+            _logger.Debug("Login attempt initiated");
             ValidateAllProperties();
-            if (HasErrors) return;
+            if (HasErrors)
+            {
+                _logger.Info("Login attempt is failed");
+                return;
+            }
             using var ctx = new ApplicationDbContext();
-            var employee = ctx.Employees.Include(e=>e.Role).First(e => e.EmployeeName == Login).Copy();
+            var employee = ctx.Employees.Include(e => e.Role).First(e => e.EmployeeName == Login).Copy();
             WeakReferenceMessenger.Default.Send(new LoggedUserMessage(employee.Copy()));
+            _logger.Info("Success login. Employee: {0}", Login);
             Password = "";
             Login = "";
             ClearErrors();

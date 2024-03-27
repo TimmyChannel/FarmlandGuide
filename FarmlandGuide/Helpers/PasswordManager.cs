@@ -7,6 +7,7 @@ namespace FarmlandGuide.Helpers
 {
     public static class PasswordManager
     {
+
         public static string GenerateSalt()
         {
             byte[] saltBytes = RandomNumberGenerator.GetBytes(16);

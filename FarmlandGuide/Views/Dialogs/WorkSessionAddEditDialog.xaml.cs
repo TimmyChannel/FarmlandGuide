@@ -22,6 +22,8 @@ namespace FarmlandGuide.Views.Dialogs
     /// </summary>
     public partial class WorkSessionAddEditDialog : Page
     {
+        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         public WorkSessionAddEditDialog()
         {
             InitializeComponent();

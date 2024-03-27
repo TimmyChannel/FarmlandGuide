@@ -17,5 +17,9 @@ namespace FarmlandGuide.Models.Entities
             Name = name;
             Number = number;
         }
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

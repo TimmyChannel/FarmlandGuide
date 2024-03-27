@@ -22,20 +22,33 @@ namespace FarmlandGuide.ViewModels
 {
     public partial class ProcessesPageViewModel : ObservableValidator, IRecipient<EnterpriseTableUpdateMessage>
     {
+        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         [ObservableProperty]
         bool _isEdit = false;
 
         public ProcessesPageViewModel()
         {
+            _logger.Trace("ProcessesPageViewModel creating");
             using var ctx = new ApplicationDbContext();
             ProductionProcesses = new(ctx.ProductionProcesses);
             WeakReferenceMessenger.Default.RegisterAll(this);
             Enterprises = new(ctx.Enterprises);
+            _logger.Trace("ProcessesPageViewModel created");
         }
         public void Receive(EnterpriseTableUpdateMessage message)
         {
-            using var ctx = new ApplicationDbContext();
-            Enterprises = new(ctx.Enterprises.ToList());
+            try
+            {
+                using var ctx = new ApplicationDbContext();
+                _logger.Trace("Receiving EnterpriseTableUpdateMessage {0}", message.Value);
+                Enterprises = new(ctx.Enterprises.ToList());
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
 
         [ObservableProperty]
@@ -118,9 +131,13 @@ namespace FarmlandGuide.ViewModels
         [RelayCommand]
         private void OnApplayChangesAtProductionProcess()
         {
+            _logger.Debug("Initiated change application attempt");
             ValidateAllProperties();
             if (HasErrors)
+            {
+                _logger.Warn("Failed change application attempt. Data errors.");
                 return;
+            }
 
             if (IsEdit)
                 OnEditProductionProcess();
@@ -131,83 +148,136 @@ namespace FarmlandGuide.ViewModels
         [RelayCommand]
         private void OnCloseDialogAndClearProps()
         {
-            IsEdit = false;
-            Name = string.Empty;
-            Description = string.Empty;
-            Cost = 0;
-            SelectedEnterprise = null;
-            ClearErrors();
-            var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
-            closeDialogCommand.Execute(null, null);
+            try
+            {
+                _logger.Trace("Closing dialog and clear all props");
+                IsEdit = false;
+                Name = string.Empty;
+                Description = string.Empty;
+                Cost = 0;
+                SelectedEnterprise = null;
+                ClearErrors();
+                var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
+                closeDialogCommand.Execute(null, null);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
         private void OnAddProductionProcess()
         {
-            using var ctx = new ApplicationDbContext();
-            var process = new ProductionProcess(Name.Trim(), Description.Trim(), Cost, SelectedEnterprise?.EnterpriseID ?? 1)
+            try
             {
-                Enterprise = ctx.Enterprises.First(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID)
-            };
-            ctx.ProductionProcesses.Add(process);
-            ctx.SaveChanges();
-            ProductionProcesses.Add(process);
-
-            Debug.WriteLine($"Added production process: {Name} {Description} {Cost} EnterpriseID: {SelectedEnterprise}");
+                _logger.Info("Addition new process");
+                using var ctx = new ApplicationDbContext();
+                var process = new ProductionProcess(Name.Trim(), Description.Trim(), Cost, SelectedEnterprise?.EnterpriseID ?? 1)
+                {
+                    Enterprise = ctx.Enterprises.First(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID)
+                };
+                ctx.ProductionProcesses.Add(process);
+                ctx.SaveChanges();
+                ProductionProcesses.Add(process);
+                _logger.Info("Added new process: {0}", process.ToString());
+                WeakReferenceMessenger.Default.Send(new ProductionProcessTableUpdate(process));
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
         private void OnEditProductionProcess()
         {
-            using var ctx = new ApplicationDbContext();
-            SelectedProductionProcess.Name = Name.Trim();
-            SelectedProductionProcess.Description = Description.Trim();
-            SelectedProductionProcess.Cost = Cost;
-            SelectedProductionProcess.Enterprise = ctx.Enterprises.First(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID);
-            SelectedProductionProcess.EnterpriseID = SelectedEnterprise?.EnterpriseID ?? 1;
+            try
+            {
+                _logger.Info("Editing process");
+                using var ctx = new ApplicationDbContext();
+                SelectedProductionProcess.Name = Name.Trim();
+                SelectedProductionProcess.Description = Description.Trim();
+                SelectedProductionProcess.Cost = Cost;
+                SelectedProductionProcess.Enterprise = ctx.Enterprises.First(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID);
+                SelectedProductionProcess.EnterpriseID = SelectedEnterprise?.EnterpriseID ?? 1;
 
-            ctx.ProductionProcesses.Update(SelectedProductionProcess);
-            ctx.SaveChanges();
+                ctx.ProductionProcesses.Update(SelectedProductionProcess);
+                ctx.SaveChanges();
+                _logger.Info("Edited process: {0}", SelectedProductionProcess.ToString());
+                WeakReferenceMessenger.Default.Send(new ProductionProcessTableUpdate(SelectedProductionProcess));
 
-            Debug.WriteLine($"Edited production process: {Name} {Description} {Cost}");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
 
         [RelayCommand]
         private void OnDeleteProductionProcess()
         {
-            var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
-            if (SelectedProductionProcess is null)
+            try
             {
+                _logger.Info("Deleting process");
+                var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
+                if (SelectedProductionProcess is null)
+                {
+                    closeDialogCommand.Execute(null, null);
+                    return;
+                }
+                using var ctx = new ApplicationDbContext();
+                ctx.ProductionProcesses.Remove(SelectedProductionProcess);
+                ctx.SaveChanges();
+                _logger.Info("Deleted process: {0}", SelectedProductionProcess.ToString());
+                WeakReferenceMessenger.Default.Send(new ProductionProcessTableUpdate(SelectedProductionProcess));
+                ProductionProcesses.Remove(SelectedProductionProcess);
                 closeDialogCommand.Execute(null, null);
-                return;
+
             }
-            using var ctx = new ApplicationDbContext();
-            ctx.ProductionProcesses.Remove(SelectedProductionProcess);
-            ctx.SaveChanges();
-            ProductionProcesses.Remove(SelectedProductionProcess);
-            closeDialogCommand.Execute(null, null);
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
 
         [RelayCommand]
         private void OnOpenEditDialog()
         {
-            if (SelectedProductionProcess is null)
-                return;
-            TitleText = "Редактирование производственного процесса";
-            ButtonApplyText = "Сохранить";
-            Name = SelectedProductionProcess.Name;
-            Description = SelectedProductionProcess.Description;
-            Cost = SelectedProductionProcess.Cost;
-            SelectedEnterprise = SelectedProductionProcess.Enterprise;
-            IsEdit = true;
+            try
+            {
+                if (SelectedProductionProcess is null)
+                    return;
+                TitleText = "Редактирование производственного процесса";
+                ButtonApplyText = "Сохранить";
+                Name = SelectedProductionProcess.Name;
+                Description = SelectedProductionProcess.Description;
+                Cost = SelectedProductionProcess.Cost;
+                SelectedEnterprise = SelectedProductionProcess.Enterprise;
+                IsEdit = true;
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
         [RelayCommand]
         private void OnOpenAddDialog()
         {
-            TitleText = "Добавление нового производственного процесса";
-            ButtonApplyText = "Добавить";
-            IsEdit = false;
-            Name = string.Empty;
-            Description = string.Empty;
-            Cost = 0;
-            SelectedEnterprise = null;
-            ClearErrors();
+            try
+            {
+                TitleText = "Добавление нового производственного процесса";
+                ButtonApplyText = "Добавить";
+                IsEdit = false;
+                Name = string.Empty;
+                Description = string.Empty;
+                Cost = 0;
+                SelectedEnterprise = null;
+                ClearErrors();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
 
     }

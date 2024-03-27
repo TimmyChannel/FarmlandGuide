@@ -19,10 +19,12 @@
              Loaded="FullInfoUserControl_Loaded">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition />
-            <RowDefinition />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         <StackPanel Orientation="Horizontal"
                     Grid.Row="0">
@@ -35,6 +37,20 @@
         <StackPanel Orientation="Horizontal"
                     Grid.Row="1"
                     Margin="0,10,0,10">
+            <TextBlock Text="Проживает:"
+                       Style="{StaticResource MaterialDesignSubtitle1TextBlock}" />
+            <TextBlock Text="{Binding ResidentialAddress, ElementName=FullInfoUserControl}"
+                       Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                       Margin="5,0,0,0" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal"
+                    Grid.Row="2"
+                    Margin="0,10,0,10">
+            <TextBlock Text="Предприятие:"
+                       Style="{StaticResource MaterialDesignSubtitle1TextBlock}" />
+            <TextBlock Text="{Binding EnterpriseName, ElementName=FullInfoUserControl}"
+                       Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                       Margin="5,0,30,0" />
             <TextBlock Text="Должность:"
                        Style="{StaticResource MaterialDesignSubtitle1TextBlock}" />
             <TextBlock Text="{Binding Position, ElementName=FullInfoUserControl}"
@@ -42,20 +58,165 @@
                        Margin="5,0,0,0" />
         </StackPanel>
         <StackPanel Orientation="Horizontal"
-                    Grid.Row="2"
+                    Grid.Row="3"
                     Margin="0,10,0,10">
-            <TextBlock Text="Проживает:"
+            <TextBlock Text="Фиксированная зарплата:"
                        Style="{StaticResource MaterialDesignSubtitle1TextBlock}" />
-            <TextBlock Text="{Binding Position, ElementName=FullInfoUserControl}"
+            <TextBlock Text="{Binding FixedSalary, ElementName=FullInfoUserControl}"
+                       Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                       Margin="5,0,30,0" />
+            <TextBlock Text="Высчитанная зарплата:"
+                       Style="{StaticResource MaterialDesignSubtitle1TextBlock}" />
+            <TextBlock Text="{Binding CalculatedSalary, ElementName=FullInfoUserControl}"
                        Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
                        Margin="5,0,0,0" />
         </StackPanel>
-        <Button HorizontalAlignment="Left"
+        <Grid Grid.Row="4"
+              Margin="10,30,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="0.1*" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="0.1*" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <materialDesign:Badged BadgePlacementMode="TopLeft"
+                                   BadgeBackground="ForestGreen"
+                                   BadgeForeground="White"
+                                   materialDesign:ElevationAssist.Elevation="Dp2"
+                                   Grid.Column="0"
+                                   Margin="15,0,0,0"
+                                   HorizontalAlignment="Stretch"
+                                   CornerRadius="2">
+                <materialDesign:Badged.Badge>
+                    <materialDesign:PackIcon Kind="CheckboxOutline"
+                                             Width="30"
+                                             Height="30"
+                                             Margin="6" />
+                </materialDesign:Badged.Badge>
+                <materialDesign:Card materialDesign:ElevationAssist.Elevation="Dp2">
+                    <StackPanel Margin="0,40,0,0">
+                        <TextBlock Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                                   Margin="10,0,10,10"
+                                   materialDesign:ElevationAssist.Elevation="Dp2">
+                            Задач <LineBreak />
+                            выполнено:
+                        </TextBlock>
+                        <TextBlock HorizontalAlignment="Center"
+                                   Text="{Binding TasksCountFromLastMonthSucces, ElementName=FullInfoUserControl}"
+                                   Style="{StaticResource MaterialDesignHeadline4TextBlock}"
+                                   Margin="0,10,0,10" />
+                        <Separator Style="{StaticResource MaterialDesignDarkSeparator}"
+                                   Margin="10,0,10,0" />
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="10,10,10,10">
+                            <materialDesign:PackIcon Kind="CalendarMonth"
+                                                     VerticalAlignment="Bottom"
+                                                     Foreground="Gray" />
+                            <TextBlock Text="За последний месяц"
+                                       FontSize="10"
+                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                       Foreground="Gray" />
+                        </StackPanel>
+
+                    </StackPanel>
+                </materialDesign:Card>
+            </materialDesign:Badged>
+
+            <materialDesign:Badged BadgePlacementMode="TopLeft"
+                                   BadgeBackground="Orange"
+                                   BadgeForeground="White"
+                                   materialDesign:ElevationAssist.Elevation="Dp2"
+                                   Grid.Column="2"
+                                   HorizontalAlignment="Stretch"
+                                   CornerRadius="2">
+                <materialDesign:Badged.Badge>
+                    <materialDesign:PackIcon Kind="ProgressClock"
+                                             Width="30"
+                                             Height="30"
+                                             Margin="6" />
+                </materialDesign:Badged.Badge>
+                <materialDesign:Card materialDesign:ElevationAssist.Elevation="Dp2"
+                                     HorizontalAlignment="Stretch">
+                    <StackPanel Margin="0,40,0,0"
+                                HorizontalAlignment="Stretch">
+                        <TextBlock HorizontalAlignment="Stretch"
+                                   Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                                   Margin="10,0,10,10"
+                                   materialDesign:ElevationAssist.Elevation="Dp2">
+                            Задач <LineBreak />
+                            в работе:
+                        </TextBlock>
+                        <TextBlock HorizontalAlignment="Center"
+                                   Text="{Binding TasksCountFromLastMonthInWork, ElementName=FullInfoUserControl}"
+                                   Style="{StaticResource MaterialDesignHeadline4TextBlock}"
+                                   Margin="0,10,0,10" />
+                        <Separator Style="{StaticResource MaterialDesignDarkSeparator}"
+                                   Margin="10,0,10,0" />
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="10,10,10,10">
+                            <materialDesign:PackIcon Kind="CalendarClock"
+                                                     VerticalAlignment="Bottom"
+                                                     Foreground="Gray" />
+                            <TextBlock Text="На текущий момент"
+                                       FontSize="10"
+                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                       Foreground="Gray" />
+                        </StackPanel>
+
+                    </StackPanel>
+                </materialDesign:Card>
+            </materialDesign:Badged>
+            <materialDesign:Badged BadgePlacementMode="TopLeft"
+                                   BadgeBackground="{StaticResource RedBorderBrush}"
+                                   BadgeForeground="White"
+                                   materialDesign:ElevationAssist.Elevation="Dp2"
+                                   Grid.Column="4"
+                                   Margin="0,0,15,0"
+                                   HorizontalAlignment="Stretch"
+                                   CornerRadius="2">
+                <materialDesign:Badged.Badge>
+                    <materialDesign:PackIcon Kind="AlertBoxOutline"
+                                             Width="30"
+                                             Height="30"
+                                             Margin="6" />
+                </materialDesign:Badged.Badge>
+                <materialDesign:Card materialDesign:ElevationAssist.Elevation="Dp2">
+                    <StackPanel Margin="0,40,0,0">
+                        <TextBlock Style="{StaticResource MaterialDesignSubtitle1TextBlock}"
+                                   Margin="10,0,10,10"
+                                   materialDesign:ElevationAssist.Elevation="Dp2">
+                            Задач <LineBreak />
+                            провалено:
+                        </TextBlock>
+                        <TextBlock HorizontalAlignment="Center"
+                                   Text="{Binding TasksCountFromLastMonthFailed, ElementName=FullInfoUserControl}"
+                                   Style="{StaticResource MaterialDesignHeadline4TextBlock}"
+                                   Margin="0,10,0,10" />
+                        <Separator Style="{StaticResource MaterialDesignDarkSeparator}"
+                                   Margin="10,0,10,0" />
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="10,10,10,10">
+                            <materialDesign:PackIcon Kind="CalendarMonth"
+                                                     VerticalAlignment="Bottom"
+                                                     Foreground="Gray" />
+                            <TextBlock Text="За последний месяц"
+                                       FontSize="10"
+                                       Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                       Foreground="Gray" />
+                        </StackPanel>
+
+                    </StackPanel>
+                </materialDesign:Card>
+            </materialDesign:Badged>
+
+        </Grid>
+        <Button HorizontalAlignment="Center"
                 Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
                 CommandParameter="Sample2Cancel"
-                Content="Отмена"
+                Content="Выход"
                 IsCancel="True"
                 Style="{StaticResource MaterialDesignRaisedButton}"
-                Grid.Row="6"/>
+                Grid.Row="6" />
     </Grid>
 </UserControl>

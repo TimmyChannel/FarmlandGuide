@@ -23,11 +23,14 @@ namespace FarmlandGuide.ViewModels
 {
     public partial class EnterpisesPageViewModel : ObservableValidator
     {
+        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public EnterpisesPageViewModel()
         {
+            _logger.Trace("EnterpisesPageViewModel creating");
             using var ctx = new ApplicationDbContext();
             Enterprises = new(ctx.Enterprises);
+            _logger.Trace("EnterpisesPageViewModel created");
         }
 
         [ObservableProperty]
@@ -71,9 +74,13 @@ namespace FarmlandGuide.ViewModels
         [RelayCommand]
         private void OnApplayChangesAtEnterprises()
         {
+            _logger.Debug("Initiated change application attempt");
             ValidateAllProperties();
             if (HasErrors)
+            {
+                _logger.Warn("Failed change application attempt. Data errors.");
                 return;
+            }
 
             if (IsEdit)
                 OnEditEnterprise();
@@ -84,71 +91,121 @@ namespace FarmlandGuide.ViewModels
         [RelayCommand]
         private void OnCloseDialogAndClearProps()
         {
-            IsEdit = false;
-            Name = string.Empty;
-            Address = string.Empty;
-            ClearErrors();
-            var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
-            closeDialogCommand.Execute(null, null);
+            try
+            {
+                _logger.Trace("Closing dialog and clear all props");
+                IsEdit = false;
+                Name = string.Empty;
+                Address = string.Empty;
+                ClearErrors();
+                var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
+                closeDialogCommand.Execute(null, null);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
         private void OnAddEnterprise()
         {
-            using var ctx = new ApplicationDbContext();
-            var enterpise = new Enterprise(Name.Trim(), Address.Trim());
-            ctx.Enterprises.Add(enterpise);
-            ctx.SaveChanges();
-            Enterprises.Add(enterpise);
-            WeakReferenceMessenger.Default.Send(new EnterpriseTableUpdateMessage(enterpise));
-            Debug.WriteLine($"Added enterprise name: {Name} and address: {Address}");
+            try
+            {
+                _logger.Info("Addition new enterprise");
+                using var ctx = new ApplicationDbContext();
+                var enterpise = new Enterprise(Name.Trim(), Address.Trim());
+                ctx.Enterprises.Add(enterpise);
+                ctx.SaveChanges();
+                Enterprises.Add(enterpise);
+                _logger.Info("Added new enterprise: {0}", enterpise.ToString());
+                WeakReferenceMessenger.Default.Send(new EnterpriseTableUpdateMessage(enterpise));
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
 
         private void OnEditEnterprise()
         {
-            using var ctx = new ApplicationDbContext();
-            SelectedEnterprise.Name = Name.Trim();
-            SelectedEnterprise.Address = Address.Trim();
-            ctx.Enterprises.Update(SelectedEnterprise);
-            ctx.SaveChanges();
-            WeakReferenceMessenger.Default.Send(new EnterpriseTableUpdateMessage(SelectedEnterprise));
-            Debug.WriteLine($"Edited enterprise name: {Name} and address: {Address}");
+            try
+            {
+                _logger.Info("Editing enterprise");
+                using var ctx = new ApplicationDbContext();
+                SelectedEnterprise.Name = Name.Trim();
+                SelectedEnterprise.Address = Address.Trim();
+                ctx.Enterprises.Update(SelectedEnterprise);
+                ctx.SaveChanges();
+                _logger.Info("Edited enterprise: {0}", SelectedEnterprise.ToString());
+                WeakReferenceMessenger.Default.Send(new EnterpriseTableUpdateMessage(SelectedEnterprise));
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
 
         [RelayCommand]
         private void OnDeleteEnterprise()
         {
-            var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
-            if (SelectedEnterprise is null)
+            try
             {
+                _logger.Info("Deleting enterprise");
+                var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
+                if (SelectedEnterprise is null)
+                {
+                    closeDialogCommand.Execute(null, null);
+                    return;
+                }
+                using var ctx = new ApplicationDbContext();
+                ctx.Enterprises.Remove(SelectedEnterprise);
+                ctx.SaveChanges();
+                WeakReferenceMessenger.Default.Send(new EnterpriseTableUpdateMessage(SelectedEnterprise));
+                _logger.Info("Deleted enterpise: {0}", SelectedEnterprise.ToString());
+                Enterprises.Remove(SelectedEnterprise);
                 closeDialogCommand.Execute(null, null);
-                return;
+
             }
-            using var ctx = new ApplicationDbContext();
-            ctx.Enterprises.Remove(SelectedEnterprise);
-            ctx.SaveChanges();
-            WeakReferenceMessenger.Default.Send(new EnterpriseTableUpdateMessage(SelectedEnterprise));
-            Enterprises.Remove(SelectedEnterprise);
-            closeDialogCommand.Execute(null, null);
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
         [RelayCommand]
         private void OnOpenEditDialog()
         {
-            if (SelectedEnterprise is null)
-                return;
-            TitleText = "Редактирование производственного процесса";
-            ButtonApplyText = "Сохранить";
-            Name = SelectedEnterprise.Name;
-            Address = SelectedEnterprise.Address;
-            IsEdit = true;
+            try
+            {
+                if (SelectedEnterprise is null)
+                    return;
+                TitleText = "Редактирование производственного процесса";
+                ButtonApplyText = "Сохранить";
+                Name = SelectedEnterprise.Name;
+                Address = SelectedEnterprise.Address;
+                IsEdit = true;
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
         [RelayCommand]
         private void OnOpenAddDialog()
         {
-            TitleText = "Добавление нового производственного процесса";
-            ButtonApplyText = "Добавить";
-            IsEdit = false;
-            Name = string.Empty;
-            Address = string.Empty;
-            ClearErrors();
+            try
+            {
+                TitleText = "Добавление нового производственного процесса";
+                ButtonApplyText = "Добавить";
+                IsEdit = false;
+                Name = string.Empty;
+                Address = string.Empty;
+                ClearErrors();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
     }
 }

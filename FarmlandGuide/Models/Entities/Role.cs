@@ -14,6 +14,9 @@ namespace FarmlandGuide.Models
         [ObservableProperty]
         string _name;
         public ICollection<Employee> Employees { get; set; }
-
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

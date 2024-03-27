@@ -60,5 +60,9 @@ namespace FarmlandGuide.Models
         {
             OnPropertyChanged(nameof(Employee));
         }
+        public override string ToString()
+        {
+            return $"StartDateTime: {StartDateTime} EndDateTime: {EndDateTime} Type: {Type}"; 
+        }
     }
 }

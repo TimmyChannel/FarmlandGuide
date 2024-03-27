@@ -1,4 +1,5 @@
 ﻿using FarmlandGuide.Views;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,8 @@ namespace FarmlandGuide
     /// </summary>
     public partial class MainWindow : Window
     {
+        private static Logger _logger = LogManager.GetCurrentClassLogger();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -28,6 +31,7 @@ namespace FarmlandGuide
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            _logger.Info("Logout");
             IsNonCloseButtonClicked = true;
             var authWindow = new AuthorizationWindow();
             authWindow.Show();
@@ -37,18 +41,27 @@ namespace FarmlandGuide
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (IsNonCloseButtonClicked)
+            try
             {
-                if (e.Cancel)
+                if (IsNonCloseButtonClicked)
                 {
-                    IsNonCloseButtonClicked = false; 
-                    return;
+                    if (e.Cancel)
+                    {
+                        _logger.Debug("Main window exit");
+                        IsNonCloseButtonClicked = false;
+                        return;
+                    }
+                }
+                else
+                {
+                    e.Cancel = true;
+                    _logger.Debug("App shutdown from main window");
+                    App.Current.Shutdown();
                 }
             }
-            else
+            catch (Exception ex)
             {
-                e.Cancel = true;
-                App.Current.Shutdown();
+                _logger.Error(ex, "Something went wrong");
             }
         }
     }

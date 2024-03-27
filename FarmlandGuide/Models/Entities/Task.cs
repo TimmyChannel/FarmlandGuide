@@ -86,5 +86,10 @@ namespace FarmlandGuide.Models
         {
             OnPropertyChanged(nameof(Employee));
         }
+
+        public override string ToString()
+        {
+            return $"AssignmentDate: {AssignmentDate} DueDate: {DueDate} Description: {Description}" ;
+        }
     }
 }

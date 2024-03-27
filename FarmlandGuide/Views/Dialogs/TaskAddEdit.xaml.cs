@@ -22,6 +22,8 @@ namespace FarmlandGuide.Views.Dialogs
     /// </summary>
     public partial class TaskAddEdit : Page
     {
+        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         public TaskAddEdit()
         {
             InitializeComponent();

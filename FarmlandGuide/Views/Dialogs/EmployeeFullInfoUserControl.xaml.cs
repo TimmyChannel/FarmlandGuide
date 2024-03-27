@@ -1,7 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using FarmlandGuide.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -15,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Task = FarmlandGuide.Models.Task;
 
 namespace FarmlandGuide.Views.Dialogs
 {
@@ -24,6 +27,8 @@ namespace FarmlandGuide.Views.Dialogs
     [ObservableObject]
     public partial class EmployeeFullInfoUserControl : UserControl
     {
+        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         public static readonly DependencyProperty EmployeeProperty = DependencyProperty.Register(
             "Employee",
             typeof(Employee),
@@ -41,12 +46,70 @@ namespace FarmlandGuide.Views.Dialogs
         string _fIO;
         [ObservableProperty]
         string _position;
+        [ObservableProperty]
+        string _workSchedule;
+        [ObservableProperty]
+        decimal _fixedSalary;
+        [ObservableProperty]
+        string _residentialAddress;
+        [ObservableProperty]
+        string _enterpriseName;
+        [ObservableProperty]
+        int _tasksCountFromLastMonthSucces;
+        [ObservableProperty]
+        int _tasksCountFromLastMonthInWork;
+        [ObservableProperty]
+        int _tasksCountFromLastMonthFailed;
+        [ObservableProperty]
+        decimal _calculatedSalary;
+        Enterprise _enterprise;
+        //ObservableCollection<WorkSession> _workSessions;
+        ObservableCollection<Task> _tasks;
 
         private void FullInfoUserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine($"Employee {Employee}");
-            FIO = Employee.Name;
-            Position = Employee.Position;
+            try
+            {
+                _logger.Trace("Full info user control loaded. Employee: {0}", Employee.ToString());
+                using var ctx = new ApplicationDbContext();
+                _enterprise = ctx.Enterprises.Find(Employee.EnterpriseID);
+                //_workSessions = new(ctx.WorkSessions.Where(ws => ws.EmployeeID == Employee.EmployeeID).ToList());
+                _tasks = new(ctx.Tasks.Where(t => t.EmployeeID == Employee.EmployeeID).Include(t => t.ProductionProcess).Include(t => t.Status).ToList());
+
+                Debug.WriteLine($"Employee {Employee}");
+                FIO = Employee.ToString();
+                Position = Employee.Position;
+                WorkSchedule = Employee.WorkSchedule;
+                FixedSalary = Employee.Salary;
+                ResidentialAddress = Employee.ResidentialAddress;
+                EnterpriseName = _enterprise.Name;
+                CalculateSalaryFromTasks();
+                _logger.Trace("Full info about employee: {0} loaded", Employee.ToString());
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
+
+        }
+        private void CalculateSalaryFromTasks()
+        {
+            try
+            {
+                _logger.Trace("Start salary and tasks calculation");
+                TasksCountFromLastMonthFailed = _tasks.Where(t => t.DueDate >= DateTime.Now.AddMonths(-1)).Count(t => t.Status.Number == 2);
+                TasksCountFromLastMonthSucces = _tasks.Where(t => t.DueDate >= DateTime.Now.AddMonths(-1)).Count(t => t.Status.Number == 1);
+                TasksCountFromLastMonthInWork = _tasks.Count(t => t.Status.Number == 0);
+                CalculatedSalary = _tasks.Where(t => t.Status.Number == 1 && t.DueDate >= DateTime.Now.AddMonths(-1)).Sum(t => t.ProductionProcess.Cost);
+                _logger.Trace("Complete salary and tasks calculation.\n" +
+                    "Task count: failed - {0}, success - {1}, in work - {2}. Calculated salary - {3}", TasksCountFromLastMonthFailed, TasksCountFromLastMonthSucces, TasksCountFromLastMonthInWork, CalculatedSalary);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
 
         }
     }

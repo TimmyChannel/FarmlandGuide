@@ -51,5 +51,9 @@ namespace FarmlandGuide.Models
         {
             OnPropertyChanged(nameof(Enterprise));
         }
+        public override string ToString()
+        {
+            return Name + " " + Cost;
+        }
     }
 }

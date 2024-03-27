@@ -22,10 +22,13 @@ using FarmlandGuide.Models.Entities;
 
 namespace FarmlandGuide.ViewModels
 {
-    public partial class EnterprisesTasksPageViewModel : ObservableValidator, IRecipient<EnterpriseTableUpdateMessage>
+    public partial class EnterprisesTasksPageViewModel : ObservableValidator, IRecipient<EnterpriseTableUpdateMessage>, IRecipient<ProductionProcessTableUpdate>
     {
+        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+
         public EnterprisesTasksPageViewModel()
         {
+            _logger.Trace("EnterprisesTasksPageViewModel creating");
             using var ctx = new ApplicationDbContext();
             Statuses = new(ctx.Statuses.AsNoTracking().ToList());
             Enterprises = new(ctx.Enterprises.AsNoTracking().ToList());
@@ -33,33 +36,66 @@ namespace FarmlandGuide.ViewModels
             Processes = new(ctx.ProductionProcesses.AsNoTracking().ToList());
             this.PropertyChanged += EnterprisesTasksPageViewModel_PropertyChanged;
             WeakReferenceMessenger.Default.RegisterAll(this);
+            _logger.Trace("EnterprisesTasksPageViewModel created");
         }
         public void Receive(EnterpriseTableUpdateMessage message)
         {
             using var ctx = new ApplicationDbContext();
+            _logger.Trace("Receiving EnterpriseTableUpdateMessage {0}", message.Value);
             Enterprises = new(ctx.Enterprises.ToList());
         }
+        public void Receive(ProductionProcessTableUpdate message)
+        {
+            _logger.Trace("Receiving ProductionProcessTableUpdate {0}", message.Value);
+            if (SelectedEnterprise is not null)
+                IsEnterpriseSelected = true;
+            else
+            {
+                IsEnterpriseSelected = false;
+                Tasks = new();
+                Employees = new();
+                Processes = new();
+                _logger.Warn("Selected enterprise is null");
+                return;
+            }
+            using var ctx = new ApplicationDbContext();
+            Tasks = new(ctx.Tasks.AsNoTracking().Where(t => t.ProductionProcess.EnterpriseID == SelectedEnterprise.EnterpriseID)
+                .Include(t => t.Employee).Include(t => t.ProductionProcess).Include(t => t.Status).ToList());
+            Employees = new(ctx.Employees.AsNoTracking().Where(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID).ToList());
+            Processes = new(ctx.ProductionProcesses.AsNoTracking().Where(pp => pp.EnterpriseID == SelectedEnterprise.EnterpriseID).ToList());
+            SortAndFilterTasks();
+        }
+
 
         private void EnterprisesTasksPageViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(SelectedEnterprise))
+            try
             {
-                if (SelectedEnterprise is not null)
-                    IsEnterpriseSelected = true;
-                else
+                if (e.PropertyName == nameof(SelectedEnterprise))
                 {
-                    IsEnterpriseSelected = false;
-                    Tasks = new();
-                    Employees = new();
-                    Processes = new();
-                    return;
+                    if (SelectedEnterprise is not null)
+                        IsEnterpriseSelected = true;
+                    else
+                    {
+                        IsEnterpriseSelected = false;
+                        Tasks = new();
+                        Employees = new();
+                        Processes = new();
+                        _logger.Warn("Selected enterprise is null");
+                        return;
+                    }
+                    using var ctx = new ApplicationDbContext();
+                    Tasks = new(ctx.Tasks.AsNoTracking().Where(t => t.ProductionProcess.EnterpriseID == SelectedEnterprise.EnterpriseID)
+                        .Include(t => t.Employee).Include(t => t.ProductionProcess).Include(t => t.Status).ToList());
+                    Employees = new(ctx.Employees.AsNoTracking().Where(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID).ToList());
+                    Processes = new(ctx.ProductionProcesses.AsNoTracking().Where(pp => pp.EnterpriseID == SelectedEnterprise.EnterpriseID).ToList());
+                    SortAndFilterTasks();
                 }
-                using var ctx = new ApplicationDbContext();
-                Tasks = new(ctx.Tasks.AsNoTracking().Where(t => t.ProductionProcess.EnterpriseID == SelectedEnterprise.EnterpriseID)
-                    .Include(t => t.Employee).Include(t => t.ProductionProcess).Include(t => t.Status).ToList());
-                Employees = new(ctx.Employees.AsNoTracking().Where(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID).ToList());
-                Processes = new(ctx.ProductionProcesses.AsNoTracking().Where(pp => pp.EnterpriseID == SelectedEnterprise.EnterpriseID).ToList());
-                SortAndFilterTasks();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
             }
         }
 
@@ -179,16 +215,24 @@ namespace FarmlandGuide.ViewModels
 
         private void SortAndFilterTasks()
         {
-            var notCompletedTasks = Tasks.Where(t => t.Status.Number != 1).OrderBy(t => t.AssignmentDate).ToList();
-            var completedTasks = Tasks.Where(t => t.Status.Number == 1).OrderBy(t => t.AssignmentDate).ToList();
-            Tasks.Clear();
-            foreach (var task in notCompletedTasks.Concat(completedTasks))
+            try
             {
-                Tasks.Add(task);
+                _logger.Trace("Start tasks sorting");
+                var notCompletedTasks = Tasks.Where(t => t.Status.Number != 1).OrderBy(t => t.AssignmentDate).ToList();
+                var completedTasks = Tasks.Where(t => t.Status.Number == 1).OrderBy(t => t.AssignmentDate).ToList();
+                Tasks.Clear();
+                foreach (var task in notCompletedTasks.Concat(completedTasks))
+                {
+                    Tasks.Add(task);
+                }
+                _logger.Trace("End tasks sorting");
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
             }
         }
-
-
         [RelayCommand]
         private void OnApplayChangesAtTasks()
         {
@@ -206,22 +250,30 @@ namespace FarmlandGuide.ViewModels
         [RelayCommand]
         private void OnCloseDialogAndClearProps()
         {
-            AssignmentDate = DateTime.Now;
-            DueDate = DateTime.Now.AddDays(1);
-            Description = string.Empty;
-            SelectedEmployee = null;
-            SelectedStatus = null;
-            SelectedProductionProcess = null;
-            SelectedTask = null;
-            ClearErrors();
-            var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
-            closeDialogCommand.Execute(null, null);
-
+            try
+            {
+                _logger.Trace("Closing dialog and clear all props");
+                AssignmentDate = DateTime.Now;
+                DueDate = DateTime.Now.AddDays(1);
+                Description = string.Empty;
+                SelectedEmployee = null;
+                SelectedStatus = null;
+                SelectedProductionProcess = null;
+                SelectedTask = null;
+                ClearErrors();
+                var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
+                closeDialogCommand.Execute(null, null);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
         private void OnAddTask()
         {
             try
             {
+                _logger.Info("Addition new task");
                 using var ctx = new ApplicationDbContext();
                 var task = new FarmlandTask()
                 {
@@ -235,17 +287,19 @@ namespace FarmlandGuide.ViewModels
                 ctx.Tasks.Add(task);
                 ctx.SaveChanges();
                 Tasks.Add(task);
+                _logger.Info("Added new task: {0}", task.ToString());
                 WeakReferenceMessenger.Default.Send(new TaskAddMessage(task));
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Debug.WriteLine(e.Message);
+                _logger.Error(ex, "Something went wrong");
             }
         }
         private void OnEditTask()
         {
             try
             {
+                _logger.Info("Editing task");
                 using var ctx = new ApplicationDbContext();
                 var task = ctx.Tasks.AsNoTracking().First(t => t.TaskID == SelectedTask.TaskID);
                 task.AssignmentDate = AssignmentDate.Copy();
@@ -258,65 +312,89 @@ namespace FarmlandGuide.ViewModels
                 ctx.SaveChanges();
                 Tasks = new(ctx.Tasks.AsNoTracking().Where(t => t.ProductionProcess.EnterpriseID == SelectedEnterprise.EnterpriseID)
                     .Include(t => t.Employee).Include(t => t.ProductionProcess).Include(t => t.Status).ToList());
+                _logger.Info("Edited task: {0}", task.ToString());
                 WeakReferenceMessenger.Default.Send(new TaskEditMessage(task));
 
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Debug.WriteLine(e.Message);
+                _logger.Error(ex, "Something went wrong");
             }
         }
 
         [RelayCommand]
         public void OnDeleteTask()
         {
-            var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
-            if (SelectedTask is null)
+            try
             {
+                _logger.Info("Deleting task");
+                var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
+                if (SelectedTask is null)
+                {
+                    closeDialogCommand.Execute(null, null);
+                    return;
+                }
+                using var ctx = new ApplicationDbContext();
+                ctx.Tasks.Remove(SelectedTask);
+                ctx.SaveChanges();
+                _logger.Info("Deleted task: {0}", SelectedTask.ToString());
+                Tasks.Remove(SelectedTask);
                 closeDialogCommand.Execute(null, null);
-                return;
+                WeakReferenceMessenger.Default.Send(new TaskDeleteMessage(SelectedTask));
             }
-            using var ctx = new ApplicationDbContext();
-            ctx.Tasks.Remove(SelectedTask);
-            ctx.SaveChanges();
-            Tasks.Remove(SelectedTask);
-            closeDialogCommand.Execute(null, null);
-            WeakReferenceMessenger.Default.Send(new TaskDeleteMessage(SelectedTask));
-
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
 
         [RelayCommand]
         private void OnOpenEditDialog()
         {
-            if (SelectedTask is null)
+            try
             {
-                IsEdit = false;
-                return;
+                if (SelectedTask is null)
+                {
+                    IsEdit = false;
+                    return;
+                }
+                TitleText = "Редактирование задания";
+                ButtonApplyText = "Сохранить";
+                DueDate = SelectedTask.DueDate;
+                AssignmentDate = SelectedTask.AssignmentDate;
+                Description = SelectedTask.Description;
+                SelectedEmployee = SelectedTask.Employee.Copy();
+                SelectedProductionProcess = SelectedTask.ProductionProcess.Copy();
+                SelectedStatus = SelectedTask.Status;
+                IsEdit = true;
             }
-            TitleText = "Редактирование задания";
-            ButtonApplyText = "Сохранить";
-            DueDate = SelectedTask.DueDate;
-            AssignmentDate = SelectedTask.AssignmentDate;
-            Description = SelectedTask.Description;
-            SelectedEmployee = SelectedTask.Employee.Copy();
-            SelectedProductionProcess = SelectedTask.ProductionProcess.Copy();
-            SelectedStatus = SelectedTask.Status;
-            IsEdit = true;
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
 
         [RelayCommand]
         private void OnOpenAddDialog()
         {
-            TitleText = "Добавление нового задания";
-            ButtonApplyText = "Добавить";
-            IsEdit = false;
-            AssignmentDate = DateTime.Now;
-            DueDate = DateTime.Now.AddMinutes   (1);
-            Description = string.Empty;
-            SelectedEmployee = null;
-            SelectedProductionProcess = null;
-            SelectedStatus = null;
-            ClearErrors();
+            try
+            {
+                TitleText = "Добавление нового задания";
+                ButtonApplyText = "Добавить";
+                IsEdit = false;
+                AssignmentDate = DateTime.Now;
+                DueDate = DateTime.Now.AddMinutes(1);
+                Description = string.Empty;
+                SelectedEmployee = null;
+                SelectedProductionProcess = null;
+                SelectedStatus = null;
+                ClearErrors();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
 
     }

@@ -21,5 +21,9 @@ namespace FarmlandGuide.Models
             Name = name;
             Address = address;
         }
+        public override string ToString()
+        {
+            return Name; 
+        }
     }
 }

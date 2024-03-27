@@ -20,21 +20,32 @@ namespace FarmlandGuide.ViewModels
 {
     public partial class WorkSessionsViewModel : ObservableValidator, IRecipient<SelectedEmployeeMessage>, IRecipient<EmployeeTableUpdateMessage>
     {
+        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         public WorkSessionsViewModel()
         {
+            _logger.Trace("WorkSessionsViewModel creating");
             using var db = new ApplicationDbContext();
             Employees = new(db.Employees.AsNoTracking().ToList());
             WeakReferenceMessenger.Default.RegisterAll(this);
             this.PropertyChanged += WorkSessionsViewModel_PropertyChanged;
+            _logger.Trace("WorkSessionsViewModel` created");
         }
 
         private void WorkSessionsViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(SelectedEmployee))
+            try
             {
-                SelectedEmployeeIndex = Employees.IndexOf(SelectedEmployee ?? Employees.First());
-                if (SelectedEmployee is not null)
-                    Debug.WriteLine(SelectedEmployee.ToString());
+                if (e.PropertyName == nameof(SelectedEmployee))
+                {
+                    SelectedEmployeeIndex = Employees.IndexOf(SelectedEmployee ?? Employees.First());
+                    if (SelectedEmployee is not null)
+                        Debug.WriteLine(SelectedEmployee.ToString());
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
             }
         }
         [ObservableProperty]
@@ -67,26 +78,34 @@ namespace FarmlandGuide.ViewModels
         Employee? _selectedEmployee;
         public void Receive(SelectedEmployeeMessage message)
         {
-            using var db = new ApplicationDbContext();
+            try
+            {
+                using var db = new ApplicationDbContext();
+                _logger.Trace("Receiving SelectedEmployeeMessage {0}", message.Value);
+                if (message.Value.WorkSessions is not null)
+                {
+                    WorkSessions = new(db.WorkSessions.AsNoTracking().Include(ws => ws.Employee).Where(ws =>
+                    message.Value.WorkSessions.Select(ws => ws.SessionID).Contains(ws.SessionID)).ToList());
+                }
+                else
+                {
+                    WorkSessions = new();
+                }
+                SelectedEmployee = message.Value.Copy();
+                IsEmployeeSelected = true;
 
-            if (message.Value.WorkSessions is not null)
-            {
-                WorkSessions = new(db.WorkSessions.AsNoTracking().Include(ws => ws.Employee).Where(ws =>
-                message.Value.WorkSessions.Select(ws => ws.SessionID).Contains(ws.SessionID)).ToList());
             }
-            else
+            catch (Exception ex)
             {
-                WorkSessions = new();
+                _logger.Error(ex, "Something went wrong");
             }
-            SelectedEmployee = message.Value.Copy();
-            IsEmployeeSelected = true;
         }
 
         public void Receive(EmployeeTableUpdateMessage message)
         {
             using var db = new ApplicationDbContext();
             Employees = new(db.Employees.AsNoTracking().ToList());
-
+            _logger.Trace("Receiving EmployeeTableUpdateMessage {0}", message.Value);
         }
 
 
@@ -182,9 +201,13 @@ namespace FarmlandGuide.ViewModels
         [RelayCommand]
         private void OnApplayChangesAtWorkSessions()
         {
+            _logger.Debug("Initiated change application attempt");
             ValidateAllProperties();
             if (HasErrors)
+            {
+                _logger.Warn("Failed change application attempt. Data errors.");
                 return;
+            }
 
             if (IsEdit)
                 OnEditWorkSession();
@@ -204,21 +227,31 @@ namespace FarmlandGuide.ViewModels
         [RelayCommand]
         private void OnCloseDialogAndClearProps()
         {
-            IsEdit = false;
-            StartDate = DateTime.Now;
-            EndDate = DateTime.Now.AddDays(1);
-            StartTime = DateTime.MinValue;
-            EndTime = DateTime.MinValue.AddHours(12);
-            ActionType = string.Empty;
-            SelectedEmployee = null;
-            ClearErrors();
-            var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
-            closeDialogCommand.Execute(null, null);
+            try
+            {
+                _logger.Trace("Closing dialog and clear all props");
+                IsEdit = false;
+                StartDate = DateTime.Now;
+                EndDate = DateTime.Now.AddDays(1);
+                StartTime = DateTime.MinValue;
+                EndTime = DateTime.MinValue.AddHours(12);
+                ActionType = string.Empty;
+                SelectedEmployee = null;
+                ClearErrors();
+                var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
+                closeDialogCommand.Execute(null, null);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
         private void OnAddWorkSession()
         {
             try
             {
+                _logger.Info("Addition new session");
                 using var ctx = new ApplicationDbContext();
                 var session = new WorkSession()
                 {
@@ -229,12 +262,13 @@ namespace FarmlandGuide.ViewModels
                 };
                 ctx.WorkSessions.Add(session);
                 ctx.SaveChanges();
+                _logger.Info("Added new session: {0}", session.ToString());
                 WeakReferenceMessenger.Default.Send(new WorkSessionAddMessage(session));
                 WorkSessions.Add(session);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Debug.WriteLine(e.Message);
+                _logger.Error(ex, "Something went wrong");
             }
         }
         private void OnEditWorkSession()
@@ -242,11 +276,7 @@ namespace FarmlandGuide.ViewModels
             try
             {
                 using var ctx = new ApplicationDbContext();
-                Debug.WriteLine($"Start edititng Work Session ID: {SelectedWorkSession.SessionID} StartTime: {SelectedWorkSession.StartDateTime}" +
-                    $"EndTime: {SelectedWorkSession.EndDateTime}\n Action Type: {SelectedWorkSession.Type} EmployeeID: {SelectedWorkSession.EmployeeID}\n" +
-                    $"New Data: ID: {SelectedWorkSession.SessionID} StartTime: {StartDate.Add(StartTime.TimeOfDay)}" +
-                    $"EndTime: {EndDate.Add(EndTime.TimeOfDay)}\n Action Type: {ActionType} EmployeeID: {SelectedEmployee.EmployeeID}\n");
-
+                _logger.Info("Editing session");
                 var editedWorkSession = ctx.WorkSessions.AsNoTracking().First(ws => ws.SessionID == SelectedWorkSession.SessionID);
                 editedWorkSession.StartDateTime = StartDate.Add(StartTime.TimeOfDay).Copy();
                 editedWorkSession.EndDateTime = EndDate.Add(EndTime.TimeOfDay).Copy();
@@ -256,16 +286,15 @@ namespace FarmlandGuide.ViewModels
                 ctx.WorkSessions.Update(editedWorkSession);
                 ctx.SaveChanges();
 
-                Debug.WriteLine($"Edit completed Work Session ID: {editedWorkSession.SessionID} StartTime: {editedWorkSession.StartDateTime}" +
-    $"EndTime: {editedWorkSession.StartDateTime}\n Action Type: {editedWorkSession.Type} EmployeeID: {editedWorkSession.EmployeeID}");
+                _logger.Info("Edited session: {0}", editedWorkSession.ToString());
 
                 WorkSessions = new(ctx.WorkSessions.AsNoTracking().Include(ws => ws.Employee).Where(ws => ws.EmployeeID == previousEmployeeID).ToList());
                 WeakReferenceMessenger.Default.Send(new WorkSessionEditMessage(editedWorkSession.Copy()));
 
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Debug.WriteLine(e.Message);
+                _logger.Error(ex, "Something went wrong");
             }
 
         }
@@ -275,9 +304,11 @@ namespace FarmlandGuide.ViewModels
         {
             try
             {
+                _logger.Info("Deleting session");
                 var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
                 if (SelectedWorkSession is null)
                 {
+                    _logger.Warn("Session is unselected");
                     closeDialogCommand.Execute(null, null);
                     return;
                 }
@@ -285,13 +316,14 @@ namespace FarmlandGuide.ViewModels
                 ctx.WorkSessions.Remove(SelectedWorkSession);
                 ctx.SaveChanges();
                 WeakReferenceMessenger.Default.Send(new WorkSessionDeleteMessage(SelectedWorkSession));
+                _logger.Info("Deleted session: {0}", SelectedEmployee.ToString());
                 WorkSessions.Remove(SelectedWorkSession);
                 closeDialogCommand.Execute(null, null);
 
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Debug.WriteLine(e.Message);
+                _logger.Error(ex, "Something went wrong");
             }
 
         }
@@ -299,35 +331,50 @@ namespace FarmlandGuide.ViewModels
         [RelayCommand]
         private void OnOpenEditDialog()
         {
-            if (SelectedWorkSession is null)
+            try
             {
-                IsEdit = false;
-                return;
+                if (SelectedWorkSession is null)
+                {
+                    IsEdit = false;
+                    return;
+                }
+                TitleText = "Редактирование рабочей сессии";
+                ButtonApplyText = "Сохранить";
+                EndDate = SelectedWorkSession.EndDateTime.Date;
+                StartDate = SelectedWorkSession.StartDateTime.Date;
+                EndTime = new DateTime(1, 1, 1, SelectedWorkSession.EndDateTime.Hour, SelectedWorkSession.EndDateTime.Minute, 0);
+                StartTime = new DateTime(1, 1, 1, SelectedWorkSession.StartDateTime.Hour, SelectedWorkSession.StartDateTime.Minute, 0);
+                ActionType = SelectedWorkSession.Type;
+                SelectedEmployee = SelectedWorkSession.Employee;
+                IsEdit = true;
             }
-            TitleText = "Редактирование рабочей сессии";
-            ButtonApplyText = "Сохранить";
-            EndDate = SelectedWorkSession.EndDateTime.Date;
-            StartDate = SelectedWorkSession.StartDateTime.Date;
-            EndTime = new DateTime(1, 1, 1, SelectedWorkSession.EndDateTime.Hour, SelectedWorkSession.EndDateTime.Minute, 0);
-            StartTime = new DateTime(1, 1, 1, SelectedWorkSession.StartDateTime.Hour, SelectedWorkSession.StartDateTime.Minute, 0);
-            ActionType = SelectedWorkSession.Type;
-            SelectedEmployee = SelectedWorkSession.Employee;
-            IsEdit = true;
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
 
         [RelayCommand]
         private void OnOpenAddDialog()
         {
-            TitleText = "Добавление новой рабочей сессии";
-            ButtonApplyText = "Добавить";
-            IsEdit = false;
-            StartDate = DateTime.Now;
-            EndDate = DateTime.Now.AddDays(1);
-            StartTime = DateTime.MinValue;
-            EndTime = DateTime.MinValue.AddHours(12);
-            ActionType = string.Empty;
-            SelectedEmployee = null;
-            ClearErrors();
+            try
+            {
+                TitleText = "Добавление новой рабочей сессии";
+                ButtonApplyText = "Добавить";
+                IsEdit = false;
+                StartDate = DateTime.Now;
+                EndDate = DateTime.Now.AddDays(1);
+                StartTime = DateTime.MinValue;
+                EndTime = DateTime.MinValue.AddHours(12);
+                ActionType = string.Empty;
+                SelectedEmployee = null;
+                ClearErrors();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Something went wrong");
+            }
         }
 
     }
