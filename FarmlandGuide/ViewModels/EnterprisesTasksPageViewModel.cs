@@ -34,6 +34,11 @@ namespace FarmlandGuide.ViewModels
             this.PropertyChanged += EnterprisesTasksPageViewModel_PropertyChanged;
             WeakReferenceMessenger.Default.RegisterAll(this);
         }
+        public void Receive(EnterpriseTableUpdateMessage message)
+        {
+            using var ctx = new ApplicationDbContext();
+            Enterprises = new(ctx.Enterprises.ToList());
+        }
 
         private void EnterprisesTasksPageViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -183,11 +188,6 @@ namespace FarmlandGuide.ViewModels
             }
         }
 
-        public void Receive(EnterpriseTableUpdateMessage message)
-        {
-            using var ctx = new ApplicationDbContext();
-            Enterprises = new(ctx.Enterprises.AsNoTracking().ToList());
-        }
 
         [RelayCommand]
         private void OnApplayChangesAtTasks()

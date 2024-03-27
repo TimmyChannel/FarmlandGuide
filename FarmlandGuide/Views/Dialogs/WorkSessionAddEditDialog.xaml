@@ -84,10 +84,10 @@
                   FontSize="14"
                   Style="{StaticResource MaterialDesignOutlinedComboBox}"
                   IsEditable="True"
-                  ItemsSource="{Binding Employees, Mode=OneTime}"
+                  ItemsSource="{Binding Employees}"
                   TextBoxBase.TextChanged="ComboBox_TextChanged"
                   IsTextSearchEnabled="False"
-                  SelectedItem="{Binding SelectedEmployee, Mode=TwoWay, UpdateSourceTrigger=LostFocus, ValidatesOnNotifyDataErrors=True}"
+                  SelectedItem="{Binding SelectedEmployee,UpdateSourceTrigger=LostFocus, ValidatesOnNotifyDataErrors=True}"
                   IsSynchronizedWithCurrentItem="True">
             <ItemsControl.ItemContainerStyle>
                 <Style TargetType="ComboBoxItem"

@@ -31,8 +31,14 @@ namespace FarmlandGuide.ViewModels
         private void WorkSessionsViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(SelectedEmployee))
-                Debug.WriteLine(SelectedEmployee.ToString());
+            {
+                SelectedEmployeeIndex = Employees.IndexOf(SelectedEmployee ?? Employees.First());
+                if (SelectedEmployee is not null)
+                    Debug.WriteLine(SelectedEmployee.ToString());
+            }
         }
+        [ObservableProperty]
+        int _selectedEmployeeIndex;
 
         [ObservableProperty]
         bool _isEdit = false;

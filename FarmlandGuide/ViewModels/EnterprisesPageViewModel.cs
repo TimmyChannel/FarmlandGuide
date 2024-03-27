@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using FarmlandGuide.Helpers.Messages;
 using FarmlandGuide.Helpers.Validators;
 using FarmlandGuide.Models;
 using NPOI.OpenXmlFormats.Dml.Diagram;
@@ -96,6 +98,7 @@ namespace FarmlandGuide.ViewModels
             ctx.Enterprises.Add(enterpise);
             ctx.SaveChanges();
             Enterprises.Add(enterpise);
+            WeakReferenceMessenger.Default.Send(new EnterpriseTableUpdateMessage(enterpise));
             Debug.WriteLine($"Added enterprise name: {Name} and address: {Address}");
         }
 
@@ -106,6 +109,7 @@ namespace FarmlandGuide.ViewModels
             SelectedEnterprise.Address = Address.Trim();
             ctx.Enterprises.Update(SelectedEnterprise);
             ctx.SaveChanges();
+            WeakReferenceMessenger.Default.Send(new EnterpriseTableUpdateMessage(SelectedEnterprise));
             Debug.WriteLine($"Edited enterprise name: {Name} and address: {Address}");
         }
 
@@ -121,6 +125,7 @@ namespace FarmlandGuide.ViewModels
             using var ctx = new ApplicationDbContext();
             ctx.Enterprises.Remove(SelectedEnterprise);
             ctx.SaveChanges();
+            WeakReferenceMessenger.Default.Send(new EnterpriseTableUpdateMessage(SelectedEnterprise));
             Enterprises.Remove(SelectedEnterprise);
             closeDialogCommand.Execute(null, null);
         }

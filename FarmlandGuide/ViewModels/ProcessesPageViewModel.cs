@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using FarmlandGuide.Helpers.Messages;
 using FarmlandGuide.Helpers.Validators;
 using FarmlandGuide.Models;
 using NPOI.Util;
@@ -18,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace FarmlandGuide.ViewModels
 {
-    public partial class ProcessesPageViewModel : ObservableValidator
+    public partial class ProcessesPageViewModel : ObservableValidator, IRecipient<EnterpriseTableUpdateMessage>
     {
         [ObservableProperty]
         bool _isEdit = false;
@@ -27,7 +29,13 @@ namespace FarmlandGuide.ViewModels
         {
             using var ctx = new ApplicationDbContext();
             ProductionProcesses = new(ctx.ProductionProcesses);
+            WeakReferenceMessenger.Default.RegisterAll(this);
             Enterprises = new(ctx.Enterprises);
+        }
+        public void Receive(EnterpriseTableUpdateMessage message)
+        {
+            using var ctx = new ApplicationDbContext();
+            Enterprises = new(ctx.Enterprises.ToList());
         }
 
         [ObservableProperty]
