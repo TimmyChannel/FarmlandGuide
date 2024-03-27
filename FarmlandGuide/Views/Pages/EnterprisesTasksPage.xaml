@@ -65,7 +65,7 @@
                         Margin="10,0,10,0"
                         Style="{StaticResource MaterialDesignPaperDarkButton}"
                         HorizontalAlignment="Right"
-                        Command="{Binding PrintCommand}">
+                        Command="{Binding PrintReportCommand}">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="Printer"
                                                  Margin="0,0,5,0" />

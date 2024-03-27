@@ -19,6 +19,7 @@ using System.ComponentModel.DataAnnotations;
 using FarmlandGuide.Helpers.Validators;
 using NPOI.Util;
 using FarmlandGuide.Models.Entities;
+using FarmlandGuide.Models.Reports;
 
 namespace FarmlandGuide.ViewModels
 {
@@ -397,5 +398,15 @@ namespace FarmlandGuide.ViewModels
             }
         }
 
+        [RelayCommand]
+        private void OnPrintReport()
+        {
+            if (SelectedEnterprise is null)
+            {
+                _logger.Warn("Selected enterprise is null");
+                return;
+            }
+            EnterpriseTaskReportGenerator.GenerateReportToExcel("file.xlsx", SelectedEnterprise.Copy());
+        }
     }
 }
