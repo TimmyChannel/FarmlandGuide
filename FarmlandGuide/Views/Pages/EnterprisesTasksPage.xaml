@@ -46,7 +46,21 @@
                           ItemsSource="{Binding Enterprises}"
                           DisplayMemberPath="Name"
                           SelectedItem="{Binding SelectedEnterprise}"
-                          Style="{StaticResource MaterialDesignOutlinedComboBox}" />
+                          Style="{StaticResource MaterialDesignOutlinedComboBox}" >
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ComboBoxItem"
+                               BasedOn="{StaticResource MaterialDesignComboBoxItemStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Name}"
+                                             Value="2fc4d315a2821ab76dd1c4931596c6ef">
+                                    <Setter Property="Visibility"
+                                            Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                </ComboBox>
+
                 <Button Grid.Column="1"
                         Margin="10,0,10,0"
                         Style="{StaticResource MaterialDesignPaperDarkButton}"

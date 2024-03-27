@@ -146,7 +146,20 @@
                           ItemsSource="{Binding Enterprises}"
                           DisplayMemberPath="Name"
                           SelectedItem="{Binding SelectedEnterprise, UpdateSourceTrigger=PropertyChanged,  ValidatesOnNotifyDataErrors=True}"
-                          IsSynchronizedWithCurrentItem="True" />
+                          IsSynchronizedWithCurrentItem="True">
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ComboBoxItem"
+                               BasedOn="{StaticResource MaterialDesignComboBoxItemStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Name}"
+                                             Value="2fc4d315a2821ab76dd1c4931596c6ef">
+                                    <Setter Property="Visibility"
+                                            Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                </ComboBox>
 
                 <TextBox Grid.Row="0"
                          Grid.Column="1"

@@ -72,7 +72,21 @@
                   Style="{StaticResource MaterialDesignOutlinedComboBox}"
                   ItemsSource="{Binding Enterprises}"
                   DisplayMemberPath="Name"
-                  SelectedValue="{Binding SelectedEnterprise, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" />
+                  SelectedValue="{Binding SelectedEnterprise, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}">
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ComboBoxItem"
+                       BasedOn="{StaticResource MaterialDesignComboBoxItemStyle}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Name}"
+                                     Value="2fc4d315a2821ab76dd1c4931596c6ef">
+                            <Setter Property="Visibility"
+                                    Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+        </ComboBox>
+
         <Button Command="{Binding CloseDialogAndClearPropsCommand}"
                 Content="Отмена"
                 IsCancel="True"
