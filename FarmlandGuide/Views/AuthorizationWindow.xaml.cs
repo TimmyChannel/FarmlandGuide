@@ -22,7 +22,7 @@ namespace FarmlandGuide.Views
     /// </summary>
     public partial class AuthorizationWindow : Window, IRecipient<LoggedUserMessage>
     {
-        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         public AuthorizationWindow()
         {
             InitializeComponent();

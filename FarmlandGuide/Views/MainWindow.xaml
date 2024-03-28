@@ -29,43 +29,60 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
+
     <materialDesign:DialogHost>
 
         <Grid>
-            <!--<materialDesign:DrawerHost>
-            <materialDesign:DrawerHost.LeftDrawerContent>
-                <StackPanel Margin="16">
-                    <TextBlock Margin="4"
-                               HorizontalAlignment="Center"
-                               Text="LEFT FIELD" />
-                    <Button Margin="4"
-                            HorizontalAlignment="Center"
-                            Command="{x:Static materialDesign:DrawerHost.CloseDrawerCommand}"
-                            CommandParameter="{x:Static Dock.Left}"
-                            Content="CLOSE THIS"
-                            Style="{StaticResource MaterialDesignFlatButton}" />
-                    <Button Margin="4"
-                            HorizontalAlignment="Center"
-                            Command="{x:Static materialDesign:DrawerHost.CloseDrawerCommand}"
-                            Content="CLOSE ALL"
-                            Style="{StaticResource MaterialDesignFlatButton}" />
-                </StackPanel>
-
-            </materialDesign:DrawerHost.LeftDrawerContent>
-            <Button Grid.Row="1"
-                    Grid.Column="0"
-                    Margin="4"
-                    Command="{x:Static materialDesign:DrawerHost.OpenDrawerCommand}"
-                    CommandParameter="{x:Static Dock.Left}"
-                    Content="{materialDesign:PackIcon Kind=ArrowLeft}" />
-        </materialDesign:DrawerHost>-->
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            <i:Interaction.Triggers>
+                <i:DataTrigger Binding="{Binding CallError}"
+                               Value="True">
+                    <i:InvokeCommandAction Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}">
+                        <i:InvokeCommandAction.CommandParameter>
+                            <StackPanel Margin="10"
+                                        DataContext="{Binding MainWindowViewModel, Mode=OneWay, Source={StaticResource Locator}}">
+                                <StackPanel Grid.ColumnSpan="2"
+                                            Orientation="Horizontal"
+                                            Margin="5,5,5,5">
+                                    <materialDesign:PackIcon Kind="AlertCircle"
+                                                             Margin="0,0,5,0"
+                                                             VerticalAlignment="Center" />
+                                    <TextBlock Text="Ошибка"
+                                               Style="{StaticResource MaterialDesignSubtitle1TextBlock}" />
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                                           Text="{Binding ErrorMessage}"
+                                           Margin="5,10,5,10" />
+                                <Button Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"
+                                        Content="Ясно"
+                                        IsCancel="True"
+                                        Style="{StaticResource MaterialDesignRaisedButton}"
+                                        Grid.Row="5"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Bottom"
+                                        Margin="5,10,5,10">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <i:InvokeCommandAction Command="{Binding ResetErrorCommand}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
+                            </StackPanel>
+                        </i:InvokeCommandAction.CommandParameter>
+                    </i:InvokeCommandAction>
+                </i:DataTrigger>
+            </i:Interaction.Triggers>
             <TabControl x:Name="TabControl"
                         materialDesign:NavigationRailAssist.ShowSelectionBackground="True"
                         SnapsToDevicePixels="True"
                         TabStripPlacement="Left"
                         Style="{StaticResource MaterialDesignNavigationRailTabControlUniform}"
                         materialDesign:ElevationAssist.Elevation="Dp4"
-                        SelectedIndex="4">
+                        SelectedIndex="4"
+                        IsEnabled="{Binding IsWait, Converter={StaticResource InvertBooleanConverter}}">
 
                 <materialDesign:NavigationRailAssist.FloatingContent>
                     <StackPanel>
@@ -229,7 +246,12 @@
                     <Frame Margin="10,0,10,0"
                            Source="/Views/Pages/PersonalStatisticsPage.xaml" />
                 </TabItem>
+
             </TabControl>
+            <ProgressBar Grid.Row="1"
+                         Visibility="{Binding IsWait, Converter={StaticResource BooleanToVisibilityConverter}}"
+                         IsIndeterminate="True" />
+
         </Grid>
     </materialDesign:DialogHost>
 </Window>

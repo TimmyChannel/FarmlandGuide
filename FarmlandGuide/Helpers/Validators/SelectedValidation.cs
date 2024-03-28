@@ -21,7 +21,7 @@ namespace FarmlandGuide.Helpers.Validators
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             if (value is null)
-                return new(Message);
+                return new ValidationResult(Message);
 
             return ValidationResult.Success;
 

@@ -12,14 +12,10 @@ namespace FarmlandGuide.Models
         public int ProcessID { get; set; }
         public int EnterpriseID { get; set; }
 
-        [ObservableProperty]
-        string _name;
-        [ObservableProperty]
-        string _description;
-        [ObservableProperty]
-        decimal _cost;
-        [ObservableProperty]
-        Enterprise _enterprise;
+        [ObservableProperty] private string _name;
+        [ObservableProperty] private string _description;
+        [ObservableProperty] private decimal _cost;
+        [ObservableProperty] private Enterprise _enterprise;
         public ICollection<Task> Tasks { get; set; }
         public ProductionProcess(string name, string description, decimal cost, int enterpriseID)
         {

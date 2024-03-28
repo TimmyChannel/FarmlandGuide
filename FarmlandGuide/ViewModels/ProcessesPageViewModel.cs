@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using FarmlandGuide.Helpers.Messages;
 using FarmlandGuide.Helpers.Validators;
 using FarmlandGuide.Models;
+using Microsoft.EntityFrameworkCore;
 using NPOI.Util;
 using System;
 using System.Collections;
@@ -22,18 +23,18 @@ namespace FarmlandGuide.ViewModels
 {
     public partial class ProcessesPageViewModel : ObservableValidator, IRecipient<EnterpriseTableUpdateMessage>
     {
-        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        [ObservableProperty]
-        bool _isEdit = false;
+        [ObservableProperty] private bool _isEdit = false;
 
         public ProcessesPageViewModel()
         {
             _logger.Trace("ProcessesPageViewModel creating");
             using var ctx = new ApplicationDbContext();
-            ProductionProcesses = new(ctx.ProductionProcesses);
+            ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            ProductionProcesses = new ObservableCollection<ProductionProcess>(ctx.ProductionProcesses);
             WeakReferenceMessenger.Default.RegisterAll(this);
-            Enterprises = new(ctx.Enterprises);
+            Enterprises = new ObservableCollection<Enterprise>(ctx.Enterprises);
             _logger.Trace("ProcessesPageViewModel created");
         }
         public void Receive(EnterpriseTableUpdateMessage message)
@@ -41,27 +42,27 @@ namespace FarmlandGuide.ViewModels
             try
             {
                 using var ctx = new ApplicationDbContext();
+                ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                 _logger.Trace("Receiving EnterpriseTableUpdateMessage {0}", message.Value);
-                Enterprises = new(ctx.Enterprises.ToList());
+                Enterprises = new ObservableCollection<Enterprise>(ctx.Enterprises.ToList());
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
-        [ObservableProperty]
-        string _titleText;
-        [ObservableProperty]
-        string _buttonApplyText;
-        ObservableCollection<Enterprise> _enterprises;
-        ProductionProcess? _selectedProductionProcess;
-        Enterprise? _selectedEnterprise;
-        ObservableCollection<ProductionProcess> _productionProcesses;
-        string _name;
-        string _description;
-        decimal _cost;
+        [ObservableProperty] private string _titleText;
+        [ObservableProperty] private string _buttonApplyText;
+        private ObservableCollection<Enterprise> _enterprises;
+        private ProductionProcess? _selectedProductionProcess;
+        private Enterprise? _selectedEnterprise;
+        private ObservableCollection<ProductionProcess> _productionProcesses;
+        private string _name;
+        private string _description;
+        private decimal _cost;
 
         public ObservableCollection<Enterprise> Enterprises
         {
@@ -162,9 +163,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
         private void OnAddProductionProcess()
         {
@@ -183,9 +185,10 @@ namespace FarmlandGuide.ViewModels
                 WeakReferenceMessenger.Default.Send(new ProductionProcessTableUpdate(process));
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
         private void OnEditProductionProcess()
         {
@@ -206,9 +209,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
         [RelayCommand]
@@ -224,6 +228,7 @@ namespace FarmlandGuide.ViewModels
                     return;
                 }
                 using var ctx = new ApplicationDbContext();
+                ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                 ctx.ProductionProcesses.Remove(SelectedProductionProcess);
                 ctx.SaveChanges();
                 _logger.Info("Deleted process: {0}", SelectedProductionProcess.ToString());
@@ -233,9 +238,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
         [RelayCommand]
@@ -255,9 +261,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
         [RelayCommand]
         private void OnOpenAddDialog()
@@ -275,9 +282,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
     }

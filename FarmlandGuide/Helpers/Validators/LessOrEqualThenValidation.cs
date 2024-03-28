@@ -19,13 +19,13 @@ namespace FarmlandGuide.Helpers.Validators
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             object numberNewType = Convert.ChangeType(Number, value.GetType());
-            if (numberNewType == null) return new("Ошибка ввода! Проверьте введённое число");
+            if (numberNewType == null) return new ValidationResult("Ошибка ввода! Проверьте введённое число");
             if (((IComparable)value).CompareTo(numberNewType) > 0)
             {
                 return ValidationResult.Success;
             }
 
-            return new($"Число не может быть меньше или равно {Number}");
+            return new ValidationResult($"Число не может быть меньше или равно {Number}");
 
         }
 

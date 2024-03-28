@@ -10,10 +10,8 @@ namespace FarmlandGuide.Models
     public partial class Enterprise : ObservableObject
     {
         public int EnterpriseID { get; set; }
-        [ObservableProperty]
-        string _name;
-        [ObservableProperty]
-        string _address;
+        [ObservableProperty] private string _name;
+        [ObservableProperty] private string _address;
         public ICollection<ProductionProcess> ProductionProcesses { get; set; }
         public ICollection<Employee> Employees { get; set; }
         public Enterprise(string name, string address)

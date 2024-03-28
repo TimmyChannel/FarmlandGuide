@@ -1,4 +1,6 @@
-﻿using FarmlandGuide.Views;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using FarmlandGuide.Helpers.Messages;
+using FarmlandGuide.Views;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -22,11 +24,12 @@ namespace FarmlandGuide
     /// </summary>
     public partial class MainWindow : Window
     {
-        private static Logger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
 
         public MainWindow()
         {
             InitializeComponent();
+            WeakReferenceMessenger.Default.RegisterAll(this);
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -37,7 +40,8 @@ namespace FarmlandGuide
             authWindow.Show();
             this.Close();
         }
-        bool IsNonCloseButtonClicked;
+
+        private bool IsNonCloseButtonClicked;
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
@@ -60,9 +64,11 @@ namespace FarmlandGuide
                 }
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
+
     }
 }

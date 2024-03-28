@@ -13,11 +13,11 @@ namespace FarmlandGuide.Helpers.Validators
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
             if (value is null) 
-                return new("Пустое поле");
+                return new ValidationResult("Пустое поле");
             if (value is not string valueString)
-                return new("Не строка");
+                return new ValidationResult("Не строка");
             if (string.IsNullOrWhiteSpace(valueString))
-                return new("Поле не может быть пустым или содержать одни лишь пробелы");
+                return new ValidationResult("Поле не может быть пустым или содержать одни лишь пробелы");
             return ValidationResult.Success;
 
         }

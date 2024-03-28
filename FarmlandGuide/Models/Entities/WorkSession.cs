@@ -11,14 +11,10 @@ namespace FarmlandGuide.Models
     {
         public int SessionID { get; set; }
         public int EmployeeID { get; set; }
-        [ObservableProperty]
-        DateTime _startDateTime;
-        [ObservableProperty]
-        DateTime _endDateTime;
-        [ObservableProperty]
-        string _type;
-        [ObservableProperty]
-        Employee _employee;
+        [ObservableProperty] private DateTime _startDateTime;
+        [ObservableProperty] private DateTime _endDateTime;
+        [ObservableProperty] private string _type;
+        [ObservableProperty] private Employee _employee;
         public WorkSession()
         {
             this.PropertyChanged += WorkSession_PropertyChanged;

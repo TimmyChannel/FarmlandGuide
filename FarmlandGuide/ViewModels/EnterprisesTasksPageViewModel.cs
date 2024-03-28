@@ -20,21 +20,24 @@ using FarmlandGuide.Helpers.Validators;
 using NPOI.Util;
 using FarmlandGuide.Models.Entities;
 using FarmlandGuide.Models.Reports;
+using Microsoft.Win32;
+using NPOI.SS.Formula.Functions;
 
 namespace FarmlandGuide.ViewModels
 {
     public partial class EnterprisesTasksPageViewModel : ObservableValidator, IRecipient<EnterpriseTableUpdateMessage>, IRecipient<ProductionProcessTableUpdate>
     {
-        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public EnterprisesTasksPageViewModel()
         {
             _logger.Trace("EnterprisesTasksPageViewModel creating");
             using var ctx = new ApplicationDbContext();
-            Statuses = new(ctx.Statuses.AsNoTracking().ToList());
-            Enterprises = new(ctx.Enterprises.AsNoTracking().ToList());
-            Employees = new(ctx.Employees.AsNoTracking().ToList());
-            Processes = new(ctx.ProductionProcesses.AsNoTracking().ToList());
+            ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            Statuses = new ObservableCollection<Status>(ctx.Statuses.ToList());
+            Enterprises = new ObservableCollection<Enterprise>(ctx.Enterprises.ToList());
+            Employees = new ObservableCollection<Employee>(ctx.Employees.ToList());
+            Processes = new ObservableCollection<ProductionProcess>(ctx.ProductionProcesses.ToList());
             this.PropertyChanged += EnterprisesTasksPageViewModel_PropertyChanged;
             WeakReferenceMessenger.Default.RegisterAll(this);
             _logger.Trace("EnterprisesTasksPageViewModel created");
@@ -42,8 +45,9 @@ namespace FarmlandGuide.ViewModels
         public void Receive(EnterpriseTableUpdateMessage message)
         {
             using var ctx = new ApplicationDbContext();
+            ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             _logger.Trace("Receiving EnterpriseTableUpdateMessage {0}", message.Value);
-            Enterprises = new(ctx.Enterprises.ToList());
+            Enterprises = new ObservableCollection<Enterprise>(ctx.Enterprises.ToList());
         }
         public void Receive(ProductionProcessTableUpdate message)
         {
@@ -53,17 +57,18 @@ namespace FarmlandGuide.ViewModels
             else
             {
                 IsEnterpriseSelected = false;
-                Tasks = new();
-                Employees = new();
-                Processes = new();
+                Tasks = new ObservableCollection<FarmlandTask>();
+                Employees = new ObservableCollection<Employee>();
+                Processes = new ObservableCollection<ProductionProcess>();
                 _logger.Warn("Selected enterprise is null");
                 return;
             }
             using var ctx = new ApplicationDbContext();
-            Tasks = new(ctx.Tasks.AsNoTracking().Where(t => t.ProductionProcess.EnterpriseID == SelectedEnterprise.EnterpriseID)
+            ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            Tasks = new ObservableCollection<FarmlandTask>(ctx.Tasks.Where(t => t.ProductionProcess.EnterpriseID == SelectedEnterprise.EnterpriseID)
                 .Include(t => t.Employee).Include(t => t.ProductionProcess).Include(t => t.Status).ToList());
-            Employees = new(ctx.Employees.AsNoTracking().Where(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID).ToList());
-            Processes = new(ctx.ProductionProcesses.AsNoTracking().Where(pp => pp.EnterpriseID == SelectedEnterprise.EnterpriseID).ToList());
+            Employees = new ObservableCollection<Employee>(ctx.Employees.Where(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID).ToList());
+            Processes = new ObservableCollection<ProductionProcess>(ctx.ProductionProcesses.Where(pp => pp.EnterpriseID == SelectedEnterprise.EnterpriseID).ToList());
             SortAndFilterTasks();
         }
 
@@ -79,29 +84,30 @@ namespace FarmlandGuide.ViewModels
                     else
                     {
                         IsEnterpriseSelected = false;
-                        Tasks = new();
-                        Employees = new();
-                        Processes = new();
+                        Tasks = new ObservableCollection<FarmlandTask>();
+                        Employees = new ObservableCollection<Employee>();
+                        Processes = new ObservableCollection<ProductionProcess>();
                         _logger.Warn("Selected enterprise is null");
                         return;
                     }
                     using var ctx = new ApplicationDbContext();
-                    Tasks = new(ctx.Tasks.AsNoTracking().Where(t => t.ProductionProcess.EnterpriseID == SelectedEnterprise.EnterpriseID)
+                    ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+                    Tasks = new ObservableCollection<FarmlandTask>(ctx.Tasks.Where(t => t.ProductionProcess.EnterpriseID == SelectedEnterprise.EnterpriseID)
                         .Include(t => t.Employee).Include(t => t.ProductionProcess).Include(t => t.Status).ToList());
-                    Employees = new(ctx.Employees.AsNoTracking().Where(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID).ToList());
-                    Processes = new(ctx.ProductionProcesses.AsNoTracking().Where(pp => pp.EnterpriseID == SelectedEnterprise.EnterpriseID).ToList());
+                    Employees = new ObservableCollection<Employee>(ctx.Employees.Where(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID).ToList());
+                    Processes = new ObservableCollection<ProductionProcess>(ctx.ProductionProcesses.Where(pp => pp.EnterpriseID == SelectedEnterprise.EnterpriseID).ToList());
                     SortAndFilterTasks();
                 }
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
-        [ObservableProperty]
-        bool _isEnterpriseSelected = false;
+        [ObservableProperty] private bool _isEnterpriseSelected = false;
         [ObservableProperty]
         private ObservableCollection<FarmlandTask> _tasks;
         [ObservableProperty]
@@ -116,19 +122,16 @@ namespace FarmlandGuide.ViewModels
         private Enterprise? _selectedEnterprise;
         [ObservableProperty]
         private FarmlandTask? _selectedTask;
-        [ObservableProperty]
-        bool _isEdit = false;
-        [ObservableProperty]
-        string _titleText;
-        [ObservableProperty]
-        string _buttonApplyText;
-        DateTime _startDate;
-        DateTime _endDate;
-        Employee? _selectedEmployee;
-        ProductionProcess? _selectedProductionProcess;
-        Status? _selectedStatus;
-        string _status;
-        string _description;
+        [ObservableProperty] private bool _isEdit = false;
+        [ObservableProperty] private string _titleText;
+        [ObservableProperty] private string _buttonApplyText;
+        private DateTime _startDate;
+        private DateTime _endDate;
+        private Employee? _selectedEmployee;
+        private ProductionProcess? _selectedProductionProcess;
+        private Status? _selectedStatus;
+        private string _status;
+        private string _description;
         [CustomValidation(typeof(EnterprisesTasksPageViewModel), nameof(ValidatStartDateTime))]
         public DateTime AssignmentDate
         {
@@ -195,9 +198,9 @@ namespace FarmlandGuide.ViewModels
                 if (endDateTime >= instance.AssignmentDate)
                     return ValidationResult.Success;
                 else
-                    return new("Дата окончания не может быть раньше даты начала");
+                    return new ValidationResult("Дата окончания не может быть раньше даты начала");
             }
-            return new("Ошибка!");
+            return new ValidationResult("Ошибка!");
         }
         public static ValidationResult ValidatStartDateTime(DateTime startDateTime, ValidationContext context)
         {
@@ -207,9 +210,9 @@ namespace FarmlandGuide.ViewModels
                 if (startDateTime <= instance.DueDate)
                     return ValidationResult.Success;
                 else
-                    return new("Дата назначения не может быть позже даты окончания");
+                    return new ValidationResult("Дата назначения не может быть позже даты окончания");
             }
-            return new("Ошибка!");
+            return new ValidationResult("Ошибка!");
         }
 
         #endregion
@@ -230,9 +233,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
         [RelayCommand]
         private void OnApplayChangesAtTasks()
@@ -266,9 +270,10 @@ namespace FarmlandGuide.ViewModels
                 closeDialogCommand.Execute(null, null);
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
         private void OnAddTask()
         {
@@ -292,9 +297,10 @@ namespace FarmlandGuide.ViewModels
                 WeakReferenceMessenger.Default.Send(new TaskAddMessage(task));
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
         private void OnEditTask()
         {
@@ -302,7 +308,7 @@ namespace FarmlandGuide.ViewModels
             {
                 _logger.Info("Editing task");
                 using var ctx = new ApplicationDbContext();
-                var task = ctx.Tasks.AsNoTracking().First(t => t.TaskID == SelectedTask.TaskID);
+                var task = ctx.Tasks.First(t => t.TaskID == SelectedTask.TaskID);
                 task.AssignmentDate = AssignmentDate.Copy();
                 task.DueDate = DueDate.Copy();
                 task.Status = SelectedStatus.Copy();
@@ -311,16 +317,17 @@ namespace FarmlandGuide.ViewModels
                 task.ProductionProcess = SelectedProductionProcess.Copy();
                 ctx.Tasks.Update(task);
                 ctx.SaveChanges();
-                Tasks = new(ctx.Tasks.AsNoTracking().Where(t => t.ProductionProcess.EnterpriseID == SelectedEnterprise.EnterpriseID)
+                Tasks = new ObservableCollection<FarmlandTask>(ctx.Tasks.Where(t => t.ProductionProcess.EnterpriseID == SelectedEnterprise.EnterpriseID)
                     .Include(t => t.Employee).Include(t => t.ProductionProcess).Include(t => t.Status).ToList());
                 _logger.Info("Edited task: {0}", task.ToString());
                 WeakReferenceMessenger.Default.Send(new TaskEditMessage(task));
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
         [RelayCommand]
@@ -344,9 +351,10 @@ namespace FarmlandGuide.ViewModels
                 WeakReferenceMessenger.Default.Send(new TaskDeleteMessage(SelectedTask));
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
         [RelayCommand]
@@ -370,9 +378,10 @@ namespace FarmlandGuide.ViewModels
                 IsEdit = true;
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
         [RelayCommand]
@@ -393,20 +402,41 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
         [RelayCommand]
-        private void OnPrintReport()
+        private async Task OnPrintReport() => await Task.Run(() =>
         {
+            WeakReferenceMessenger.Default.Send(new WaitProcessMessage(true));
             if (SelectedEnterprise is null)
             {
                 _logger.Warn("Selected enterprise is null");
+                WeakReferenceMessenger.Default.Send(new WaitProcessMessage(false));
                 return;
             }
-            EnterpriseTaskReportGenerator.GenerateReportToExcel("file.xlsx", SelectedEnterprise.Copy());
-        }
+            SaveFileDialog saveFileDialog = new()
+            {
+                Filter = "Файл Excel (*.xlsx)|*.xlsx",
+                Title = "Выберите куда сохранить файл"
+            };
+            string path;
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                path = saveFileDialog.FileName;
+                _logger.Trace("The dialog box is closed. The path is received: {0}", path);
+                EnterpriseTaskReportGenerator.GenerateReportToExcel(path, SelectedEnterprise.Copy());
+                _logger.Info("Report on enterprise tasks saved to {path}", path);
+            }
+            else
+            {
+                _logger.Trace("The dialog box is closed. Path not received");
+            }
+            WeakReferenceMessenger.Default.Send(new WaitProcessMessage(false));
+        });
+
     }
 }

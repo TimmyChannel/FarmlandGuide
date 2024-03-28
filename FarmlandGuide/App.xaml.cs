@@ -1,6 +1,7 @@
 ﻿using FarmlandGuide.Helpers;
 using FarmlandGuide.Models;
 using FarmlandGuide.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 using NLog;
 using NPOI.Util;
 using System;
@@ -20,7 +21,7 @@ namespace FarmlandGuide
     /// </summary>
     public partial class App : Application
     {
-        private static Logger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
         public App()
         {
             var fileName = $"Logs\\{DateTime.Now:yyyyMMdd_HHmmss}.log";
@@ -32,6 +33,7 @@ namespace FarmlandGuide
             _logger.Debug("Debug start. File name: {0}", fileName);
             _logger.Trace("Database initial state configuration");
             using var ctx = new ApplicationDbContext();
+            ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             if (!ctx.Roles.Any())
             {
                 _logger.Trace("Role table is empty. Addition new roles");

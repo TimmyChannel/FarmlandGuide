@@ -12,30 +12,18 @@ namespace FarmlandGuide.Models
         public int EmployeeID { get; set; }
         public int EnterpriseID { get; set; }
         public int RoleID { get; set; }
-        [ObservableProperty]
-        string _employeeName;
-        [ObservableProperty]
-        string _passwordHash;
-        [ObservableProperty]
-        string _passwordSalt;
-        [ObservableProperty]
-        string _name;
-        [ObservableProperty]
-        string _surname;
-        [ObservableProperty]
-        string _patronymic;
-        [ObservableProperty]
-        string _residentialAddress;
-        [ObservableProperty]
-        string _workSchedule;
-        [ObservableProperty]
-        string _position;
-        [ObservableProperty]
-        decimal _salary;
-        [ObservableProperty]
-        Role _role;
-        [ObservableProperty]
-        Enterprise _enterprise;
+        [ObservableProperty] private string _employeeName;
+        [ObservableProperty] private string _passwordHash;
+        [ObservableProperty] private string _passwordSalt;
+        [ObservableProperty] private string _name;
+        [ObservableProperty] private string _surname;
+        [ObservableProperty] private string _patronymic;
+        [ObservableProperty] private string _residentialAddress;
+        [ObservableProperty] private string _workSchedule;
+        [ObservableProperty] private string _position;
+        [ObservableProperty] private decimal _salary;
+        [ObservableProperty] private Role _role;
+        [ObservableProperty] private Enterprise _enterprise;
         public ICollection<WorkSession> WorkSessions { get; set; }
         public ICollection<Task> Tasks { get; set; }
         public Employee(string name, string surname, string patronymic, string position, string workSchedule)
@@ -110,7 +98,11 @@ namespace FarmlandGuide.Models
         }
         public override string ToString()
         {
-            return Surname + " " + Name + " " + Patronymic; 
+            return Surname + " " + Name + " " + Patronymic;
+        }
+        public string GetShortFIO()
+        {
+            return Surname + " " + Name.First() + ". " + Patronymic.First() + '.';
         }
     }
 }

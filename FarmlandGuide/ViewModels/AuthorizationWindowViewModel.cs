@@ -17,10 +17,10 @@ namespace FarmlandGuide.ViewModels
 {
     public partial class AuthorizationWindowViewModel : ObservableValidator
     {
-        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        string _login;
-        string _password;
+        private string _login;
+        private string _password;
         [CustomValidation(typeof(AuthorizationWindowViewModel), nameof(ValidateLogin))]
         public string Login
         {
@@ -45,14 +45,16 @@ namespace FarmlandGuide.ViewModels
         {
             AuthorizationWindowViewModel instance = (AuthorizationWindowViewModel)context.ObjectInstance;
             using var ctx = new ApplicationDbContext();
+            ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             if (ctx.Employees.Any(e => e.EmployeeName == login))
                 return ValidationResult.Success;
-            return new("Нет пользователя с таким логином");
+            return new ValidationResult("Нет пользователя с таким логином");
         }
         public static ValidationResult ValidatePassword(string password, ValidationContext context)
         {
             AuthorizationWindowViewModel instance = (AuthorizationWindowViewModel)context.ObjectInstance;
             using var ctx = new ApplicationDbContext();
+            ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             if (ctx.Employees.Where(e => e.EmployeeName == instance.Login).Count() == 1)
             {
                 var employee = ctx.Employees.First(e => e.EmployeeName == instance.Login);
@@ -61,11 +63,11 @@ namespace FarmlandGuide.ViewModels
                 if (currentPasswordHash == employee.PasswordHash)
                     return ValidationResult.Success;
                 else
-                    return new("Пароль неверный");
+                    return new ValidationResult("Пароль неверный");
 
             }
             if (ctx.Employees.Where(e => e.EmployeeName == instance.Login).Count() > 1)
-                return new("Ошибка! Несколько пользователей с таким логином");
+                return new ValidationResult("Ошибка! Несколько пользователей с таким логином");
             return ValidationResult.Success;
         }
         #endregion
@@ -80,6 +82,7 @@ namespace FarmlandGuide.ViewModels
                 return;
             }
             using var ctx = new ApplicationDbContext();
+            ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             var employee = ctx.Employees.Include(e => e.Role).First(e => e.EmployeeName == Login).Copy();
             WeakReferenceMessenger.Default.Send(new LoggedUserMessage(employee.Copy()));
             _logger.Info("Success login. Employee: {0}", Login);

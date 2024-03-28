@@ -134,19 +134,20 @@
                     <ColumnDefinition />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <ComboBox Grid.Row="0"
+                <ComboBox x:Name="EnterprisesBox"
+                          Grid.Row="0"
                           HorizontalContentAlignment="Left"
                           materialDesign:HintAssist.Hint="Выберите предприятие"
                           Margin="10,10,20,20"
                           materialDesign:TextFieldAssist.HasOutlinedTextField="True"
                           FontSize="14"
                           materialDesign:ComboBoxAssist.MaxLength="4"
-                          IsEditable="True"
+                          IsSynchronizedWithCurrentItem="True"
                           Style="{StaticResource MaterialDesignOutlinedComboBox}"
                           ItemsSource="{Binding Enterprises}"
                           DisplayMemberPath="Name"
                           SelectedItem="{Binding SelectedEnterprise, UpdateSourceTrigger=PropertyChanged,  ValidatesOnNotifyDataErrors=True}"
-                          IsSynchronizedWithCurrentItem="True">
+                          IsEditable="True">
                     <ItemsControl.ItemContainerStyle>
                         <Style TargetType="ComboBoxItem"
                                BasedOn="{StaticResource MaterialDesignComboBoxItemStyle}">
@@ -249,11 +250,12 @@
                           materialDesign:TextFieldAssist.HasOutlinedTextField="True"
                           FontSize="14"
                           materialDesign:ComboBoxAssist.MaxLength="4"
+                          IsSynchronizedWithCurrentItem="True" 
                           Style="{StaticResource MaterialDesignOutlinedComboBox}"
                           ItemsSource="{Binding Roles}"
                           DisplayMemberPath="Name"
                           SelectedItem="{Binding SelectedRole,  UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
-                          IsSynchronizedWithCurrentItem="True" />
+                          />
             </Grid>
         </GroupBox>
 

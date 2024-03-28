@@ -20,12 +20,13 @@ namespace FarmlandGuide.ViewModels
 {
     public partial class WorkSessionsViewModel : ObservableValidator, IRecipient<SelectedEmployeeMessage>, IRecipient<EmployeeTableUpdateMessage>
     {
-        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         public WorkSessionsViewModel()
         {
             _logger.Trace("WorkSessionsViewModel creating");
-            using var db = new ApplicationDbContext();
-            Employees = new(db.Employees.AsNoTracking().ToList());
+            using var ctx = new ApplicationDbContext();
+            ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            Employees = new ObservableCollection<Employee>(ctx.Employees.ToList());
             WeakReferenceMessenger.Default.RegisterAll(this);
             this.PropertyChanged += WorkSessionsViewModel_PropertyChanged;
             _logger.Trace("WorkSessionsViewModel` created");
@@ -44,67 +45,63 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
-        [ObservableProperty]
-        int _selectedEmployeeIndex;
+        [ObservableProperty] private int _selectedEmployeeIndex;
 
-        [ObservableProperty]
-        bool _isEdit = false;
+        [ObservableProperty] private bool _isEdit = false;
 
-        [ObservableProperty]
-        bool _isEmployeeSelected = false;
+        [ObservableProperty] private bool _isEmployeeSelected = false;
 
-        [ObservableProperty]
-        string _titleText;
+        [ObservableProperty] private string _titleText;
 
-        [ObservableProperty]
-        string _buttonApplyText;
+        [ObservableProperty] private string _buttonApplyText;
 
-        [ObservableProperty]
-        ObservableCollection<Employee> _employees;
+        [ObservableProperty] private ObservableCollection<Employee> _employees;
 
-        [ObservableProperty]
-        ObservableCollection<WorkSession> _workSessions;
-        [ObservableProperty]
-        WorkSession _selectedWorkSession;
-        DateTime _startDate;
-        DateTime _endDate;
-        DateTime _startTime;
-        DateTime _endTime;
-        string _actionType;
-        Employee? _selectedEmployee;
+        [ObservableProperty] private ObservableCollection<WorkSession> _workSessions;
+        [ObservableProperty] private WorkSession _selectedWorkSession;
+        private DateTime _startDate;
+        private DateTime _endDate;
+        private DateTime _startTime;
+        private DateTime _endTime;
+        private string _actionType;
+        private Employee? _selectedEmployee;
         public void Receive(SelectedEmployeeMessage message)
         {
             try
             {
-                using var db = new ApplicationDbContext();
+                using var ctx = new ApplicationDbContext();
+                ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                 _logger.Trace("Receiving SelectedEmployeeMessage {0}", message.Value);
                 if (message.Value.WorkSessions is not null)
                 {
-                    WorkSessions = new(db.WorkSessions.AsNoTracking().Include(ws => ws.Employee).Where(ws =>
+                    WorkSessions = new ObservableCollection<WorkSession>(ctx.WorkSessions.Include(ws => ws.Employee).Where(ws =>
                     message.Value.WorkSessions.Select(ws => ws.SessionID).Contains(ws.SessionID)).ToList());
                 }
                 else
                 {
-                    WorkSessions = new();
+                    WorkSessions = new ObservableCollection<WorkSession>();
                 }
                 SelectedEmployee = message.Value.Copy();
                 IsEmployeeSelected = true;
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
         public void Receive(EmployeeTableUpdateMessage message)
         {
-            using var db = new ApplicationDbContext();
-            Employees = new(db.Employees.AsNoTracking().ToList());
+            using var ctx = new ApplicationDbContext();
+            ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            Employees = new ObservableCollection<Employee>(ctx.Employees.ToList());
             _logger.Trace("Receiving EmployeeTableUpdateMessage {0}", message.Value);
         }
 
@@ -155,16 +152,16 @@ namespace FarmlandGuide.ViewModels
                 if (endDateTime >= instance.StartDate)
                     return ValidationResult.Success;
                 else
-                    return new("Дата окончания не может быть раньше даты начала");
+                    return new ValidationResult("Дата окончания не может быть раньше даты начала");
             }
             if (endDateTime == instance.EndTime)
             {
                 if ((endDateTime > instance.StartTime && instance.EndDate == instance.StartDate) || instance.EndDate > instance.StartDate)
                     return ValidationResult.Success;
                 else
-                    return new("Время окончания не может быть раньше времени начала");
+                    return new ValidationResult("Время окончания не может быть раньше времени начала");
             }
-            return new("Ошибка!");
+            return new ValidationResult("Ошибка!");
         }
         public static ValidationResult ValidatStartDateTime(DateTime startDateTime, ValidationContext context)
         {
@@ -174,16 +171,16 @@ namespace FarmlandGuide.ViewModels
                 if (startDateTime <= instance.EndDate)
                     return ValidationResult.Success;
                 else
-                    return new("Дата начала не может быть позже даты окончания");
+                    return new ValidationResult("Дата начала не может быть позже даты окончания");
             }
             if (startDateTime == instance.StartTime)
             {
                 if ((startDateTime < instance.EndDate && instance.EndDate == instance.StartDate) || instance.EndDate > instance.StartDate)
                     return ValidationResult.Success;
                 else
-                    return new("Время начала не может быть позже времени окончания");
+                    return new ValidationResult("Время начала не может быть позже времени окончания");
             }
-            return new("Ошибка!");
+            return new ValidationResult("Ошибка!");
         }
 
         #endregion
@@ -243,9 +240,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
         private void OnAddWorkSession()
         {
@@ -267,9 +265,10 @@ namespace FarmlandGuide.ViewModels
                 WorkSessions.Add(session);
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
         private void OnEditWorkSession()
         {
@@ -277,25 +276,26 @@ namespace FarmlandGuide.ViewModels
             {
                 using var ctx = new ApplicationDbContext();
                 _logger.Info("Editing session");
-                var editedWorkSession = ctx.WorkSessions.AsNoTracking().First(ws => ws.SessionID == SelectedWorkSession.SessionID);
+                var editedWorkSession = ctx.WorkSessions.First(ws => ws.SessionID == SelectedWorkSession.SessionID);
                 editedWorkSession.StartDateTime = StartDate.Add(StartTime.TimeOfDay).Copy();
                 editedWorkSession.EndDateTime = EndDate.Add(EndTime.TimeOfDay).Copy();
                 editedWorkSession.Type = ActionType.Trim();
                 int previousEmployeeID = editedWorkSession.EmployeeID;
-                editedWorkSession.Employee = ctx.Employees.AsNoTracking().First(e => e.EmployeeID == SelectedEmployee.EmployeeID);
+                editedWorkSession.Employee = ctx.Employees.First(e => e.EmployeeID == SelectedEmployee.EmployeeID);
                 ctx.WorkSessions.Update(editedWorkSession);
                 ctx.SaveChanges();
 
                 _logger.Info("Edited session: {0}", editedWorkSession.ToString());
 
-                WorkSessions = new(ctx.WorkSessions.AsNoTracking().Include(ws => ws.Employee).Where(ws => ws.EmployeeID == previousEmployeeID).ToList());
+                WorkSessions = new ObservableCollection<WorkSession>(ctx.WorkSessions.Include(ws => ws.Employee).Where(ws => ws.EmployeeID == previousEmployeeID).ToList());
                 WeakReferenceMessenger.Default.Send(new WorkSessionEditMessage(editedWorkSession.Copy()));
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
 
         }
 
@@ -322,9 +322,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
 
         }
 
@@ -349,9 +350,10 @@ namespace FarmlandGuide.ViewModels
                 IsEdit = true;
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
         [RelayCommand]
@@ -372,9 +374,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
     }

@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using FarmlandGuide.Helpers.Messages;
 using FarmlandGuide.Helpers.Validators;
 using FarmlandGuide.Models;
+using Microsoft.EntityFrameworkCore;
 using NPOI.OpenXmlFormats.Dml.Diagram;
 using NPOI.SS.Formula.Functions;
 using NPOI.Util;
@@ -23,33 +24,29 @@ namespace FarmlandGuide.ViewModels
 {
     public partial class EnterpisesPageViewModel : ObservableValidator
     {
-        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public EnterpisesPageViewModel()
         {
             _logger.Trace("EnterpisesPageViewModel creating");
             using var ctx = new ApplicationDbContext();
-            Enterprises = new(ctx.Enterprises);
+            ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            Enterprises = new ObservableCollection<Enterprise>(ctx.Enterprises);
             _logger.Trace("EnterpisesPageViewModel created");
         }
 
-        [ObservableProperty]
-        bool _isEdit = false;
+        [ObservableProperty] private bool _isEdit = false;
 
-        [ObservableProperty]
-        string _titleText;
+        [ObservableProperty] private string _titleText;
 
-        [ObservableProperty]
-        string _buttonApplyText;
+        [ObservableProperty] private string _buttonApplyText;
 
-        [ObservableProperty]
-        Enterprise? _selectedEnterprise;
+        [ObservableProperty] private Enterprise? _selectedEnterprise;
 
-        [ObservableProperty]
-        ObservableCollection<Enterprise> _enterprises;
+        [ObservableProperty] private ObservableCollection<Enterprise> _enterprises;
 
-        string _name;
-        string _address;
+        private string _name;
+        private string _address;
 
         [NotEmpty]
         public string Name
@@ -103,9 +100,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
         private void OnAddEnterprise()
         {
@@ -121,9 +119,10 @@ namespace FarmlandGuide.ViewModels
                 WeakReferenceMessenger.Default.Send(new EnterpriseTableUpdateMessage(enterpise));
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
         private void OnEditEnterprise()
@@ -140,9 +139,10 @@ namespace FarmlandGuide.ViewModels
                 WeakReferenceMessenger.Default.Send(new EnterpriseTableUpdateMessage(SelectedEnterprise));
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
         [RelayCommand]
@@ -167,9 +167,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
         [RelayCommand]
         private void OnOpenEditDialog()
@@ -186,9 +187,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
         [RelayCommand]
         private void OnOpenAddDialog()
@@ -203,9 +205,10 @@ namespace FarmlandGuide.ViewModels
                 ClearErrors();
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
     }
 }

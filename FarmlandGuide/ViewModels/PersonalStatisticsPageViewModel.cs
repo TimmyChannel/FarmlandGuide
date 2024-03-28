@@ -17,18 +17,16 @@ namespace FarmlandGuide.ViewModels
     public partial class PersonalStatisticsPageViewModel : ObservableObject, IRecipient<LoggedUserMessage>, IRecipient<TaskAddMessage>, IRecipient<TaskEditMessage>, IRecipient<TaskDeleteMessage>,
         IRecipient<WorkSessionAddMessage>, IRecipient<WorkSessionEditMessage>, IRecipient<WorkSessionDeleteMessage>
     {
-        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
-        [ObservableProperty]
-        ObservableCollection<Task> _tasks;
-        [ObservableProperty]
-        ObservableCollection<WorkSession> _workSessions;
-        int _currentEmployeeId;
+        [ObservableProperty] private ObservableCollection<Task> _tasks;
+        [ObservableProperty] private ObservableCollection<WorkSession> _workSessions;
+        private int _currentEmployeeId;
         public PersonalStatisticsPageViewModel()
         {
             _logger.Trace("PersonalStatisticsPageViewModel creating");
-            Tasks = new();
-            WorkSessions = new();
+            Tasks = new ObservableCollection<Task>();
+            WorkSessions = new ObservableCollection<WorkSession>();
             WeakReferenceMessenger.Default.RegisterAll(this);
             _logger.Trace("PersonalStatisticsPageViewModel created");
         }
@@ -38,16 +36,18 @@ namespace FarmlandGuide.ViewModels
             try
             {
                 using var ctx = new ApplicationDbContext();
+                ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                 _logger.Trace("Receiving LoggedUserMessage {0}", message.Value);
                 _currentEmployeeId = message.Value.EmployeeID;
-                Tasks = new(ctx.Tasks.AsNoTracking().Include(t => t.Status).Include(t => t.ProductionProcess).Where(t => t.EmployeeID == _currentEmployeeId).ToList());
-                WorkSessions = new(ctx.WorkSessions.AsNoTracking().Where(ws => ws.EmployeeID == _currentEmployeeId).ToList());
+                Tasks = new ObservableCollection<Task>(ctx.Tasks.Include(t => t.Status).Include(t => t.ProductionProcess).Where(t => t.EmployeeID == _currentEmployeeId).ToList());
+                WorkSessions = new ObservableCollection<WorkSession>(ctx.WorkSessions.Where(ws => ws.EmployeeID == _currentEmployeeId).ToList());
                 SortAndFilterTasks();
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
         public void Receive(TaskAddMessage message)
@@ -57,16 +57,18 @@ namespace FarmlandGuide.ViewModels
                 if (message.Value.EmployeeID == _currentEmployeeId)
                 {
                     using var ctx = new ApplicationDbContext();
+                    ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                     _logger.Trace("Receiving TaskAddMessage {0}", message.Value);
-                    var task = ctx.Tasks.AsNoTracking().Include(t => t.Status).First(t => t.TaskID == message.Value.TaskID);
+                    var task = ctx.Tasks.Include(t => t.Status).First(t => t.TaskID == message.Value.TaskID);
                     Tasks.Add(task);
                     SortAndFilterTasks();
                 }
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
         public void Receive(TaskEditMessage message)
@@ -76,8 +78,9 @@ namespace FarmlandGuide.ViewModels
                 if (message.Value.EmployeeID == _currentEmployeeId)
                 {
                     using var ctx = new ApplicationDbContext();
+                    ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                     _logger.Trace("Receiving TaskEditMessage {0}", message.Value);
-                    var task = ctx.Tasks.AsNoTracking().Include(t => t.Status).First(t => t.TaskID == message.Value.TaskID);
+                    var task = ctx.Tasks.Include(t => t.Status).First(t => t.TaskID == message.Value.TaskID);
                     var taskToRemove = Tasks.FirstOrDefault(t => t.TaskID == task.TaskID);
                     if (taskToRemove != null)
                         Tasks.Remove(taskToRemove);
@@ -95,9 +98,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
         public void Receive(TaskDeleteMessage message)
@@ -107,6 +111,7 @@ namespace FarmlandGuide.ViewModels
                 if (message.Value.EmployeeID == _currentEmployeeId)
                 {
                     using var ctx = new ApplicationDbContext();
+                    ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                     _logger.Trace("Receiving TaskDeleteMessage {0}", message.Value);
                     var taskToRemove = ctx.Tasks.Find(message.Value.TaskID);
                     if (taskToRemove == null)
@@ -116,9 +121,10 @@ namespace FarmlandGuide.ViewModels
                 }
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
         public void Receive(WorkSessionAddMessage message)
@@ -128,15 +134,17 @@ namespace FarmlandGuide.ViewModels
                 if (message.Value.EmployeeID == _currentEmployeeId)
                 {
                     using var ctx = new ApplicationDbContext();
+                    ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                     _logger.Trace("Receiving WorkSessionAddMessage {0}", message.Value);
                     var session = ctx.WorkSessions.Find(message.Value.SessionID);
                     WorkSessions.Add(session);
                 }
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
         public void Receive(WorkSessionEditMessage message)
@@ -146,6 +154,7 @@ namespace FarmlandGuide.ViewModels
                 if (message.Value.EmployeeID == _currentEmployeeId)
                 {
                     using var ctx = new ApplicationDbContext();
+                    ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                     _logger.Trace("Receiving WorkSessionEditMessage {0}", message.Value);
                     var session = ctx.WorkSessions.Find(message.Value.SessionID);
                     var sessionToRemove = WorkSessions.FirstOrDefault(ws => ws.SessionID == session.SessionID);
@@ -164,9 +173,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
         public void Receive(WorkSessionDeleteMessage message)
@@ -176,6 +186,7 @@ namespace FarmlandGuide.ViewModels
                 if (message.Value.EmployeeID == _currentEmployeeId)
                 {
                     using var ctx = new ApplicationDbContext();
+                    ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                     _logger.Trace("Receiving WorkSessionDeleteMessage {0}", message.Value);
                     var sessionToRemove = ctx.WorkSessions.Find(message.Value.SessionID);
                     if (sessionToRemove != null)
@@ -186,9 +197,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
         private void SortAndFilterTasks()
@@ -207,9 +219,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-            {
-                _logger.Error(ex, "Something went wrong");
-            }
+{
+    _logger.Error(ex, "Something went wrong");
+    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+}
         }
 
     }

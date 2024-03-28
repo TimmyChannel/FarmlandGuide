@@ -52,7 +52,8 @@
                 <Button Grid.Column="1"
                         Margin="10,0,10,0"
                         Style="{StaticResource MaterialDesignPaperDarkButton}"
-                        HorizontalAlignment="Right">
+                        HorizontalAlignment="Right"
+                        Command="{Binding PrintReportCommand}">
                     <StackPanel Orientation="Horizontal">
                         <materialDesign:PackIcon Kind="Printer"
                                                  Margin="0,0,5,0" />
@@ -101,7 +102,7 @@
                             <MouseBinding.CommandParameter>
                                 <StackPanel>
                                     <dialogs:EmployeeFullInfoUserControl Margin="10,10,10,10"
-                                                                         Employee="{Binding SelectedEmployee}"/>
+                                                                         Employee="{Binding SelectedEmployee}" />
                                 </StackPanel>
                             </MouseBinding.CommandParameter>
                         </MouseBinding>
@@ -211,6 +212,7 @@
 
                     </Button>
                 </StackPanel>
+
             </Grid>
         </materialDesign:Card>
         <materialDesign:Card Name="SessionCard"
@@ -236,7 +238,7 @@
                           SelectedItem="{Binding SelectedWorkSession}">
                     <DataGrid.Columns>
                         <materialDesign:DataGridTextColumn Header="Время начала"
-                                                           Binding="{Binding Path=StartDateTime, StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}"  />
+                                                           Binding="{Binding Path=StartDateTime, StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}" />
                         <materialDesign:DataGridTextColumn Header="Время завершения"
                                                            Binding="{Binding Path=EndDateTime, StringFormat={}{0:dd/MM/yyyy HH:mm:ss}}" />
                         <materialDesign:DataGridTextColumn Header="Действие"

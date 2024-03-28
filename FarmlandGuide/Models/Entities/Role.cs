@@ -9,10 +9,8 @@ namespace FarmlandGuide.Models
 {
     public partial class Role : ObservableObject
     {
-        [ObservableProperty]
-        int _roleID;
-        [ObservableProperty]
-        string _name;
+        [ObservableProperty] private int _roleID;
+        [ObservableProperty] private string _name;
         public ICollection<Employee> Employees { get; set; }
         public override string ToString()
         {

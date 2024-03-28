@@ -1,4 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
+using FarmlandGuide.Helpers.Messages;
 using FarmlandGuide.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -27,7 +29,7 @@ namespace FarmlandGuide.Views.Dialogs
     [ObservableObject]
     public partial class EmployeeFullInfoUserControl : UserControl
     {
-        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public static readonly DependencyProperty EmployeeProperty = DependencyProperty.Register(
             "Employee",
@@ -42,29 +44,20 @@ namespace FarmlandGuide.Views.Dialogs
             get => (Employee)GetValue(EmployeeProperty);
             set => SetValue(EmployeeProperty, value);
         }
-        [ObservableProperty]
-        string _fIO;
-        [ObservableProperty]
-        string _position;
-        [ObservableProperty]
-        string _workSchedule;
-        [ObservableProperty]
-        decimal _fixedSalary;
-        [ObservableProperty]
-        string _residentialAddress;
-        [ObservableProperty]
-        string _enterpriseName;
-        [ObservableProperty]
-        int _tasksCountFromLastMonthSucces;
-        [ObservableProperty]
-        int _tasksCountFromLastMonthInWork;
-        [ObservableProperty]
-        int _tasksCountFromLastMonthFailed;
-        [ObservableProperty]
-        decimal _calculatedSalary;
-        Enterprise _enterprise;
+        [ObservableProperty] private string _fIO;
+        [ObservableProperty] private string _position;
+        [ObservableProperty] private string _workSchedule;
+        [ObservableProperty] private decimal _fixedSalary;
+        [ObservableProperty] private string _residentialAddress;
+        [ObservableProperty] private string _enterpriseName;
+        [ObservableProperty] private int _tasksCountFromLastMonthSucces;
+        [ObservableProperty] private int _tasksCountFromLastMonthInWork;
+        [ObservableProperty] private int _tasksCountFromLastMonthFailed;
+        [ObservableProperty] private decimal _calculatedSalary;
+
+        private Enterprise _enterprise;
         //ObservableCollection<WorkSession> _workSessions;
-        ObservableCollection<Task> _tasks;
+        private ObservableCollection<Task> _tasks;
 
         private void FullInfoUserControl_Loaded(object sender, RoutedEventArgs e)
         {
@@ -72,9 +65,10 @@ namespace FarmlandGuide.Views.Dialogs
             {
                 _logger.Trace("Full info user control loaded. Employee: {0}", Employee.ToString());
                 using var ctx = new ApplicationDbContext();
+                ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                 _enterprise = ctx.Enterprises.Find(Employee.EnterpriseID);
                 //_workSessions = new(ctx.WorkSessions.Where(ws => ws.EmployeeID == Employee.EmployeeID).ToList());
-                _tasks = new(ctx.Tasks.Where(t => t.EmployeeID == Employee.EmployeeID).Include(t => t.ProductionProcess).Include(t => t.Status).ToList());
+                _tasks = new ObservableCollection<Task>(ctx.Tasks.Where(t => t.EmployeeID == Employee.EmployeeID).Include(t => t.ProductionProcess).Include(t => t.Status).ToList());
 
                 Debug.WriteLine($"Employee {Employee}");
                 FIO = Employee.ToString();
@@ -90,6 +84,7 @@ namespace FarmlandGuide.Views.Dialogs
             catch (Exception ex)
             {
                 _logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
             }
 
         }
@@ -109,6 +104,7 @@ namespace FarmlandGuide.Views.Dialogs
             catch (Exception ex)
             {
                 _logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
             }
 
         }

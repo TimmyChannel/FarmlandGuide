@@ -22,45 +22,50 @@ namespace FarmlandGuide.ViewModels
 {
     public partial class EmployeesPageViewModel : ObservableValidator, IRecipient<EnterpriseTableUpdateMessage>, IRecipient<WorkSessionEditMessage>, IRecipient<WorkSessionDeleteMessage>, IRecipient<WorkSessionAddMessage>
     {
-        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
 
         public EmployeesPageViewModel()
         {
             _logger.Trace("EmployeesPageViewModel creating");
-            using var db = new ApplicationDbContext();
-            Employees = new(db.Employees.AsNoTracking().Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
-            Enterprises = new(db.Enterprises.AsNoTracking().ToList());
-            Roles = new(db.Roles.AsNoTracking().ToList());
+            using var ctx = new ApplicationDbContext();
+            ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            Employees = new ObservableCollection<Employee>(ctx.Employees.Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
+            Enterprises = new ObservableCollection<Enterprise>(ctx.Enterprises.ToList());
+            Roles = new ObservableCollection<Role>(ctx.Roles.ToList());
             this.PropertyChanged += EmployeesPageViewModel_PropertyChanged;
             WeakReferenceMessenger.Default.RegisterAll(this);
             _logger.Trace("EmployeesPageViewModel created");
         }
         public void Receive(WorkSessionEditMessage message)
         {
-            using var db = new ApplicationDbContext();
+            using var ctx = new ApplicationDbContext();
+            ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             _logger.Trace("Receiving WorkSessionEditMessage {0}", message.Value);
-            Employees = new(db.Employees.AsNoTracking().Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
+            Employees = new ObservableCollection<Employee>(ctx.Employees.Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
 
         }
         public void Receive(WorkSessionAddMessage message)
         {
-            using var db = new ApplicationDbContext();
+            using var ctx = new ApplicationDbContext();
+            ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             _logger.Trace("Receiving WorkSessionAddMessage {0}", message.Value);
-            Employees = new(db.Employees.AsNoTracking().Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
+            Employees = new ObservableCollection<Employee>(ctx.Employees.Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
         }
 
         public void Receive(WorkSessionDeleteMessage message)
         {
-            using var db = new ApplicationDbContext();
+            using var ctx = new ApplicationDbContext();
+            ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             _logger.Trace("Receiving WorkSessionDeleteMessage {0}", message.Value);
-            Employees = new(db.Employees.AsNoTracking().Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
+            Employees = new ObservableCollection<Employee>(ctx.Employees.Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
         }
 
         public void Receive(EnterpriseTableUpdateMessage message)
         {
-            using var db = new ApplicationDbContext();
+            using var ctx = new ApplicationDbContext();
+            ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             _logger.Trace("Receiving EnterpriseTableUpdateMessage {0}", message.Value);
-            Enterprises = new(db.Enterprises.ToList());
+            Enterprises = new ObservableCollection<Enterprise>(ctx.Enterprises.ToList());
         }
 
 
@@ -70,149 +75,109 @@ namespace FarmlandGuide.ViewModels
                 WeakReferenceMessenger.Default.Send(new SelectedEmployeeMessage(SelectedEmployee.Copy()));
         }
 
-        [ObservableProperty]
-        bool _isEdit = false;
+        [ObservableProperty] private bool _isEdit = false;
 
-        [ObservableProperty]
-        string _titleText;
+        [ObservableProperty] private string _titleText;
 
-        [ObservableProperty]
-        string _buttonApplyText;
+        [ObservableProperty] private string _buttonApplyText;
 
 
         #region Employee
-        [ObservableProperty]
-        ObservableCollection<Employee> _employees;
-        [ObservableProperty]
-        ObservableCollection<Enterprise> _enterprises;
-        [ObservableProperty]
-        ObservableCollection<Role> _roles;
-        [ObservableProperty]
-        Employee? _selectedEmployee;
+        [ObservableProperty] private ObservableCollection<Employee> _employees;
+        [ObservableProperty] private ObservableCollection<Enterprise> _enterprises;
+        [ObservableProperty] private ObservableCollection<Role> _roles;
+        [ObservableProperty] private Employee? _selectedEmployee;
 
 
-        string _name;
-        string _surname;
-        string _patronymic;
-        string _residentialAddress;
-        Enterprise? _selectedEnterprise;
-        string _position;
-        string _workSchedule;
-        decimal _salary;
-        string _employeeName;
-        string _password;
-        Role? _selectedRole;
+        private string _name;
+        private string _surname;
+        private string _patronymic;
+        private string _residentialAddress;
+        private Enterprise? _selectedEnterprise;
+        private string _position;
+        private string _workSchedule;
+        private decimal _salary;
+        private string _employeeName;
+        private string _password;
+        private Role? _selectedRole;
 
         [NotEmpty]
         public string Name
         {
-            get { return _name; }
-            set
-            {
-                SetProperty(ref _name, value, true);
-            }
+            get => _name;
+            set => SetProperty(ref _name, value, true);
         }
 
         [NotEmpty]
         public string Surname
         {
-            get { return _surname; }
-            set
-            {
-                SetProperty(ref _surname, value, true);
-            }
+            get => _surname;
+            set => SetProperty(ref _surname, value, true);
         }
 
         [NotEmpty]
         public string Patronymic
         {
-            get { return _patronymic; }
-            set
-            {
-                SetProperty(ref _patronymic, value, true);
-            }
+            get => _patronymic;
+            set => SetProperty(ref _patronymic, value, true);
         }
 
         [NotEmpty]
         public string ResidentialAddress
         {
-            get { return _residentialAddress; }
-            set
-            {
-                SetProperty(ref _residentialAddress, value, true);
-            }
+            get => _residentialAddress;
+            set => SetProperty(ref _residentialAddress, value, true);
         }
 
         [NotEmpty]
         public string Position
         {
-            get { return _position; }
-            set
-            {
-                SetProperty(ref _position, value, true);
-            }
+            get => _position;
+            set => SetProperty(ref _position, value, true);
         }
 
         [NotEmpty]
         public string WorkSchedule
         {
-            get { return _workSchedule; }
-            set
-            {
-                SetProperty(ref _workSchedule, value, true);
-            }
+            get => _workSchedule;
+            set => SetProperty(ref _workSchedule, value, true);
         }
 
         [LessOrEqualThenValidation(0)]
         public decimal Salary
         {
-            get { return _salary; }
-            set
-            {
-                SetProperty(ref _salary, value, true);
-            }
+            get => _salary;
+            set => SetProperty(ref _salary, value, true);
         }
 
         [NotEmpty]
         [MinLengthWithCustomMessage(4, "Длина логина не может быть меньше 4")]
         public string EmployeeName
         {
-            get { return _employeeName; }
-            set
-            {
-                SetProperty(ref _employeeName, value, true);
-            }
+            get => _employeeName;
+            set => SetProperty(ref _employeeName, value, true);
         }
 
         [Password(@"^(?=.*\p{Ll})(?=.*\p{Lu})(?=.*\p{N}).{6,}$")]
         public string Password
         {
-            get { return _password; }
-            set
-            {
-                SetProperty(ref _password, value, true);
-            }
+            get => _password;
+            set => SetProperty(ref _password, value, true);
         }
 
 
-        [ShouldBeSelected("Необходимо выбрать пердприятие")]
+        [ShouldBeSelected("Необходимо выбрать предприятие")]
         public Enterprise? SelectedEnterprise
         {
-            get { return _selectedEnterprise; }
-            set
-            {
-                SetProperty(ref _selectedEnterprise, value, true);
-            }
+            get => _selectedEnterprise;
+            set => SetProperty(ref _selectedEnterprise, value, true);
         }
 
         [ShouldBeSelected("Необходимо выбрать роль пользователя в системе")]
         public Role? SelectedRole
         {
-            get { return _selectedRole; }
-            set
-            {
-                SetProperty(ref _selectedRole, value, true);
-            }
+            get => _selectedRole;
+            set => SetProperty(ref _selectedRole, value, true);
         }
         [RelayCommand]
         private void OnApplayChangesAtEmployees()
@@ -256,6 +221,7 @@ namespace FarmlandGuide.ViewModels
             catch (Exception ex)
             {
                 _logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
             }
         }
         private void OnAddEmployee()
@@ -263,6 +229,11 @@ namespace FarmlandGuide.ViewModels
             try
             {
                 _logger.Info("Addition new employee");
+                if (SelectedEmployee is null)
+                {
+                    _logger.Warn("Selected employee is null");
+                    return;
+                }
                 using var ctx = new ApplicationDbContext();
                 var salt = PasswordManager.GenerateSalt();
                 var passwordHash = PasswordManager.HashPassword(Password, salt);
@@ -281,6 +252,7 @@ namespace FarmlandGuide.ViewModels
             catch (Exception ex)
             {
                 _logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
             }
         }
         private void OnEditEmployee()
@@ -288,8 +260,13 @@ namespace FarmlandGuide.ViewModels
             try
             {
                 _logger.Info("Editing employee");
+                if (SelectedEmployee is null)
+                {
+                    _logger.Warn("Selected employee is null");
+                    return;
+                }
                 using var ctx = new ApplicationDbContext();
-                var editedEmployee = ctx.Employees.AsNoTracking().First(e => e.EmployeeID == SelectedEmployee.EmployeeID);
+                var editedEmployee = ctx.Employees.First(e => e.EmployeeID == SelectedEmployee.EmployeeID);
                 editedEmployee.Name = Name.Trim();
                 editedEmployee.Surname = Surname.Trim();
                 editedEmployee.Patronymic = Patronymic.Trim();
@@ -313,12 +290,13 @@ namespace FarmlandGuide.ViewModels
                 ctx.SaveChanges();
                 _logger.Info("Edited employee: {0}", editedEmployee.ToString());
                 WeakReferenceMessenger.Default.Send(new EmployeeTableUpdateMessage(editedEmployee.Copy()));
-                Employees = new(ctx.Employees.AsNoTracking().Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
+                Employees = new ObservableCollection<Employee>(ctx.Employees.Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
 
             }
             catch (Exception ex)
             {
                 _logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
             }
         }
 
@@ -346,6 +324,7 @@ namespace FarmlandGuide.ViewModels
             catch (Exception ex)
             {
                 _logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
             }
         }
 
@@ -377,6 +356,8 @@ namespace FarmlandGuide.ViewModels
             catch (Exception ex)
             {
                 _logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+
             }
         }
 
@@ -404,10 +385,17 @@ namespace FarmlandGuide.ViewModels
             catch (Exception ex)
             {
                 _logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+
             }
         }
 
         #endregion
 
+        [RelayCommand]
+        private void OnPrintReport()
+        {
+            WeakReferenceMessenger.Default.Send(new ErrorMessage("Типf ошибка"));
+        }
     }
 }

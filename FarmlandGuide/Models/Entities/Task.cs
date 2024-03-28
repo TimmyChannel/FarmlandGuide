@@ -14,18 +14,12 @@ namespace FarmlandGuide.Models
         public int EmployeeID { get; set; }
         public int ProcessID { get; set; }
         public int StatusID { get; set; }
-        [ObservableProperty]
-        DateTime _assignmentDate;
-        [ObservableProperty]
-        DateTime _dueDate;
-        [ObservableProperty]
-        Status _status;
-        [ObservableProperty]
-        string _description;
-        [ObservableProperty]
-        Employee _employee;
-        [ObservableProperty]
-        ProductionProcess _productionProcess;
+        [ObservableProperty] private DateTime _assignmentDate;
+        [ObservableProperty] private DateTime _dueDate;
+        [ObservableProperty] private Status _status;
+        [ObservableProperty] private string _description;
+        [ObservableProperty] private Employee _employee;
+        [ObservableProperty] private ProductionProcess _productionProcess;
         public Task()
         {
             this.PropertyChanging += Task_PropertyChanging;
