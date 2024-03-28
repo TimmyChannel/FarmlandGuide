@@ -1,19 +1,14 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using FarmlandGuide.Models.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace FarmlandGuide.Models
+namespace FarmlandGuide.Models.Entities
 {
     public partial class Task : ObservableObject
     {
-        public int TaskID { get; set; }
-        public int EmployeeID { get; set; }
-        public int ProcessID { get; set; }
-        public int StatusID { get; set; }
+        public int TaskId { get; set; }
+        public int EmployeeId { get; set; }
+        public int ProcessId { get; set; }
+        public int StatusId { get; set; }
         [ObservableProperty] private DateTime _assignmentDate;
         [ObservableProperty] private DateTime _dueDate;
         [ObservableProperty] private Status _status;
@@ -22,19 +17,19 @@ namespace FarmlandGuide.Models
         [ObservableProperty] private ProductionProcess _productionProcess;
         public Task()
         {
-            this.PropertyChanging += Task_PropertyChanging;
-            this.PropertyChanged += Task_PropertyChanged;
+            PropertyChanging += Task_PropertyChanging;
+            PropertyChanged += Task_PropertyChanged;
         }
-        public Task(int employeeID, int processID, int statusID, DateTime assignmentDate, DateTime dueDate, string description)
+        public Task(int employeeId, int processId, int statusId, DateTime assignmentDate, DateTime dueDate, string description)
         {
-            EmployeeID = employeeID;
-            ProcessID = processID;
-            StatusID = statusID;
+            EmployeeId = employeeId;
+            ProcessId = processId;
+            StatusId = statusId;
             AssignmentDate = assignmentDate;
             DueDate = dueDate;
             Description = description;
-            this.PropertyChanging += Task_PropertyChanging;
-            this.PropertyChanged += Task_PropertyChanged;
+            PropertyChanging += Task_PropertyChanging;
+            PropertyChanged += Task_PropertyChanged;
         }
 
         private void Task_PropertyChanging(object? sender, System.ComponentModel.PropertyChangingEventArgs e)
@@ -48,8 +43,6 @@ namespace FarmlandGuide.Models
                 case nameof(ProductionProcess):
                     if (ProductionProcess is null) break;
                     ProductionProcess.PropertyChanged -= ProductionProcess_PropertyChanged;
-                    break;
-                default:
                     break;
             }
         }
@@ -65,8 +58,6 @@ namespace FarmlandGuide.Models
                 case nameof(ProductionProcess):
                     if (ProductionProcess is null) break;
                     ProductionProcess.PropertyChanged += ProductionProcess_PropertyChanged;
-                    break;
-                default:
                     break;
             }
         }

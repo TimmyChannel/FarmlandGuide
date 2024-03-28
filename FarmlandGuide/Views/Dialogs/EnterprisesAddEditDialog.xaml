@@ -4,8 +4,6 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:local="clr-namespace:FarmlandGuide.Views.Dialogs"
-      xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
       mc:Ignorable="d"
       d:DesignHeight="270"
       d:DesignWidth="400"
@@ -17,7 +15,7 @@
       TextOptions.TextRenderingMode="Auto"
       Background="{DynamicResource MaterialDesignPaper}"
       FontFamily="{DynamicResource MaterialDesignFont}"
-      DataContext="{Binding EnterpisesPageViewModel, Mode=OneWay, Source={StaticResource Locator}}">
+      DataContext="{Binding EnterprisesPageViewModel, Mode=OneWay, Source={StaticResource Locator}}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
@@ -84,7 +82,7 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
                 Margin="5,10,5,10"
-                Command="{Binding ApplayChangesAtEnterprisesCommand}"
+                Command="{Binding ApplyChangesAtEnterprisesCommand}"
                 IsEnabled="{Binding HasErrors, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InvertBooleanConverter}}"
                 Cursor="Hand" />
 

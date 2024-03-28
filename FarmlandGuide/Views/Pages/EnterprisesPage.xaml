@@ -3,11 +3,9 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:local="clr-namespace:FarmlandGuide.Views.Pages"
       xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
       xmlns:converters="clr-namespace:FarmlandGuide.Helpers.Converters"
       xmlns:helpers="clr-namespace:FarmlandGuide.Helpers"
-      xmlns:vm="clr-namespace:FarmlandGuide.ViewModels"
       mc:Ignorable="d"
       d:DesignHeight="450"
       d:DesignWidth="800"
@@ -20,7 +18,7 @@
       TextOptions.TextRenderingMode="Auto"
       Background="{DynamicResource MaterialDesignPaper}"
       FontFamily="{DynamicResource MaterialDesignFont}"
-      DataContext="{Binding EnterpisesPageViewModel, Mode=OneWay, Source={StaticResource Locator}}" >
+      DataContext="{Binding EnterprisesPageViewModel, Mode=OneWay, Source={StaticResource Locator}}" >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"
@@ -49,7 +47,7 @@
                          FontSize="14" />
             </Grid>
         </materialDesign:Card>
-        <materialDesign:Card Name="EnterpiseCard"
+        <materialDesign:Card Name="EnterpriseCard"
                              Grid.Row="1"
                              Grid.Column="1"
                              Margin="10,10,10,10">
@@ -62,7 +60,7 @@
                 <TextBlock Style="{StaticResource MaterialDesignHeadline5TextBlock}"
                            Text="Предприятия"
                            Margin="10.2,0,0,10" />
-                <DataGrid Name="EnterpiseGrid"
+                <DataGrid Name="EnterpriseGrid"
                           AutoGenerateColumns="False"
                           Grid.Row="1"
                           Background="White"

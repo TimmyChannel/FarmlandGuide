@@ -1,15 +1,11 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace FarmlandGuide.Models
+namespace FarmlandGuide.Models.Entities
 {
     public partial class Enterprise : ObservableObject
     {
-        public int EnterpriseID { get; set; }
+        public int EnterpriseId { get; set; }
         [ObservableProperty] private string _name;
         [ObservableProperty] private string _address;
         public ICollection<ProductionProcess> ProductionProcesses { get; set; }

@@ -2,45 +2,43 @@
 using CommunityToolkit.Mvvm.Input;
 using FarmlandGuide.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NLog;
 using System.Collections.ObjectModel;
 using FarmlandGuide.Helpers.Validators;
-using MathNet.Numerics.Interpolation;
-using System.ComponentModel.DataAnnotations;
 using NPOI.Util;
-using System.Diagnostics;
 using FarmlandGuide.Helpers;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
 using FarmlandGuide.Helpers.Messages;
+using NLog;
+using NLog.Targets;
+using Employee = FarmlandGuide.Models.Entities.Employee;
+using Enterprise = FarmlandGuide.Models.Entities.Enterprise;
+using Role = FarmlandGuide.Models.Entities.Role;
 
 namespace FarmlandGuide.ViewModels
 {
     public partial class EmployeesPageViewModel : ObservableValidator, IRecipient<EnterpriseTableUpdateMessage>, IRecipient<WorkSessionEditMessage>, IRecipient<WorkSessionDeleteMessage>, IRecipient<WorkSessionAddMessage>
     {
-        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public EmployeesPageViewModel()
         {
-            _logger.Trace("EmployeesPageViewModel creating");
+            Logger.Trace("EmployeesPageViewModel creating");
             using var ctx = new ApplicationDbContext();
             ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             Employees = new ObservableCollection<Employee>(ctx.Employees.Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
             Enterprises = new ObservableCollection<Enterprise>(ctx.Enterprises.ToList());
             Roles = new ObservableCollection<Role>(ctx.Roles.ToList());
-            this.PropertyChanged += EmployeesPageViewModel_PropertyChanged;
+            PropertyChanged += EmployeesPageViewModel_PropertyChanged;
             WeakReferenceMessenger.Default.RegisterAll(this);
-            _logger.Trace("EmployeesPageViewModel created");
+            Logger.Trace("EmployeesPageViewModel created");
         }
         public void Receive(WorkSessionEditMessage message)
         {
             using var ctx = new ApplicationDbContext();
             ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-            _logger.Trace("Receiving WorkSessionEditMessage {0}", message.Value);
+            Logger.Trace("Receiving WorkSessionEditMessage {0}", message.Value);
             Employees = new ObservableCollection<Employee>(ctx.Employees.Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
 
         }
@@ -48,7 +46,7 @@ namespace FarmlandGuide.ViewModels
         {
             using var ctx = new ApplicationDbContext();
             ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-            _logger.Trace("Receiving WorkSessionAddMessage {0}", message.Value);
+            Logger.Trace("Receiving WorkSessionAddMessage {0}", message.Value);
             Employees = new ObservableCollection<Employee>(ctx.Employees.Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
         }
 
@@ -56,7 +54,7 @@ namespace FarmlandGuide.ViewModels
         {
             using var ctx = new ApplicationDbContext();
             ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-            _logger.Trace("Receiving WorkSessionDeleteMessage {0}", message.Value);
+            Logger.Trace("Receiving WorkSessionDeleteMessage {0}", message.Value);
             Employees = new ObservableCollection<Employee>(ctx.Employees.Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
         }
 
@@ -64,7 +62,7 @@ namespace FarmlandGuide.ViewModels
         {
             using var ctx = new ApplicationDbContext();
             ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-            _logger.Trace("Receiving EnterpriseTableUpdateMessage {0}", message.Value);
+            Logger.Trace("Receiving EnterpriseTableUpdateMessage {0}", message.Value);
             Enterprises = new ObservableCollection<Enterprise>(ctx.Enterprises.ToList());
         }
 
@@ -75,7 +73,7 @@ namespace FarmlandGuide.ViewModels
                 WeakReferenceMessenger.Default.Send(new SelectedEmployeeMessage(SelectedEmployee.Copy()));
         }
 
-        [ObservableProperty] private bool _isEdit = false;
+        [ObservableProperty] private bool _isEdit;
 
         [ObservableProperty] private string _titleText;
 
@@ -180,13 +178,13 @@ namespace FarmlandGuide.ViewModels
             set => SetProperty(ref _selectedRole, value, true);
         }
         [RelayCommand]
-        private void OnApplayChangesAtEmployees()
+        private void OnApplyChangesAtEmployees()
         {
-            _logger.Debug("Initiated change application attempt");
+            Logger.Debug("Initiated change application attempt");
             ValidateAllProperties();
             if (HasErrors)
             {
-                _logger.Warn("Failed change application attempt. Data errors.");
+                Logger.Warn("Failed change application attempt. Data errors.");
                 return;
             }
 
@@ -201,7 +199,7 @@ namespace FarmlandGuide.ViewModels
         {
             try
             {
-                _logger.Trace("Closing dialog and clear all props");
+                Logger.Trace("Closing dialog and clear all props");
                 IsEdit = false;
                 Name = string.Empty;
                 Surname = string.Empty;
@@ -220,53 +218,53 @@ namespace FarmlandGuide.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Something went wrong");
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
             }
         }
         private void OnAddEmployee()
         {
             try
             {
-                _logger.Info("Addition new employee");
+                Logger.Info("Addition new employee");
                 if (SelectedEmployee is null)
                 {
-                    _logger.Warn("Selected employee is null");
+                    Logger.Warn("Selected employee is null");
                     return;
                 }
                 using var ctx = new ApplicationDbContext();
                 var salt = PasswordManager.GenerateSalt();
                 var passwordHash = PasswordManager.HashPassword(Password, salt);
                 var employee = new Employee(Name.Trim(), Surname.Trim(), Patronymic.Trim(), WorkSchedule.Trim(), Position.Trim(), Salary,
-                    ResidentialAddress.Trim(), EmployeeName.Trim(), passwordHash, salt, SelectedEnterprise?.EnterpriseID ?? 1, SelectedRole?.RoleID ?? 1)
+                    ResidentialAddress.Trim(), EmployeeName.Trim(), passwordHash, salt, SelectedEnterprise?.EnterpriseId ?? 1, SelectedRole?.RoleId ?? 1)
                 {
-                    Enterprise = ctx.Enterprises.First(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID),
-                    Role = ctx.Roles.First(r => r.RoleID == SelectedRole.RoleID)
+                    Enterprise = ctx.Enterprises.First(e => e.EnterpriseId == SelectedEnterprise.EnterpriseId),
+                    Role = ctx.Roles.First(r => r.RoleId == SelectedRole.RoleId)
                 };
                 ctx.Employees.Add(employee);
                 ctx.SaveChanges();
                 Employees.Add(employee);
-                _logger.Info("Added new employee: {0}", employee.ToString());
+                Logger.Info("Added new employee: {0}", employee.ToString());
                 WeakReferenceMessenger.Default.Send(new EmployeeTableUpdateMessage(employee));
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Something went wrong");
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
             }
         }
         private void OnEditEmployee()
         {
             try
             {
-                _logger.Info("Editing employee");
+                Logger.Info("Editing employee");
                 if (SelectedEmployee is null)
                 {
-                    _logger.Warn("Selected employee is null");
+                    Logger.Warn("Selected employee is null");
                     return;
                 }
                 using var ctx = new ApplicationDbContext();
-                var editedEmployee = ctx.Employees.First(e => e.EmployeeID == SelectedEmployee.EmployeeID);
+                var editedEmployee = ctx.Employees.First(e => e.EmployeeId == SelectedEmployee.EmployeeId);
                 editedEmployee.Name = Name.Trim();
                 editedEmployee.Surname = Surname.Trim();
                 editedEmployee.Patronymic = Patronymic.Trim();
@@ -288,15 +286,15 @@ namespace FarmlandGuide.ViewModels
 
                 ctx.Employees.Update(editedEmployee);
                 ctx.SaveChanges();
-                _logger.Info("Edited employee: {0}", editedEmployee.ToString());
+                Logger.Info("Edited employee: {0}", editedEmployee.ToString());
                 WeakReferenceMessenger.Default.Send(new EmployeeTableUpdateMessage(editedEmployee.Copy()));
                 Employees = new ObservableCollection<Employee>(ctx.Employees.Include(e => e.WorkSessions).Include(e => e.Enterprise).Include(e => e.Role).ToList());
 
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Something went wrong");
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
             }
         }
 
@@ -305,11 +303,11 @@ namespace FarmlandGuide.ViewModels
         {
             try
             {
-                _logger.Info("Deleting employee");
+                Logger.Info("Deleting employee");
                 var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
                 if (SelectedEmployee is null)
                 {
-                    _logger.Warn("Employee is unselected");
+                    Logger.Warn("Employee is unselected");
                     closeDialogCommand.Execute(null, null);
                     return;
                 }
@@ -317,14 +315,14 @@ namespace FarmlandGuide.ViewModels
                 ctx.Employees.Remove(SelectedEmployee);
                 ctx.SaveChanges();
                 WeakReferenceMessenger.Default.Send(new EmployeeTableUpdateMessage(SelectedEmployee));
-                _logger.Info("Deleted employee: {0}", SelectedEmployee.ToString());
+                Logger.Info("Deleted employee: {0}", SelectedEmployee.ToString());
                 Employees.Remove(SelectedEmployee);
                 closeDialogCommand.Execute(null, null);
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Something went wrong");
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
             }
         }
 
@@ -355,8 +353,8 @@ namespace FarmlandGuide.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Something went wrong");
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
 
             }
         }
@@ -384,8 +382,8 @@ namespace FarmlandGuide.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Something went wrong");
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
 
             }
         }
@@ -395,7 +393,7 @@ namespace FarmlandGuide.ViewModels
         [RelayCommand]
         private void OnPrintReport()
         {
-            WeakReferenceMessenger.Default.Send(new ErrorMessage("Типf ошибка"));
+            WeakReferenceMessenger.Default.Send(new ErrorMessage("Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
         }
     }
 }

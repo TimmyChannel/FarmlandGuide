@@ -4,7 +4,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:FarmlandGuide.Views.Dialogs"
              mc:Ignorable="d"
              d:DesignHeight="250"
              d:DesignWidth="400"
@@ -103,7 +102,7 @@
                             выполнено:
                         </TextBlock>
                         <TextBlock HorizontalAlignment="Center"
-                                   Text="{Binding TasksCountFromLastMonthSucces, ElementName=FullInfoUserControl}"
+                                   Text="{Binding TasksCountFromLastMonthSuccess, ElementName=FullInfoUserControl}"
                                    Style="{StaticResource MaterialDesignHeadline4TextBlock}"
                                    Margin="0,10,0,10" />
                         <Separator Style="{StaticResource MaterialDesignDarkSeparator}"

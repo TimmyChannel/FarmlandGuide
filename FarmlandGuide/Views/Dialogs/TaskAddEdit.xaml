@@ -4,8 +4,6 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:local="clr-namespace:FarmlandGuide.Views.Dialogs"
-      xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
       mc:Ignorable="d"
       d:DesignHeight="350"
       d:DesignWidth="470"
@@ -144,7 +142,7 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
                 Margin="5,10,5,10"
-                Command="{Binding ApplayChangesAtTasksCommand}"
+                Command="{Binding ApplyChangesAtTasksCommand}"
                 IsEnabled="{Binding HasErrors, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource InvertBooleanConverter}}"
                 Cursor="Hand" />
 

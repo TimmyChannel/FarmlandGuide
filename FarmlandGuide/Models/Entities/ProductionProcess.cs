@@ -1,30 +1,26 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace FarmlandGuide.Models
+namespace FarmlandGuide.Models.Entities
 {
     public partial class ProductionProcess : ObservableObject
     {
-        public int ProcessID { get; set; }
-        public int EnterpriseID { get; set; }
+        public int ProcessId { get; set; }
+        public int EnterpriseId { get; set; }
 
         [ObservableProperty] private string _name;
         [ObservableProperty] private string _description;
         [ObservableProperty] private decimal _cost;
         [ObservableProperty] private Enterprise _enterprise;
         public ICollection<Task> Tasks { get; set; }
-        public ProductionProcess(string name, string description, decimal cost, int enterpriseID)
+        public ProductionProcess(string name, string description, decimal cost, int enterpriseId)
         {
             Name = name;
             Description = description;
             Cost = cost;
-            EnterpriseID = enterpriseID;
-            this.PropertyChanging += ProductionProcess_PropertyChanging;
-            this.PropertyChanged += ProductionProcess_PropertyChanged;
+            EnterpriseId = enterpriseId;
+            PropertyChanging += ProductionProcess_PropertyChanging;
+            PropertyChanged += ProductionProcess_PropertyChanged;
         }
 
         private void ProductionProcess_PropertyChanging(object? sender, System.ComponentModel.PropertyChangingEventArgs e)

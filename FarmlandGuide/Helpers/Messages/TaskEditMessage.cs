@@ -1,9 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging.Messages;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Task = FarmlandGuide.Models.Task;
+using Task = FarmlandGuide.Models.Entities.Task;
 
 namespace FarmlandGuide.Helpers.Messages
 {

@@ -4,7 +4,6 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-      xmlns:local="clr-namespace:FarmlandGuide.Views.Pages"
       xmlns:converters="clr-namespace:FarmlandGuide.Helpers.Converters"
       xmlns:helpers="clr-namespace:FarmlandGuide.Helpers"
       mc:Ignorable="d"

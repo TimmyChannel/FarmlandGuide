@@ -3,16 +3,13 @@ using FarmlandGuide.Models;
 using FarmlandGuide.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using NLog;
-using NPOI.Util;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
+using Employee = FarmlandGuide.Models.Entities.Employee;
+using Enterprise = FarmlandGuide.Models.Entities.Enterprise;
+using Role = FarmlandGuide.Models.Entities.Role;
 
 namespace FarmlandGuide
 {
@@ -21,7 +18,7 @@ namespace FarmlandGuide
     /// </summary>
     public partial class App : Application
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         public App()
         {
             var fileName = $"Logs\\{DateTime.Now:yyyyMMdd_HHmmss}.log";
@@ -30,20 +27,20 @@ namespace FarmlandGuide
                 builder.ForLogger().FilterMinLevel(LogLevel.Trace).WriteToDebug();
                 builder.ForLogger().FilterMinLevel(LogLevel.Debug).WriteToFile(fileName: fileName);
             });
-            _logger.Debug("Debug start. File name: {0}", fileName);
-            _logger.Trace("Database initial state configuration");
+            Logger.Debug("Debug start. File name: {0}", fileName);
+            Logger.Trace("Database initial state configuration");
             using var ctx = new ApplicationDbContext();
             ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             if (!ctx.Roles.Any())
             {
-                _logger.Trace("Role table is empty. Addition new roles");
+                Logger.Trace("Role table is empty. Addition new roles");
                 ctx.Roles.Add(new Role() { Name = "Администратор" });
                 ctx.Roles.Add(new Role() { Name = "Сотрудник" });
                 ctx.SaveChangesAsync();
             }
             if (!ctx.Statuses.Any())
             {
-                _logger.Trace("Status table is empty. New statuses addition");
+                Logger.Trace("Status table is empty. New statuses addition");
                 ctx.Statuses.Add(new Status("В работе", 0));
                 ctx.Statuses.Add(new Status("Выполнено", 1));
                 ctx.Statuses.Add(new Status("Провалено", 2));
@@ -51,13 +48,13 @@ namespace FarmlandGuide
             }
             if (!ctx.Enterprises.Any())
             {
-                _logger.Trace("Enterprise table is empty. New enterprise addition");
+                Logger.Trace("Enterprise table is empty. New enterprise addition");
                 ctx.Enterprises.Add(new Enterprise("2fc4d315a2821ab76dd1c4931596c6ef", "2fc4d315a2821ab76dd1c4931596c6ef"));
                 ctx.SaveChangesAsync();
             }
             if (!ctx.Employees.Any(e => e.EmployeeName == "admin"))
             {
-                _logger.Trace("Admin user doesn`t exist. Admin addition");
+                Logger.Trace("Admin user doesn`t exist. Admin addition");
                 var salt = PasswordManager.GenerateSalt();
                 var passwordHash = PasswordManager.HashPassword("AdministratorPassword34", salt);
                 var employee = new Employee("Администратор БД", "", "", "", "", 0,
@@ -65,8 +62,13 @@ namespace FarmlandGuide
                 ctx.Employees.Add(employee);
                 ctx.SaveChanges();
             }
-            _logger.Trace("Database initial state configurated");
+            Logger.Trace("Database initial state configurated");
 
+        }
+
+        private void Application_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }

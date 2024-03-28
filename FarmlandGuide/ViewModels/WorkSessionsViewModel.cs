@@ -1,35 +1,35 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using FarmlandGuide.Helpers;
 using FarmlandGuide.Helpers.Messages;
 using FarmlandGuide.Helpers.Validators;
 using FarmlandGuide.Models;
 using Microsoft.EntityFrameworkCore;
 using NPOI.Util;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using NLog;
+using NLog.Targets;
+using Employee = FarmlandGuide.Models.Entities.Employee;
+using WorkSession = FarmlandGuide.Models.Entities.WorkSession;
 
 namespace FarmlandGuide.ViewModels
 {
     public partial class WorkSessionsViewModel : ObservableValidator, IRecipient<SelectedEmployeeMessage>, IRecipient<EmployeeTableUpdateMessage>
     {
-        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         public WorkSessionsViewModel()
         {
-            _logger.Trace("WorkSessionsViewModel creating");
+            Logger.Trace("WorkSessionsViewModel creating");
             using var ctx = new ApplicationDbContext();
             ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             Employees = new ObservableCollection<Employee>(ctx.Employees.ToList());
             WeakReferenceMessenger.Default.RegisterAll(this);
-            this.PropertyChanged += WorkSessionsViewModel_PropertyChanged;
-            _logger.Trace("WorkSessionsViewModel` created");
+            PropertyChanged += WorkSessionsViewModel_PropertyChanged;
+            Logger.Trace("WorkSessionsViewModel` created");
         }
 
         private void WorkSessionsViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -45,16 +45,16 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-{
-    _logger.Error(ex, "Something went wrong");
-    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
-}
+            {
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
+            }
         }
         [ObservableProperty] private int _selectedEmployeeIndex;
 
-        [ObservableProperty] private bool _isEdit = false;
+        [ObservableProperty] private bool _isEdit;
 
-        [ObservableProperty] private bool _isEmployeeSelected = false;
+        [ObservableProperty] private bool _isEmployeeSelected;
 
         [ObservableProperty] private string _titleText;
 
@@ -76,11 +76,11 @@ namespace FarmlandGuide.ViewModels
             {
                 using var ctx = new ApplicationDbContext();
                 ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-                _logger.Trace("Receiving SelectedEmployeeMessage {0}", message.Value);
+                Logger.Trace("Receiving SelectedEmployeeMessage {0}", message.Value);
                 if (message.Value.WorkSessions is not null)
                 {
                     WorkSessions = new ObservableCollection<WorkSession>(ctx.WorkSessions.Include(ws => ws.Employee).Where(ws =>
-                    message.Value.WorkSessions.Select(ws => ws.SessionID).Contains(ws.SessionID)).ToList());
+                    message.Value.WorkSessions.Select(ws => ws.SessionId).Contains(ws.SessionId)).ToList());
                 }
                 else
                 {
@@ -91,10 +91,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-{
-    _logger.Error(ex, "Something went wrong");
-    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
-}
+            {
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
+            }
         }
 
         public void Receive(EmployeeTableUpdateMessage message)
@@ -102,45 +102,33 @@ namespace FarmlandGuide.ViewModels
             using var ctx = new ApplicationDbContext();
             ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             Employees = new ObservableCollection<Employee>(ctx.Employees.ToList());
-            _logger.Trace("Receiving EmployeeTableUpdateMessage {0}", message.Value);
+            Logger.Trace("Receiving EmployeeTableUpdateMessage {0}", message.Value);
         }
 
 
-        [CustomValidation(typeof(WorkSessionsViewModel), nameof(ValidatStartDateTime))]
+        [CustomValidation(typeof(WorkSessionsViewModel), nameof(ValidateStartDateTime))]
         public DateTime StartDate
         {
-            get { return _startDate; }
-            set
-            {
-                SetProperty(ref _startDate, value, true);
-            }
+            get => _startDate;
+            set => SetProperty(ref _startDate, value, true);
         }
-        [CustomValidation(typeof(WorkSessionsViewModel), nameof(ValidatStartDateTime))]
+        [CustomValidation(typeof(WorkSessionsViewModel), nameof(ValidateStartDateTime))]
         public DateTime StartTime
         {
-            get { return _startTime; }
-            set
-            {
-                SetProperty(ref _startTime, value, true);
-            }
+            get => _startTime;
+            set => SetProperty(ref _startTime, value, true);
         }
         [CustomValidation(typeof(WorkSessionsViewModel), nameof(ValidateEndDateTime))]
         public DateTime EndTime
         {
-            get { return _endTime; }
-            set
-            {
-                SetProperty(ref _endTime, value, true);
-            }
+            get => _endTime;
+            set => SetProperty(ref _endTime, value, true);
         }
         [CustomValidation(typeof(WorkSessionsViewModel), nameof(ValidateEndDateTime))]
         public DateTime EndDate
         {
-            get { return _endDate; }
-            set
-            {
-                SetProperty(ref _endDate, value, true);
-            }
+            get => _endDate;
+            set => SetProperty(ref _endDate, value, true);
         }
         #region TimeValidators
 
@@ -163,7 +151,7 @@ namespace FarmlandGuide.ViewModels
             }
             return new ValidationResult("Ошибка!");
         }
-        public static ValidationResult ValidatStartDateTime(DateTime startDateTime, ValidationContext context)
+        public static ValidationResult ValidateStartDateTime(DateTime startDateTime, ValidationContext context)
         {
             WorkSessionsViewModel instance = (WorkSessionsViewModel)context.ObjectInstance;
             if (startDateTime == instance.StartDate)
@@ -188,21 +176,18 @@ namespace FarmlandGuide.ViewModels
         [NotEmpty]
         public string ActionType
         {
-            get { return _actionType; }
-            set
-            {
-                SetProperty(ref _actionType, value, true);
-            }
+            get => _actionType;
+            set => SetProperty(ref _actionType, value, true);
         }
 
         [RelayCommand]
-        private void OnApplayChangesAtWorkSessions()
+        private void OnApplyChangesAtWorkSessions()
         {
-            _logger.Debug("Initiated change application attempt");
+            Logger.Debug("Initiated change application attempt");
             ValidateAllProperties();
             if (HasErrors)
             {
-                _logger.Warn("Failed change application attempt. Data errors.");
+                Logger.Warn("Failed change application attempt. Data errors.");
                 return;
             }
 
@@ -215,18 +200,15 @@ namespace FarmlandGuide.ViewModels
         [ShouldBeSelected("Необходимо выбрать сотрудника")]
         public Employee? SelectedEmployee
         {
-            get { return _selectedEmployee; }
-            set
-            {
-                SetProperty(ref _selectedEmployee, value, true);
-            }
+            get => _selectedEmployee;
+            set => SetProperty(ref _selectedEmployee, value, true);
         }
         [RelayCommand]
         private void OnCloseDialogAndClearProps()
         {
             try
             {
-                _logger.Trace("Closing dialog and clear all props");
+                Logger.Trace("Closing dialog and clear all props");
                 IsEdit = false;
                 StartDate = DateTime.Now;
                 EndDate = DateTime.Now.AddDays(1);
@@ -240,62 +222,62 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-{
-    _logger.Error(ex, "Something went wrong");
-    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
-}
+            {
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
+            }
         }
         private void OnAddWorkSession()
         {
             try
             {
-                _logger.Info("Addition new session");
+                Logger.Info("Addition new session");
                 using var ctx = new ApplicationDbContext();
                 var session = new WorkSession()
                 {
                     StartDateTime = StartDate.Add(StartTime.TimeOfDay),
                     EndDateTime = EndDate.Add(EndTime.TimeOfDay),
                     Type = ActionType.Trim(),
-                    Employee = ctx.Employees.First(e => e.EmployeeID == SelectedEmployee.EmployeeID),
+                    Employee = ctx.Employees.First(e => e.EmployeeId == SelectedEmployee.EmployeeId),
                 };
                 ctx.WorkSessions.Add(session);
                 ctx.SaveChanges();
-                _logger.Info("Added new session: {0}", session.ToString());
+                Logger.Info("Added new session: {0}", session.ToString());
                 WeakReferenceMessenger.Default.Send(new WorkSessionAddMessage(session));
                 WorkSessions.Add(session);
             }
             catch (Exception ex)
-{
-    _logger.Error(ex, "Something went wrong");
-    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
-}
+            {
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
+            }
         }
         private void OnEditWorkSession()
         {
             try
             {
                 using var ctx = new ApplicationDbContext();
-                _logger.Info("Editing session");
-                var editedWorkSession = ctx.WorkSessions.First(ws => ws.SessionID == SelectedWorkSession.SessionID);
+                Logger.Info("Editing session");
+                var editedWorkSession = ctx.WorkSessions.First(ws => ws.SessionId == SelectedWorkSession.SessionId);
                 editedWorkSession.StartDateTime = StartDate.Add(StartTime.TimeOfDay).Copy();
                 editedWorkSession.EndDateTime = EndDate.Add(EndTime.TimeOfDay).Copy();
                 editedWorkSession.Type = ActionType.Trim();
-                int previousEmployeeID = editedWorkSession.EmployeeID;
-                editedWorkSession.Employee = ctx.Employees.First(e => e.EmployeeID == SelectedEmployee.EmployeeID);
+                int previousEmployeeId = editedWorkSession.EmployeeId;
+                editedWorkSession.Employee = ctx.Employees.First(e => e.EmployeeId == SelectedEmployee.EmployeeId);
                 ctx.WorkSessions.Update(editedWorkSession);
                 ctx.SaveChanges();
 
-                _logger.Info("Edited session: {0}", editedWorkSession.ToString());
+                Logger.Info("Edited session: {0}", editedWorkSession.ToString());
 
-                WorkSessions = new ObservableCollection<WorkSession>(ctx.WorkSessions.Include(ws => ws.Employee).Where(ws => ws.EmployeeID == previousEmployeeID).ToList());
+                WorkSessions = new ObservableCollection<WorkSession>(ctx.WorkSessions.Include(ws => ws.Employee).Where(ws => ws.EmployeeId == previousEmployeeId).ToList());
                 WeakReferenceMessenger.Default.Send(new WorkSessionEditMessage(editedWorkSession.Copy()));
 
             }
             catch (Exception ex)
-{
-    _logger.Error(ex, "Something went wrong");
-    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
-}
+            {
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
+            }
 
         }
 
@@ -304,11 +286,11 @@ namespace FarmlandGuide.ViewModels
         {
             try
             {
-                _logger.Info("Deleting session");
+                Logger.Info("Deleting session");
                 var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
                 if (SelectedWorkSession is null)
                 {
-                    _logger.Warn("Session is unselected");
+                    Logger.Warn("Session is unselected");
                     closeDialogCommand.Execute(null, null);
                     return;
                 }
@@ -316,16 +298,16 @@ namespace FarmlandGuide.ViewModels
                 ctx.WorkSessions.Remove(SelectedWorkSession);
                 ctx.SaveChanges();
                 WeakReferenceMessenger.Default.Send(new WorkSessionDeleteMessage(SelectedWorkSession));
-                _logger.Info("Deleted session: {0}", SelectedEmployee.ToString());
+                Logger.Info("Deleted session: {0}", SelectedEmployee.ToString());
                 WorkSessions.Remove(SelectedWorkSession);
                 closeDialogCommand.Execute(null, null);
 
             }
             catch (Exception ex)
-{
-    _logger.Error(ex, "Something went wrong");
-    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
-}
+            {
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
+            }
 
         }
 
@@ -350,10 +332,10 @@ namespace FarmlandGuide.ViewModels
                 IsEdit = true;
             }
             catch (Exception ex)
-{
-    _logger.Error(ex, "Something went wrong");
-    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
-}
+            {
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
+            }
         }
 
         [RelayCommand]
@@ -374,10 +356,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-{
-    _logger.Error(ex, "Something went wrong");
-    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
-}
+            {
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
+            }
         }
 
     }

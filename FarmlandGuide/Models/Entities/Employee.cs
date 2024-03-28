@@ -1,17 +1,15 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace FarmlandGuide.Models
+namespace FarmlandGuide.Models.Entities
 {
     public partial class Employee : ObservableObject
     {
-        public int EmployeeID { get; set; }
-        public int EnterpriseID { get; set; }
-        public int RoleID { get; set; }
+        public int EmployeeId { get; set; }
+        public int EnterpriseId { get; set; }
+        public int RoleId { get; set; }
         [ObservableProperty] private string _employeeName;
         [ObservableProperty] private string _passwordHash;
         [ObservableProperty] private string _passwordSalt;
@@ -35,7 +33,7 @@ namespace FarmlandGuide.Models
             WorkSchedule = workSchedule;
         }
         public Employee(string name, string surname, string patronymic, string workSchedule, string position, decimal salary,
-             string residentialAddress, string employeeName, string passwordHash, string passwordSalt, int enterpriseID, int roleID)
+             string residentialAddress, string employeeName, string passwordHash, string passwordSalt, int enterpriseId, int roleId)
         {
             Name = name;
             Surname = surname;
@@ -47,13 +45,13 @@ namespace FarmlandGuide.Models
             EmployeeName = employeeName;
             PasswordHash = passwordHash;
             PasswordSalt = passwordSalt;
-            EnterpriseID = enterpriseID;
-            RoleID = roleID;
-            this.PropertyChanging += Employee_PropertyChanging;
-            this.PropertyChanged += Employee_PropertyChanged;
+            EnterpriseId = enterpriseId;
+            RoleId = roleId;
+            PropertyChanging += Employee_PropertyChanging;
+            PropertyChanged += Employee_PropertyChanged;
         }
 
-        private void Employee_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void Employee_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
@@ -65,12 +63,10 @@ namespace FarmlandGuide.Models
                     if (Role is null) break;
                     Role.PropertyChanged += Role_PropertyChanged;
                     break;
-                default:
-                    break;
             }
         }
 
-        private void Employee_PropertyChanging(object? sender, System.ComponentModel.PropertyChangingEventArgs e)
+        private void Employee_PropertyChanging(object? sender, PropertyChangingEventArgs e)
         {
             switch (e.PropertyName)
             {
@@ -82,17 +78,15 @@ namespace FarmlandGuide.Models
                     if (Role is null) break;
                     Role.PropertyChanged -= Role_PropertyChanged;
                     break;
-                default:
-                    break;
             }
         }
 
-        private void Role_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void Role_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             OnPropertyChanged(nameof(Role));
         }
 
-        private void Enterprise_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void Enterprise_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             OnPropertyChanged(nameof(Enterprise));
         }
@@ -100,7 +94,7 @@ namespace FarmlandGuide.Models
         {
             return Surname + " " + Name + " " + Patronymic;
         }
-        public string GetShortFIO()
+        public string GetShortFio()
         {
             return Surname + " " + Name.First() + ". " + Patronymic.First() + '.';
         }

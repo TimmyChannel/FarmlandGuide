@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace FarmlandGuide.Helpers.Validators
 {
@@ -20,11 +15,7 @@ namespace FarmlandGuide.Helpers.Validators
         public string Message { get; }
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            if (value is null)
-                return new ValidationResult(Message);
-
-            return ValidationResult.Success;
-
+            return value is null ? new ValidationResult(Message) : ValidationResult.Success;
         }
     }
 }

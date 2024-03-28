@@ -1,30 +1,20 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
-using FarmlandGuide.Helpers.Messages;
-using FarmlandGuide.Views;
-using NLog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using CommunityToolkit.Mvvm.Messaging;
+using FarmlandGuide.Helpers.Messages;
+using MaterialDesignThemes.Wpf;
+using NLog;
+using NLog.Targets;
 
-namespace FarmlandGuide
+namespace FarmlandGuide.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, IRecipient<ErrorMessage>
     {
-        private static readonly Logger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         public MainWindow()
         {
@@ -34,40 +24,113 @@ namespace FarmlandGuide
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            _logger.Info("Logout");
-            IsNonCloseButtonClicked = true;
+            Logger.Info("Logout");
+            _isNonCloseButtonClicked = true;
             var authWindow = new AuthorizationWindow();
             authWindow.Show();
-            this.Close();
+            Close();
         }
 
-        private bool IsNonCloseButtonClicked;
+        private bool _isNonCloseButtonClicked;
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             try
             {
-                if (IsNonCloseButtonClicked)
+                if (_isNonCloseButtonClicked)
                 {
-                    if (e.Cancel)
-                    {
-                        _logger.Debug("Main window exit");
-                        IsNonCloseButtonClicked = false;
-                        return;
-                    }
+                    if (!e.Cancel) return;
+                    Logger.Debug("Main window exit");
+                    _isNonCloseButtonClicked = false;
                 }
                 else
                 {
                     e.Cancel = true;
-                    _logger.Debug("App shutdown from main window");
-                    App.Current.Shutdown();
+                    Logger.Debug("App shutdown from main window");
+                    Application.Current.Shutdown();
                 }
             }
             catch (Exception ex)
-{
-    _logger.Error(ex, "Something went wrong");
-    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
-}
+            {
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
+            }
+        }
+        public void Receive(ErrorMessage message)
+        {
+            try
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        // Создание StackPanel
+                        var stackPanel = new StackPanel
+                        {
+                            Margin = new Thickness(10),
+                            MaxWidth = 300
+                        };
+
+                        // Создание вложенного StackPanel
+                        var innerStackPanel = new StackPanel
+                        {
+                            Orientation = Orientation.Horizontal,
+                            Margin = new Thickness(5)
+                        };
+                        innerStackPanel.SetValue(Grid.ColumnSpanProperty, 2);
+
+                        // Добавление PackIcon во вложенный StackPanel
+                        var packIcon = new PackIcon
+                        {
+                            Kind = PackIconKind.AlertCircle,
+                            Margin = new Thickness(0, 0, 5, 0),
+                            VerticalAlignment = VerticalAlignment.Center
+                        };
+                        innerStackPanel.Children.Add(packIcon);
+
+                        // Добавление TextBlock во вложенный StackPanel
+                        var errorTextBlock = new TextBlock
+                        {
+                            Text = "Ошибка",
+                            Style = (Style)Application.Current.FindResource("MaterialDesignSubtitle1TextBlock")
+                        };
+                        innerStackPanel.Children.Add(errorTextBlock);
+
+                        // Добавление вложенного StackPanel в основной StackPanel
+                        stackPanel.Children.Add(innerStackPanel);
+
+                        // Добавление TextBlock
+                        var messageTextBlock = new TextBlock
+                        {
+                            Style = (Style)Application.Current.FindResource("MaterialDesignBody2TextBlock"),
+                            Text = message.Value,
+                            Margin = new Thickness(5, 10, 5, 10),
+                            TextWrapping = TextWrapping.Wrap
+                        };
+                        stackPanel.Children.Add(messageTextBlock);
+
+                        // Создание Button
+                        var button = new Button
+                        {
+                            Command = DialogHost.CloseDialogCommand,
+                            Content = "Ясно",
+                            IsCancel = true,
+                            Style = (Style)Application.Current.FindResource("MaterialDesignRaisedButton")
+                        };
+                        button.SetValue(Grid.RowProperty, 5);
+                        button.HorizontalAlignment = HorizontalAlignment.Center;
+                        button.VerticalAlignment = VerticalAlignment.Bottom;
+                        button.Margin = new Thickness(5, 10, 5, 10);
+
+
+                        // Добавление Button в StackPanel
+                        stackPanel.Children.Add(button);
+
+                        DialogHost.Show(stackPanel);
+                    });
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "Can`t display info about error to user");
+            }
         }
 
     }

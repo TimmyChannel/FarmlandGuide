@@ -5,37 +5,31 @@ using FarmlandGuide.Helpers.Messages;
 using FarmlandGuide.Helpers.Validators;
 using FarmlandGuide.Models;
 using Microsoft.EntityFrameworkCore;
-using NPOI.Util;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+using NLog;
+using NLog.Targets;
+using Enterprise = FarmlandGuide.Models.Entities.Enterprise;
+using ProductionProcess = FarmlandGuide.Models.Entities.ProductionProcess;
 
 namespace FarmlandGuide.ViewModels
 {
     public partial class ProcessesPageViewModel : ObservableValidator, IRecipient<EnterpriseTableUpdateMessage>
     {
-        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
-        [ObservableProperty] private bool _isEdit = false;
+        [ObservableProperty] private bool _isEdit;
 
         public ProcessesPageViewModel()
         {
-            _logger.Trace("ProcessesPageViewModel creating");
+            Logger.Trace("ProcessesPageViewModel creating");
             using var ctx = new ApplicationDbContext();
             ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             ProductionProcesses = new ObservableCollection<ProductionProcess>(ctx.ProductionProcesses);
             WeakReferenceMessenger.Default.RegisterAll(this);
             Enterprises = new ObservableCollection<Enterprise>(ctx.Enterprises);
-            _logger.Trace("ProcessesPageViewModel created");
+            Logger.Trace("ProcessesPageViewModel created");
         }
         public void Receive(EnterpriseTableUpdateMessage message)
         {
@@ -43,15 +37,15 @@ namespace FarmlandGuide.ViewModels
             {
                 using var ctx = new ApplicationDbContext();
                 ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-                _logger.Trace("Receiving EnterpriseTableUpdateMessage {0}", message.Value);
+                Logger.Trace("Receiving EnterpriseTableUpdateMessage {0}", message.Value);
                 Enterprises = new ObservableCollection<Enterprise>(ctx.Enterprises.ToList());
 
             }
             catch (Exception ex)
-{
-    _logger.Error(ex, "Something went wrong");
-    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
-}
+            {
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
+            }
         }
 
         [ObservableProperty] private string _titleText;
@@ -66,77 +60,56 @@ namespace FarmlandGuide.ViewModels
 
         public ObservableCollection<Enterprise> Enterprises
         {
-            get { return _enterprises; }
-            set
-            {
-                SetProperty(ref _enterprises, value, true);
-            }
+            get => _enterprises;
+            set => SetProperty(ref _enterprises, value, true);
         }
         public ProductionProcess? SelectedProductionProcess
         {
-            get { return _selectedProductionProcess; }
-            set
-            {
-                SetProperty(ref _selectedProductionProcess, value, true);
-            }
+            get => _selectedProductionProcess;
+            set => SetProperty(ref _selectedProductionProcess, value, true);
         }
 
-        [ShouldBeSelected("Необходимо выбрать пердприятие")]
+        [ShouldBeSelected("Необходимо выбрать предприятие")]
         public Enterprise? SelectedEnterprise
         {
-            get { return _selectedEnterprise; }
-            set
-            {
-                SetProperty(ref _selectedEnterprise, value, true);
-            }
+            get => _selectedEnterprise;
+            set => SetProperty(ref _selectedEnterprise, value, true);
         }
 
         public ObservableCollection<ProductionProcess> ProductionProcesses
         {
-            get { return _productionProcesses; }
-            set
-            {
-                SetProperty(ref _productionProcesses, value, true);
-            }
+            get => _productionProcesses;
+            set => SetProperty(ref _productionProcesses, value, true);
         }
 
         [NotEmpty]
         public string Name
         {
-            get { return _name; }
-            set
-            {
-                SetProperty(ref _name, value, true);
-            }
+            get => _name;
+            set => SetProperty(ref _name, value, true);
         }
 
         [NotEmpty]
         public string Description
         {
-            get { return _description; }
-            set
-            {
-                SetProperty(ref _description, value, true);
-            }
+            get => _description;
+            set => SetProperty(ref _description, value, true);
         }
         [LessOrEqualThenValidation(0)]
         public decimal Cost
         {
-            get { return _cost; }
-            set
-            {
-                SetProperty(ref _cost, value, true);
-            }
+            get => _cost;
+            set => SetProperty(ref _cost, value, true);
         }
 
         [RelayCommand]
-        private void OnApplayChangesAtProductionProcess()
+        private void OnApplyChangesAtProductionProcess()
         {
-            _logger.Debug("Initiated change application attempt");
+            Logger.Debug("Initiated change application attempt");
             ValidateAllProperties();
             if (HasErrors)
             {
-                _logger.Warn("Failed change application attempt. Data errors.");
+                Logger.Warn("Failed change application attempt. Data errors.");
                 return;
             }
 
@@ -151,7 +124,7 @@ namespace FarmlandGuide.ViewModels
         {
             try
             {
-                _logger.Trace("Closing dialog and clear all props");
+                Logger.Trace("Closing dialog and clear all props");
                 IsEdit = false;
                 Name = string.Empty;
                 Description = string.Empty;
@@ -163,56 +136,56 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-{
-    _logger.Error(ex, "Something went wrong");
-    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
-}
+            {
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
+            }
         }
         private void OnAddProductionProcess()
         {
             try
             {
-                _logger.Info("Addition new process");
+                Logger.Info("Addition new process");
                 using var ctx = new ApplicationDbContext();
-                var process = new ProductionProcess(Name.Trim(), Description.Trim(), Cost, SelectedEnterprise?.EnterpriseID ?? 1)
+                var process = new ProductionProcess(Name.Trim(), Description.Trim(), Cost, SelectedEnterprise?.EnterpriseId ?? 1)
                 {
-                    Enterprise = ctx.Enterprises.First(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID)
+                    Enterprise = ctx.Enterprises.First(e => e.EnterpriseId == SelectedEnterprise.EnterpriseId)
                 };
                 ctx.ProductionProcesses.Add(process);
                 ctx.SaveChanges();
                 ProductionProcesses.Add(process);
-                _logger.Info("Added new process: {0}", process.ToString());
+                Logger.Info("Added new process: {0}", process.ToString());
                 WeakReferenceMessenger.Default.Send(new ProductionProcessTableUpdate(process));
             }
             catch (Exception ex)
-{
-    _logger.Error(ex, "Something went wrong");
-    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
-}
+            {
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
+            }
         }
         private void OnEditProductionProcess()
         {
             try
             {
-                _logger.Info("Editing process");
+                Logger.Info("Editing process");
                 using var ctx = new ApplicationDbContext();
                 SelectedProductionProcess.Name = Name.Trim();
                 SelectedProductionProcess.Description = Description.Trim();
                 SelectedProductionProcess.Cost = Cost;
-                SelectedProductionProcess.Enterprise = ctx.Enterprises.First(e => e.EnterpriseID == SelectedEnterprise.EnterpriseID);
-                SelectedProductionProcess.EnterpriseID = SelectedEnterprise?.EnterpriseID ?? 1;
+                SelectedProductionProcess.Enterprise = ctx.Enterprises.First(e => e.EnterpriseId == SelectedEnterprise.EnterpriseId);
+                SelectedProductionProcess.EnterpriseId = SelectedEnterprise?.EnterpriseId ?? 1;
 
                 ctx.ProductionProcesses.Update(SelectedProductionProcess);
                 ctx.SaveChanges();
-                _logger.Info("Edited process: {0}", SelectedProductionProcess.ToString());
+                Logger.Info("Edited process: {0}", SelectedProductionProcess.ToString());
                 WeakReferenceMessenger.Default.Send(new ProductionProcessTableUpdate(SelectedProductionProcess));
 
             }
             catch (Exception ex)
-{
-    _logger.Error(ex, "Something went wrong");
-    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
-}
+            {
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
+            }
         }
 
         [RelayCommand]
@@ -220,7 +193,7 @@ namespace FarmlandGuide.ViewModels
         {
             try
             {
-                _logger.Info("Deleting process");
+                Logger.Info("Deleting process");
                 var closeDialogCommand = MaterialDesignThemes.Wpf.DialogHost.CloseDialogCommand;
                 if (SelectedProductionProcess is null)
                 {
@@ -231,17 +204,17 @@ namespace FarmlandGuide.ViewModels
                 ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                 ctx.ProductionProcesses.Remove(SelectedProductionProcess);
                 ctx.SaveChanges();
-                _logger.Info("Deleted process: {0}", SelectedProductionProcess.ToString());
+                Logger.Info("Deleted process: {0}", SelectedProductionProcess.ToString());
                 WeakReferenceMessenger.Default.Send(new ProductionProcessTableUpdate(SelectedProductionProcess));
                 ProductionProcesses.Remove(SelectedProductionProcess);
                 closeDialogCommand.Execute(null, null);
 
             }
             catch (Exception ex)
-{
-    _logger.Error(ex, "Something went wrong");
-    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
-}
+            {
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
+            }
         }
 
         [RelayCommand]
@@ -261,10 +234,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-{
-    _logger.Error(ex, "Something went wrong");
-    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
-}
+            {
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
+            }
         }
         [RelayCommand]
         private void OnOpenAddDialog()
@@ -282,10 +255,10 @@ namespace FarmlandGuide.ViewModels
 
             }
             catch (Exception ex)
-{
-    _logger.Error(ex, "Something went wrong");
-    WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
-}
+            {
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
+            }
         }
 
     }

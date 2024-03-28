@@ -1,10 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging.Messages;
-using FarmlandGuide.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Employee = FarmlandGuide.Models.Entities.Employee;
 
 namespace FarmlandGuide.Helpers.Messages
 {

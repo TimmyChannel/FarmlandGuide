@@ -4,22 +4,16 @@ using FarmlandGuide.Helpers.Messages;
 using FarmlandGuide.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Task = FarmlandGuide.Models.Task;
+using NLog;
+using NLog.Targets;
+using Employee = FarmlandGuide.Models.Entities.Employee;
+using Enterprise = FarmlandGuide.Models.Entities.Enterprise;
+using Task = FarmlandGuide.Models.Entities.Task;
 
 namespace FarmlandGuide.Views.Dialogs
 {
@@ -29,10 +23,10 @@ namespace FarmlandGuide.Views.Dialogs
     [ObservableObject]
     public partial class EmployeeFullInfoUserControl : UserControl
     {
-        private static readonly NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
 
         public static readonly DependencyProperty EmployeeProperty = DependencyProperty.Register(
-            "Employee",
+            nameof(Employee),
             typeof(Employee),
             typeof(EmployeeFullInfoUserControl));
         public EmployeeFullInfoUserControl()
@@ -50,7 +44,7 @@ namespace FarmlandGuide.Views.Dialogs
         [ObservableProperty] private decimal _fixedSalary;
         [ObservableProperty] private string _residentialAddress;
         [ObservableProperty] private string _enterpriseName;
-        [ObservableProperty] private int _tasksCountFromLastMonthSucces;
+        [ObservableProperty] private int _tasksCountFromLastMonthSuccess;
         [ObservableProperty] private int _tasksCountFromLastMonthInWork;
         [ObservableProperty] private int _tasksCountFromLastMonthFailed;
         [ObservableProperty] private decimal _calculatedSalary;
@@ -63,12 +57,11 @@ namespace FarmlandGuide.Views.Dialogs
         {
             try
             {
-                _logger.Trace("Full info user control loaded. Employee: {0}", Employee.ToString());
+                Logger.Trace("Full info user control loaded. Employee: {0}", Employee.ToString());
                 using var ctx = new ApplicationDbContext();
                 ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-                _enterprise = ctx.Enterprises.Find(Employee.EnterpriseID);
-                //_workSessions = new(ctx.WorkSessions.Where(ws => ws.EmployeeID == Employee.EmployeeID).ToList());
-                _tasks = new ObservableCollection<Task>(ctx.Tasks.Where(t => t.EmployeeID == Employee.EmployeeID).Include(t => t.ProductionProcess).Include(t => t.Status).ToList());
+                _enterprise = ctx.Enterprises.Find(Employee.EnterpriseId);
+                _tasks = new ObservableCollection<Task>(ctx.Tasks.Where(t => t.EmployeeId == Employee.EmployeeId).Include(t => t.ProductionProcess).Include(t => t.Status).ToList());
 
                 Debug.WriteLine($"Employee {Employee}");
                 FIO = Employee.ToString();
@@ -78,13 +71,13 @@ namespace FarmlandGuide.Views.Dialogs
                 ResidentialAddress = Employee.ResidentialAddress;
                 EnterpriseName = _enterprise.Name;
                 CalculateSalaryFromTasks();
-                _logger.Trace("Full info about employee: {0} loaded", Employee.ToString());
+                Logger.Trace("Full info about employee: {0} loaded", Employee.ToString());
 
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Something went wrong");
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
             }
 
         }
@@ -92,19 +85,19 @@ namespace FarmlandGuide.Views.Dialogs
         {
             try
             {
-                _logger.Trace("Start salary and tasks calculation");
+                Logger.Trace("Start salary and tasks calculation");
                 TasksCountFromLastMonthFailed = _tasks.Where(t => t.DueDate >= DateTime.Now.AddMonths(-1)).Count(t => t.Status.Number == 2);
-                TasksCountFromLastMonthSucces = _tasks.Where(t => t.DueDate >= DateTime.Now.AddMonths(-1)).Count(t => t.Status.Number == 1);
+                TasksCountFromLastMonthSuccess = _tasks.Where(t => t.DueDate >= DateTime.Now.AddMonths(-1)).Count(t => t.Status.Number == 1);
                 TasksCountFromLastMonthInWork = _tasks.Count(t => t.Status.Number == 0);
                 CalculatedSalary = _tasks.Where(t => t.Status.Number == 1 && t.DueDate >= DateTime.Now.AddMonths(-1)).Sum(t => t.ProductionProcess.Cost);
-                _logger.Trace("Complete salary and tasks calculation.\n" +
-                    "Task count: failed - {0}, success - {1}, in work - {2}. Calculated salary - {3}", TasksCountFromLastMonthFailed, TasksCountFromLastMonthSucces, TasksCountFromLastMonthInWork, CalculatedSalary);
+                Logger.Trace("Complete salary and tasks calculation.\n" +
+                    "Task count: failed - {0}, success - {1}, in work - {2}. Calculated salary - {3}", TasksCountFromLastMonthFailed, TasksCountFromLastMonthSuccess, TasksCountFromLastMonthInWork, CalculatedSalary);
 
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Something went wrong");
-                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне последний файл из папки /Logs/ \n Текст ошибки: {ex.Message}"));
+                Logger.Error(ex, "Something went wrong");
+                WeakReferenceMessenger.Default.Send(new ErrorMessage($"Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
             }
 
         }

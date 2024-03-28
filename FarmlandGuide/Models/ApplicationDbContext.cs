@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FarmlandGuide.Models.Entities;
+﻿using FarmlandGuide.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace FarmlandGuide.Models
 {
-    public partial class ApplicationDbContext : DbContext
+    public sealed class ApplicationDbContext : DbContext
     {
-        public virtual DbSet<ProductionProcess> ProductionProcesses { get; set; } = null!;
-        public virtual DbSet<Enterprise> Enterprises { get; set; } = null!;
-        public virtual DbSet<WorkSession> WorkSessions { get; set; } = null!;
-        public virtual DbSet<Employee> Employees { get; set; } = null!;
-        public virtual DbSet<Role> Roles { get; set; } = null!;
-        public virtual DbSet<Task> Tasks { get; set; } = null!;
-        public virtual DbSet<Status> Statuses { get; set; } = null!;
+        public DbSet<ProductionProcess> ProductionProcesses { get; set; } = null!;
+        public DbSet<Enterprise> Enterprises { get; set; } = null!;
+        public DbSet<WorkSession> WorkSessions { get; set; } = null!;
+        public DbSet<Employee> Employees { get; set; } = null!;
+        public DbSet<Role> Roles { get; set; } = null!;
+        public DbSet<Task> Tasks { get; set; } = null!;
+        public DbSet<Status> Statuses { get; set; } = null!;
         public ApplicationDbContext() => Database.EnsureCreated();
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
 : base(options)
@@ -40,7 +34,7 @@ namespace FarmlandGuide.Models
 
             modelBuilder.Entity<Employee>(entity =>
             {
-                entity.HasKey(e => e.EmployeeID);
+                entity.HasKey(e => e.EmployeeId);
                 entity.HasOne(e => e.Enterprise).WithMany(e => e.Employees);
                 entity.HasMany(e => e.Tasks).WithOne(t => t.Employee);
                 entity.HasMany(e => e.WorkSessions).WithOne(ws => ws.Employee);
@@ -49,40 +43,40 @@ namespace FarmlandGuide.Models
 
             modelBuilder.Entity<Enterprise>(entity =>
             {
-                entity.HasKey(e => e.EnterpriseID);
+                entity.HasKey(e => e.EnterpriseId);
                 entity.HasMany(e => e.Employees).WithOne(e => e.Enterprise);
                 entity.HasMany(e => e.ProductionProcesses).WithOne(pp => pp.Enterprise);
             });
 
             modelBuilder.Entity<ProductionProcess>(entity =>
             {
-                entity.HasKey(e => e.ProcessID);
+                entity.HasKey(e => e.ProcessId);
                 entity.HasMany(pp => pp.Tasks).WithOne(t => t.ProductionProcess);
                 entity.HasOne(p => p.Enterprise).WithMany(e => e.ProductionProcesses);
             });
 
             modelBuilder.Entity<Role>(entity =>
             {
-                entity.HasKey(r => r.RoleID);
+                entity.HasKey(r => r.RoleId);
                 entity.HasMany(r => r.Employees).WithOne(e => e.Role);
             });
 
             modelBuilder.Entity<Task>(entity =>
             {
-                entity.HasKey(t => t.TaskID);
+                entity.HasKey(t => t.TaskId);
                 entity.HasOne(t => t.Employee).WithMany(e => e.Tasks);
                 entity.HasOne(t => t.ProductionProcess).WithMany(pc => pc.Tasks);
                 entity.HasOne(t => t.Status).WithMany(s => s.Tasks);
             });
             modelBuilder.Entity<Status>(entity =>
             {
-                entity.HasKey(s => s.StatusID);
+                entity.HasKey(s => s.StatusId);
                 entity.HasMany(s => s.Tasks).WithOne(t => t.Status);
             });
 
             modelBuilder.Entity<WorkSession>(entity =>
             {
-                entity.HasKey(ws => ws.SessionID);
+                entity.HasKey(ws => ws.SessionId);
                 entity.HasOne(ws => ws.Employee).WithMany(e => e.WorkSessions).OnDelete(DeleteBehavior.Cascade);
             });
 
