@@ -349,8 +349,9 @@ namespace FarmlandGuide.ViewModels
                 }
                 TitleText = "Редактирование задания";
                 ButtonApplyText = "Сохранить";
-                DueDate = SelectedTask.DueDate;
+                _endDate=DateTime.MaxValue;
                 AssignmentDate = SelectedTask.AssignmentDate;
+                DueDate = SelectedTask.DueDate;
                 Description = SelectedTask.Description;
                 SelectedEmployee = SelectedTask.Employee.Copy();
                 SelectedProductionProcess = SelectedTask.ProductionProcess.Copy();
