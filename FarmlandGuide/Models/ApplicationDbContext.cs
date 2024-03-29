@@ -24,7 +24,7 @@ namespace FarmlandGuide.Models
 #if DEBUG
             optionsBuilder.UseSqlite("Data Source=FarmlandGuide2.db");
 #else
-            optionsBuilder.UseSqlite("Data Source=FarmlandGuide.ctx");
+            optionsBuilder.UseSqlite("Data Source=FarmlandGuide.db");
 #endif
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)

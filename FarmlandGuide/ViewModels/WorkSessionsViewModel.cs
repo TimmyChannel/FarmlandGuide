@@ -323,10 +323,12 @@ namespace FarmlandGuide.ViewModels
                 }
                 TitleText = "Редактирование рабочей сессии";
                 ButtonApplyText = "Сохранить";
-                EndDate = SelectedWorkSession.EndDateTime.Date;
+                _endDate=DateTime.MaxValue;;
+                _endTime=DateTime.MaxValue;;
                 StartDate = SelectedWorkSession.StartDateTime.Date;
-                EndTime = new DateTime(1, 1, 1, SelectedWorkSession.EndDateTime.Hour, SelectedWorkSession.EndDateTime.Minute, 0);
                 StartTime = new DateTime(1, 1, 1, SelectedWorkSession.StartDateTime.Hour, SelectedWorkSession.StartDateTime.Minute, 0);
+                EndTime = new DateTime(1, 1, 1, SelectedWorkSession.EndDateTime.Hour, SelectedWorkSession.EndDateTime.Minute, 0);
+                EndDate = SelectedWorkSession.EndDateTime.Date;
                 ActionType = SelectedWorkSession.Type;
                 SelectedEmployee = SelectedWorkSession.Employee;
                 IsEdit = true;

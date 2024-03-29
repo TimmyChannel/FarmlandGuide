@@ -26,7 +26,7 @@ namespace FarmlandGuide.ViewModels
             Logger.Trace("ProcessesPageViewModel creating");
             using var ctx = new ApplicationDbContext();
             ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-            ProductionProcesses = new ObservableCollection<ProductionProcess>(ctx.ProductionProcesses);
+            ProductionProcesses = new ObservableCollection<ProductionProcess>(ctx.ProductionProcesses.Include(pp => pp.Enterprise));
             WeakReferenceMessenger.Default.RegisterAll(this);
             Enterprises = new ObservableCollection<Enterprise>(ctx.Enterprises);
             Logger.Trace("ProcessesPageViewModel created");
@@ -39,6 +39,7 @@ namespace FarmlandGuide.ViewModels
                 ctx.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                 Logger.Trace("Receiving EnterpriseTableUpdateMessage {0}", message.Value);
                 Enterprises = new ObservableCollection<Enterprise>(ctx.Enterprises.ToList());
+                ProductionProcesses = new ObservableCollection<ProductionProcess>(ctx.ProductionProcesses.Include(pp => pp.Enterprise));
 
             }
             catch (Exception ex)

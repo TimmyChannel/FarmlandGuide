@@ -4,12 +4,15 @@ using FarmlandGuide.Models;
 using System;
 using System.Linq;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using FarmlandGuide.Helpers.Validators;
 using NPOI.Util;
 using FarmlandGuide.Helpers;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
 using FarmlandGuide.Helpers.Messages;
+using FarmlandGuide.Models.Reports;
+using Microsoft.Win32;
 using NLog;
 using NLog.Targets;
 using Employee = FarmlandGuide.Models.Entities.Employee;
@@ -391,9 +394,26 @@ namespace FarmlandGuide.ViewModels
         #endregion
 
         [RelayCommand]
-        private void OnPrintReport()
+        private async Task OnPrintReport() => await Task.Run(() =>
         {
-            WeakReferenceMessenger.Default.Send(new ErrorMessage("Отправьте мне этот файл:  {((FileTarget)LogManager.Configuration.AllTargets[1]).FileName} \n Текст ошибки: {ex.Message}"));
-        }
+            WeakReferenceMessenger.Default.Send(new WaitProcessMessage(true));
+            SaveFileDialog saveFileDialog = new()
+            {
+                Filter = "Файл Excel (*.xlsx)|*.xlsx",
+                Title = "Выберите куда сохранить файл"
+            };
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                var path = saveFileDialog.FileName;
+                Logger.Trace("The dialog box is closed. The path is received: {0}", path);
+                EmployeesWorkSessionsReportGenerator.GenerateReportToExcel(path);
+                Logger.Info("Report on enterprise tasks saved to {path}", path);
+            }
+            else
+            {
+                Logger.Trace("The dialog box is closed. Path not received");
+            }
+            WeakReferenceMessenger.Default.Send(new WaitProcessMessage(false));
+        });
     }
 }
