@@ -1,3 +1,9 @@
-Login/Validation
-![image](https://github.com/TimmyChannel/FarmlandGuide/assets/97641074/a6bef56d-91d1-46f2-8686-607975f8d7c8) ![image](https://github.com/TimmyChannel/FarmlandGuide/assets/97641074/990ac438-a985-44a3-be9c-64eae49496c9)
+# Что такое Farmland Guide?
+Это информационная система для работы с фермерскими предприятиями, управления процессов на них, а также для учёта сотрудников и их зарплат. Проект написан на WPF с использованием библиотек MaterialDesignInXamlToolkit для дизайна интерфейса, MVVMCommunityToolkit и EF Core 7.17 для бизнес-логики.
+## Возможности
+При открытии приложения вас встречает окно входа. По умолчанию существует пользователь с логином admin и паролем AdministratorPassword34, других пользователей можно настраивать уже после входа в систему, от имени администратора.
 
+
+Валидация данных происходит в режиме реального времени.
+
+![Validation](https://github.com/TimmyChannel/FarmlandGuide/assets/97641074/95795bc4-453a-4d64-89c7-d4ba5b318a5a)
