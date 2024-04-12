@@ -230,11 +230,6 @@ namespace FarmlandGuide.ViewModels
             try
             {
                 Logger.Info("Addition new employee");
-                if (SelectedEmployee is null)
-                {
-                    Logger.Warn("Selected employee is null");
-                    return;
-                }
                 using var ctx = new ApplicationDbContext();
                 var salt = PasswordManager.GenerateSalt();
                 var passwordHash = PasswordManager.HashPassword(Password, salt);

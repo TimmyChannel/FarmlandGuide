@@ -238,8 +238,9 @@ namespace FarmlandGuide.ViewModels
                     StartDateTime = StartDate.Add(StartTime.TimeOfDay),
                     EndDateTime = EndDate.Add(EndTime.TimeOfDay),
                     Type = ActionType.Trim(),
-                    Employee = ctx.Employees.First(e => e.EmployeeId == SelectedEmployee.EmployeeId),
                 };
+                var employee = ctx.Employees.First(e => e.EmployeeId == SelectedEmployee.EmployeeId);
+                session.Employee = employee;
                 ctx.WorkSessions.Add(session);
                 ctx.SaveChanges();
                 Logger.Info("Added new session: {0}", session.ToString());
@@ -298,7 +299,7 @@ namespace FarmlandGuide.ViewModels
                 ctx.WorkSessions.Remove(SelectedWorkSession);
                 ctx.SaveChanges();
                 WeakReferenceMessenger.Default.Send(new WorkSessionDeleteMessage(SelectedWorkSession));
-                Logger.Info("Deleted session: {0}", SelectedEmployee.ToString());
+                Logger.Info("Deleted session: {0}", SelectedWorkSession.ToString());
                 WorkSessions.Remove(SelectedWorkSession);
                 closeDialogCommand.Execute(null, null);
 

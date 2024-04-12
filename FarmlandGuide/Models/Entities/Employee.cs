@@ -47,49 +47,8 @@ namespace FarmlandGuide.Models.Entities
             PasswordSalt = passwordSalt;
             EnterpriseId = enterpriseId;
             RoleId = roleId;
-            PropertyChanging += Employee_PropertyChanging;
-            PropertyChanged += Employee_PropertyChanged;
         }
 
-        private void Employee_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(Enterprise):
-                    if (Enterprise is null) break;
-                    Enterprise.PropertyChanged += Enterprise_PropertyChanged;
-                    break;
-                case nameof(Role):
-                    if (Role is null) break;
-                    Role.PropertyChanged += Role_PropertyChanged;
-                    break;
-            }
-        }
-
-        private void Employee_PropertyChanging(object? sender, PropertyChangingEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(Enterprise):
-                    if (Enterprise is null) break;
-                    Enterprise.PropertyChanged -= Enterprise_PropertyChanged;
-                    break;
-                case nameof(Role):
-                    if (Role is null) break;
-                    Role.PropertyChanged -= Role_PropertyChanged;
-                    break;
-            }
-        }
-
-        private void Role_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            OnPropertyChanged(nameof(Role));
-        }
-
-        private void Enterprise_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            OnPropertyChanged(nameof(Enterprise));
-        }
         public override string ToString()
         {
             return Surname + " " + Name + " " + Patronymic;

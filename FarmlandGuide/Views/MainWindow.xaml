@@ -28,7 +28,7 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <materialDesign:DialogHost>
+    <materialDesign:DialogHost x:Name="HostDialogs">
 
         <Grid>
             <Grid.RowDefinitions>

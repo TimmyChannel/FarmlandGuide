@@ -62,6 +62,7 @@ namespace FarmlandGuide.Views
             {
                 Application.Current.Dispatcher.Invoke(() =>
                     {
+                        HostDialogs.CurrentSession?.Close();
                         // Создание StackPanel
                         var stackPanel = new StackPanel
                         {
